@@ -1,0 +1,231 @@
+--------------------------------------------------------------------
+            Building and installing Ipe on Unix
+--------------------------------------------------------------------
+
+Quickstart
+----------
+
+If you have a recent Ubuntu or Debian system, the following steps
+should compile and install Ipe into /usr/local:
+
+    sudo apt-get install zlib1g-dev libqt4-dev
+    sudo apt-get install libfreetype6-dev libcairo2-dev 
+    sudo apt-get install liblua5.1-0-dev gsfonts
+    cd src
+    make IPEPREFIX=/usr/local
+    sudo make install IPEPREFIX=/usr/local
+    sudo cp ../fontmaps/gsfonts-fontmap.xml \
+    	    /usr/local/share/ipe/7.x.y/fontmap.xml
+    sudo ldconfig
+
+Where 7.x.y has to be replaced by the current Ipe version.
+The last line (ldconfig) may not be necessary, but can't hurt either.
+
+If you do not have such a system or this doesn't work for you, please
+read on!
+
+--------------------------------------------------------------------
+
+
+Required components
+-------------------
+
+Before you can compile Ipe, you will need to have the following tools
+and libraries:
+
+ * GNU make
+
+   The Ipe makefiles are written for GNU make.  A Linux system will
+   already have it.  On other Unix systems, GNU make is often
+   installed as 'gmake'.  Otherwise, install it yourself from
+   www.gnu.org. 
+
+ * The compression library 'zlib'
+
+   Very likely you already have it on your system (check for the
+   include file "zlib.h").  If not, obtain it from "www.gzip.org/zlib"
+   and install it.
+
+ * The font library 'Freetype 2'
+
+   On Linux, you most likely already have this on your system.  You
+   will need the development package (on Debian/Ubuntu, this is
+   "libfreetype6-dev").  
+   The original sources are at "www.freetype.org".  You need version
+   2.1.8 or newer.
+
+ * The Cairo library
+
+   The Gnome desktop uses this high-quality rendering library, so you
+   may already have it.  You will need the development package,
+   e.g. on Debian/Ubuntu "libcairo2-dev".  
+
+   You can also install from sources at "www.cairographics.org".  If
+   you compile Cairo yourself, note that you only need the image and
+   svg surfaces (backends).  You also need freetype support, but no
+   fontconfig (Cairo 1.8 does not support freetype without fontconfig,
+   but 1.10 will).  Since Ipe does not need any platform-dependent
+   backends, Cairo should compile fine on any platform.  You need at
+   least version 1.8.0.
+
+ * The Lua language
+
+   Lua is an embeddable scripting language. On Debian/Ubuntu, install
+   "liblua5.1-0-dev".  Or compile from source at "www.lua.org" - the
+   sources are ANSI C and compile very easily.  Ipe requires Lua 5.1.
+
+ * The Qt toolkit
+
+   On Linux, you most likely already have it, otherwise you can find
+   the sources at "qt.nokia.com".  You only need the QtCore and
+   QtGui libraries.  On Debian/Ubuntu, you would need "libqt4-dev".
+
+   If possible, use Qt 4.5 or higher.  Ipe compiles with Qt 4.4, but
+   there is at least one problem: shortcuts consisting of a letter
+   only (e.g. "d" for "duplicate") do not work.  Ipe may not compile
+   with Qt 4.3 or earlier.
+
+ * The 14 standard Postscript fonts
+
+   If you create text objects using the 14 standard Postscript fonts
+   (Times, Helvetica, Courier) the font doesn't need to be embedded in
+   the PDF file. Still, Ipe needs access to the font to display it on
+   the screen, and that's why you need to provide these 14 font files.
+
+   The path of least resistance would be to download the fonts as
+   "urw-fonts.zip" from the same place where you got Ipe.  Use the
+   supplied file "urw-fontmap.xml" as the fontmap for these fonts (see
+   below for installation of the fontmap).
+
+   However, very likely you have these fonts already on your system,
+   for instance in "/usr/share/fonts/type1/gsfonts/" under the names:
+
+   n019003l.pfb n019004l.pfb n019023l.pfb n019024l.pfb n021003l.pfb
+   n021004l.pfb n021023l.pfb n021024l.pfb n022003l.pfb n022004l.pfb
+   n022023l.pfb n022024l.pfb s050000l.pfb d050000l.pfb
+
+   Identical fonts may also be in subdirectories of
+   "/usr/share/texmf/fonts/type1/urw" or
+   "/usr/share/texmf-texlive/fonts/type1/urw", under the names
+   
+   ucrb8a.pfb ucrbo8a.pfb ucrr8a.pfb ucrro8a.pfb uhvb8a.pfb
+   uhvbo8a.pfb uhvr8a.pfb uhvro8a.pfb usyr.pfb utmb8a.pfb utmbi8a.pfb
+   utmr8a.pfb utmri8a.pfb uzdr.pfb
+
+   Your system may have a fontmap file describing all the fonts on the
+   system in XML-format, similar to the supplied files
+   "gsfonts-fontmap.xml" and "texlive-fontmap.xml".  If so, Ipe can
+   directly read this file and find the fonts, and all you need to do
+   is to provide the path to the fontmap.
+
+   If not, one of the supplied fontmaps may already be correct.  On
+   Debian/Ubuntu, "gsfonts-fontmap.xml" should be correct if you have
+   the "gsfonts" package installed.
+
+   Otherwise you can check for the location of the necessary files,
+   and create your own fontmap.  If you use relative paths in the
+   fontmap, they are interpreted relative to the directory containing
+   the fontmap file.
+
+ * Pdflatex
+
+   Ipe uses Pdflatex, a PDF-producing version of Latex, to convert
+   Latex source code to Postscript/PDF.  Every modern TeX installation
+   includes it.
+
+
+Configuring and building Ipe
+----------------------------
+
+There are some pieces of information you need to provide to the Ipe
+build process by editing "src/config.mak" (in many cases you can also
+just give the definitions on the make command line, see below).
+
+You first have to indicate the location of the required components
+listed above.  On Linux, you probably have a correctly working
+pkg-config script, and the default settings should work.
+
+Second, you have to define the Ipe directory structure.  Normally, you
+would only need to define IPEPREFIX properly, depending on where you
+want Ipe to be installed.
+
+Indicate in IPEFONTMAP the path for "fontmap.xml" (if you are using a
+system fontmap, indicate the correct path; if you are using/making one
+specifically for Ipe place the fontmap in this location).
+
+These steps will then build Ipe:
+
+     cd src
+     make
+     make install
+
+Instead of editing "src/config.mak", you can also set the variables in
+the make call, e.g.:
+
+    cd src
+    make IPEPREFIX=/usr IPEFONTMAP=/etc/ipe/fontmap.xml
+    sudo make install IPEPREFIX=/usr
+
+You may need to do "make install" as root (depending on whether you
+have write permission to the installation location).
+
+
+Installing a fontmap
+--------------------
+
+If you have made a "fontmap.xml" for Ipe, move it into the location
+you specified in "config.mak".  In case you are using "urw-fonts.zip",
+move "urw-fontmap.xml" to "IPEPREFIX/share/ipe/IPEVERS/fontmap.xml",
+and unpack the 14 fonts from "urw-fonts.zip" into
+"IPEPREFIX/share/ipe/IPEVERS/fonts" (assuming you haven't changed the
+standard definition of IPEFONTMAP).  Note that "make install" DOES NOT
+install any fontmap - you have to do this one step manually.
+
+
+Dynamic linking
+---------------
+
+Note that the Ipe library is a shared library, and so your dynamic
+linker has to find "libipe.so".  If you have chosen a standard library
+directory for IPELIBDIR, saying "sudo ldconfig" will be enough to run
+Ipe.
+
+If you installed in a different location, such as "/opt/ipe-7.0", you
+can make a small script called "ipe" like the following, and put it in
+your path:
+
+#!/bin/sh
+export LD_LIBRARY_PATH="/opt/ipe-7.0/lib/:$LD_LIBRARY_PATH"
+/opt/ipe-7.0/bin/ipe $* &
+
+Alternatively, you could put links to the library in a standard
+location:
+
+    sudo ln -f -s IPELIBDIR/lib* /usr/lib
+    sudo ldconfig
+
+
+
+Setting up the Lua "ipe" module
+-------------------------------
+
+Ipe comes with a module that allows you to open Ipe documents and
+modify their contents from the Lua language.  If you wish to write or
+use Lua scripts that do this, you should setup Lua so that the Lua
+line
+
+require "ipe" 
+
+will load the Ipelib bindings into Lua.   This is done by placing a
+DLL called "ipe.so" onto the Lua C search path.  The following command
+will print out this search path:
+
+lua -e "print(package.cpath)"
+
+Place a symbolic link to the library "libipelua.so" that you built
+earlier on this path, but with the name "ipe.so".  For instance, if
+Ipe was installed into /usr/local, the link could be:
+
+ln -s /usr/local/lib/libipelua.so /usr/local/lib/lua/5.1/ipe.so
+
+--------------------------------------------------------------------

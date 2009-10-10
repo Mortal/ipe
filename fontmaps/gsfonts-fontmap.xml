@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<fontmap>
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n019003l.pfb" name="Helvetica" fullname="Helvetica Regular" familyname="Helvetica" weight="Regular" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n019004l.pfb" name="Helvetica-Bold" fullname="Helvetica Bold" familyname="Helvetica" weight="Bold" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n019023l.pfb" name="Helvetica-Oblique" fullname="Helvetica Regular Italic" familyname="Helvetica" weight="Regular" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n019024l.pfb" name="Helvetica-BoldOblique" fullname="Helvetica Bold Italic" familyname="Helvetica" weight="Bold" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n021003l.pfb" name="Times-Roman" fullname="Times Regular" familyname="Times" weight="Regular" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n021004l.pfb" name="Times-Bold" fullname="Times Medium" familyname="Times" weight="Bold" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n021023l.pfb" name="Times-Italic" fullname="Times Regular Italic" familyname="Times" weight="Regular" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n021024l.pfb" name="Times-BoldItalic" fullname="Times Medium Italic" familyname="Times" weight="Bold" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n022003l.pfb" name="Courier" fullname="Courier Regular" familyname="Courier" weight="Regular" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n022004l.pfb" name="Courier-Bold" fullname="Courier Bold" familyname="Courier" weight="Bold" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n022023l.pfb" name="Courier-Oblique" fullname="Courier Regular Oblique" familyname="Courier" weight="Regular" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/n022024l.pfb" name="Courier-BoldOblique" fullname="Courier Bold Oblique" familyname="Courier" weight="Bold" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/s050000l.pfb" name="Symbol" fullname="Symbol" familyname="Symbol" weight="Regular" />
+  <font format="type1" glyphs="/usr/share/fonts/type1/gsfonts/d050000l.pfb" name="ZapfDingbats" fullname="ZapfDingbats" familyname="ZapfDingbats" weight="Regular" />
+</fontmap>

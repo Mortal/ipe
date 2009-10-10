@@ -1,0 +1,38 @@
+# --------------------------------------------------------------------
+# Makefile for kgon ipelet
+# --------------------------------------------------------------------
+
+IPESRCDIR = ../..
+OBJDIR = $(BUILDDIR)/obj/ipelets
+DEPEND = $(OBJDIR)/kgon.depend
+include ../../common.mak
+
+TARGET = $(call ipelet_target,kgon)
+LUASCRIPT = kgon.lua
+
+CPPFLAGS += -I../../include
+LIBS += -L$(buildlib) -lipe
+CXXFLAGS += $(DLL_CFLAGS)
+
+all: $(TARGET)
+
+sources	= kgon.cpp
+
+$(TARGET): $(objects)
+	$(MAKE_IPELETDIR)
+	$(CXX) $(LDFLAGS) $(DLL_LDFLAGS) -o $@ $^ $(LIBS)
+
+clean:
+	@-rm -f $(objects) $(TARGET) $(DEPEND)
+
+$(DEPEND): Makefile
+	$(MAKE_DEPEND)
+
+-include $(DEPEND)
+
+install: $(TARGET)
+	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPELETDIR)
+	$(INSTALL_PROGRAMS) $(INSTALL_ROOT)$(IPELETDIR) $(TARGET)
+	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPELETDIR) $(LUASCRIPT)
+
+# --------------------------------------------------------------------

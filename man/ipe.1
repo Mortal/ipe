@@ -1,0 +1,79 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invoke bold face and italics, 
+.\" respectively.
+.TH IPE 1 "September 29, 2009"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+ipe \- drawing editor for creating figures in PDF or EPS formats
+.SH SYNOPSIS
+.B ipe
+[ \fIQt options\fP ] [ -sheet \fIstylesheet\fP ] \fIfilename\fP
+
+.SH DESCRIPTION
+
+Ipe is a program that supports making small figures for inclusion into
+LaTeX documents as well as making multi-page PDF presentations.
+
+.PP
+This manual page only documents the command line options and
+environment variables.  Full documentation for using Ipe can be found
+in HTML and PDF format; see below.
+
+.TP
+\fB\-sheet\fR \fIstylesheet\fP
+add the Ipe style sheet in the indicated file to all newly created Ipe
+documents.
+
+.SH ENVIRONMENT VARIABLES
+
+Ipe respects the following environment variables:
+
+.TP
+\fBIPELATEXDIR\fP
+the directory where Ipe runs Pdflatex.
+
+.TP
+\fBIPEFONTMAP\fP
+the complete path of the font map, describing where Ipe can find the
+14 standard PDF fonts.
+
+.TP
+\fBIPEDEBUG\fP
+set this to 1 for debugging output.
+
+.TP
+\fBIPEDOCDIR\fP
+the directory containing the Ipe documentation.
+
+.TP
+\fBIPELETPATH\fP
+a list of directories where Ipe looks for ipelets. Directories are
+separated by ":" on Unix, and by ";" on Windows.
+
+.SH AUTHOR
+Otfried Cheong
+
+.SH REPORTING BUGS
+.ad l
+Please report bugs using Ipe bugzilla at
+.I "http://tclab.kaist.ac.kr/ipe/bugzilla.html"
+
+.SH SEE ALSO
+.ad l
+Ipe is documented fully in
+.IR "The Ipe Manual". 

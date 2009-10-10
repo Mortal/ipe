@@ -1,0 +1,103 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+.TH IPETOIPE 1 "June 27, 2009"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+ipetoipe \- Convert between Ipe file formats
+.SH SYNOPSIS
+.B ipetoipe
+( -pdf | -eps | -xml ) { options } \fIinput-file\fP [ \fIoutput-file\fP ]
+
+.SH DESCRIPTION
+.PP
+\fBipetoipe\fP converts between the three Ipe file formats XML, PDF,
+and EPS.   Options are:
+.TP
+\fB-pdf\fP
+convert to PDF format
+.TP
+\fB-eps\fP
+convert to EPS (encapsulated Postscript) format
+.TP
+\fB-xml\fP
+convert to XML format
+.TP
+\fB-export\fP
+do not include Ipe markup in the output file.
+.br
+\fIWarning:\fP this means that Ipe will not be able to read the
+resulting output file. 
+.TP
+\fB-pages\fP \fIfrom\fP-\fIto\fP
+restrict exporting to PDF to this page range.  This implies  the
+\fB-export\fP option. 
+.TP
+\fB-view\fP \fIpage\fP-\fIview\fP
+only export this single view from the document.  This implies  the
+\fB-export\fP option. 
+.TP
+\fB-lastview\fP
+create a Postscript/PDF page only for the last view of each Ipe page.
+This is for instance convenient for making handouts for slides used in
+a presentation. 
+.TP
+\fB-runlatex\fP
+run Latex even for XML output. This has the effect of including the
+dimensions of each text object in the XML file.
+.TP
+\fB-nocolor\fP
+do not use any color commands in Postscript output.  This is useful if
+you are preparing a manuscript for publication where the publisher
+checks that the figures are grayscale only.  Note that this option
+doesn't actually verify that the figure contains no color (a figure
+using color processed with this option will cause a Postscript error
+when displayed).
+.TP
+\fB-nozip\fP
+do not compress streams in PDF or Postscript output.
+.TP
+\fB-styleupdate\fP
+update all style sheets in the document from external style sheet
+files in the current directory.  The external file's name must
+match the name of the style sheet and have the extension 'isy'.
+
+.SH ENVIRONMENT VARIABLES
+
+\fBipetoipe\fP respects the following environment variables:
+
+.TP
+\fBIPELATEXDIR\fP
+the directory where \fBipetoipe\fP runs Pdflatex.
+
+.TP
+\fBIPEDEBUG\fP
+set this to 1 for debugging output.
+
+.SH AUTHOR
+Otfried Cheong
+
+.SH REPORTING BUGS
+.ad l
+Please report bugs using Ipe bugzilla at
+.I "http://tclab.kaist.ac.kr/ipe/bugzilla.html"
+
+.SH SEE ALSO
+.ad l
+More information about Ipe can be found in  
+.IR "The Ipe Manual".
