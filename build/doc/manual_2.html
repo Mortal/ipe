@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: manual.tex
+     using Hyperlatex v 2.6 (c) Otfried Cheong
+     on Emacs 22.2.1, Sat Oct 10 22:29:25 2009 -->
+<head>
+<title>Ipe Manual -- 2 About Ipe files</title>
+
+<style type="text/css">
+.maketitle { text-align : center }
+div.abstract { margin-left: 20%; margin-right: 10%; }
+h3.abstract  { text-align : center }
+div.verse, div.quote, div.quotation {
+  margin-left : 10%; 
+  margin-right : 10%;
+}
+</style>
+
+<link rel="stylesheet"
+        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#ffffe6">
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_3.html"><img border="0" alt="3 General Concepts" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_1.html"><img border="0" alt="1 Introduction" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>2 About Ipe files</b></td></tr></table>
+<h1>2 About Ipe files</h1>
+
+<p>Ipe&nbsp;7 creates (Encapsulated) Postscript or PDF files.  These files can
+be used in any way that PDF or Postscript files are used, such as
+viewed with Ghostview, with Acrobat Reader or Xpdf, edited with
+Acrobat, or included in Latex/Pdflatex documents.  However, Ipe cannot
+read arbitrary Postscript or PDF files, only files it has created
+itself.  This is because files created by Ipe contain a special hidden
+stream that describes the Ipe objects.  (So if you edit your
+Ipe-generated PDF file in a different program such as Adobe Acrobat,
+Ipe will not be able to read the file again afterwards.)
+<p>You decide in what format to store a figure when saving it for the
+first time. Ipe gives you the option of saving with extensions "eps"
+(Encapsulated Postscript), "pdf" (PDF), and "ipe" (XML).  Only
+documents consisting of a single page can be stored in Encapsulated
+Postscript format, as this format doesn't support multi-page
+documents.  Files saved with extension "ipe" are XML files and
+contain no Postscript of PDF information.  The precise XML format used
+by Ipe is documented <a href="manual_40.html">later in this manual</a>.  XML files
+can be read by any XML-aware parser, and it is easy for other programs
+to generate XML output to be read by Ipe.  You probably don't want to
+keep your figures in XML format, but it is excellent for communicating
+with other programs, and for converting figures between programs.
+<p>There are a few interesting uses for Ipe documents:
+
+<h4><a name="id1">Figures for Latex documents.</a></h4>
+Ipe was originally written to make it easy to make figures for Latex
+documents.  If you are not familiar with including figures in Latex,
+you can find details <a href="manual_46.html">here</a>.  
+
+<h4><a name="id2">Presentations.</a></h4>
+Ipe is not a presentation tool like Powerpoint or Keynote.  An Ipe
+presentation is simply a PDF file that has been created by Ipe, and
+which you present during your talk using, say, Acrobat Reader on a
+beamer. The <a href="manual_28.html">chapter on presentations</a>
+explains Ipe features meant for making presentations.
+
+<h4><a name="id3">SVG files.</a></h4>
+Figures in SVG format can be used to include scalable figures in web
+pages.  Ipe does not save in SVG format directly, but the tool
+"iperender" allows you to convert an Ipe document to SVG format.
+The conversion is one-way only at this point.
+
+<h4><a name="id4">Bitmaps.</a></h4>
+Sometimes Ipe can be useful for creating bitmap images.  Again, the
+"iperender" tool can render an Ipe document as a bitmap in PNG
+format. 
+<p><em>Explain Auto-exporting.</em>
+<hr />
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_3.html"><img border="0" alt="3 General Concepts" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_1.html"><img border="0" alt="1 Introduction" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>2 About Ipe files</b></td></tr></table></body></html>

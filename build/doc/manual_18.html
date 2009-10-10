@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: manual.tex
+     using Hyperlatex v 2.6 (c) Otfried Cheong
+     on Emacs 22.2.1, Sat Oct 10 22:29:26 2009 -->
+<head>
+<title>Ipe Manual -- 4.3 Image objects</title>
+
+<style type="text/css">
+.maketitle { text-align : center }
+div.abstract { margin-left: 20%; margin-right: 10%; }
+h3.abstract  { text-align : center }
+div.verse, div.quote, div.quotation {
+  margin-left : 10%; 
+  margin-right : 10%;
+}
+</style>
+
+<link rel="stylesheet"
+        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#ffffe6">
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_19.html"><img border="0" alt="4.4 Group objects" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_15.html"><img border="0" alt="4 Object types" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_17.html"><img border="0" alt="4.2 Text objects" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>4.3 Image objects</b></td></tr></table>
+<h2>4.3 Image objects</h2>
+
+
+Images are inserted using the <em>Insert image</em> ipelet (in the
+<em>Ipelets</em> menu).  Once in a drawing, you can scale, stretch, and
+rotate an image.  You can read in some scanned drawing and draw on top
+of it within Ipe. This is useful if you have a drawing on paper and
+want to make an Ipe version of it.
+<p>There are three functions for inserting images: one for images in
+general, one for JPEG images, and one for pasting from the clipboard.
+<p>If your image is in a lossless bitmap format such as PNG, GIF, or BMP,
+then the first function is appropriate.  If your image is in JPEG
+(JPG) format, then the second function is the right one (it results in
+much smaller files, as the image is then stored internally in JPEG
+format, instead of a bitmap).  You can also paste an image that is on
+the clipboard (this should not be used for JPEG images, as you would
+then store the bitmap).  One has to be a bit careful with this, as
+<em>Insert bitmap</em> does accept JPG files.
+<p>Images are stored efficiently in PDF format.  It is reasonable to
+create PDF presentations with lots of JPEG photographs in Ipe.  Saving
+in Postscript is <em>not efficient</em>, as Ipe generates clean 7-bit
+Postscript files.  Also, multiple copies of the same image are
+embedded only once in PDF documents, but are embedded once for each
+occurrence in Postscript output.
+<hr />
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_19.html"><img border="0" alt="4.4 Group objects" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_15.html"><img border="0" alt="4 Object types" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_17.html"><img border="0" alt="4.2 Text objects" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>4.3 Image objects</b></td></tr></table></body></html>

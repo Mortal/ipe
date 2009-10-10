@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: manual.tex
+     using Hyperlatex v 2.6 (c) Otfried Cheong
+     on Emacs 22.2.1, Sat Oct 10 22:29:26 2009 -->
+<head>
+<title>Ipe Manual -- 7.2 Views</title>
+
+<style type="text/css">
+.maketitle { text-align : center }
+div.abstract { margin-left: 20%; margin-right: 10%; }
+h3.abstract  { text-align : center }
+div.verse, div.quote, div.quotation {
+  margin-left : 10%; 
+  margin-right : 10%;
+}
+</style>
+
+<link rel="stylesheet"
+        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#ffffe6">
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_31.html"><img border="0" alt="7.3 Bookmarks" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_28.html"><img border="0" alt="7 Presentations" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_29.html"><img border="0" alt="7.1 Presentation stylesheets" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>7.2 Views</b></td></tr></table>
+<h2>7.2 Views</h2>
+
+<p>When making a PDF presentation with Acrobat Reader, one would often
+like to present a page incrementally. For instance, I would first like
+to show a polygon, then add its triangulation, and finally color the
+vertices.  <em>Views</em> make it possible to do this nicely.
+<p>An Ipe document consists of several pages, each of which can consist
+of an arbitrary number of views.  When saving as PDF, each view
+generates a separate PDF page (if you only look at the result in, say,
+Acrobat reader, you cannot tell whether two pages are actually two
+views of the same Ipe page or two different Ipe pages).
+<p>An Ipe page consists of a number of objects, a number of layers, and a
+number of views.  Each object belongs to exactly one layer.  A layer
+can be shown by any number of views--a view is really just a list of
+layers to be presented. In addition, a view keeps a record of the
+current active layer--this makes it easy to move around your views
+and edit them.  Finally, views can specify a graphic effect to be used
+by the PDF viewer when proceeding to the following PDF page.
+<p>To return to our polygon triangulation example, let's create an empty
+page.  We draw a polygon into the default layer "alpha."  Now use
+the <em>New layer, new view</em> function (in the <em>Views</em> menu),
+and draw the triangulation into the new layer "beta."  Note that the
+function not only created a new layer, but also a second view showing
+both "alpha" and "beta".  Try moving back and forth between the
+two views (using the PageUp and PageDown keys). You'll see changes in
+the layer list on the left: in view&nbsp;1, layer "alpha" is selected and
+active, in view&nbsp;2, both layers are selected and "beta" is active.
+Create a third layer and view, and mark the vertices.  
+<p>Save in PDF format, and voila, you have a lovely little presentation.
+The result is available <a href="polygon.pdf">here</a>.
+<p>In presentations, one often has slides with mostly text.  The
+<a href="manual_17.html">textbox</a> object is convenient for this, as one
+doesn't need to use the mouse to create it.  To create a slide where
+several text items appear one by one, one only needs to press F10 to
+create a textbox, then Shift+Ctrl+I to make a new view, F10 again for
+the next textbox, and so on.  Finally, one moves the textboxes
+vertically for the most pleasing effect (<em>Shift+Alt+Left Mouse</em>
+does a constrained vertical translation, or <em>Shift+Left Mouse</em> in
+<em>Translate</em> mode).
+<p>Note that all views of a page receive the same bounding box,
+containing all objects visible on some view, plus all objects in a
+layer named "BBOX" (even if that layer is not visible).  This can be
+used to force a larger bounding box without adding a white rectangle
+or the like.
+<p>If you need independent bounding boxes for each view (as in Ipe&nbsp;6),
+create a layer named "VIEWBBOX".  Any view in which this layer is
+visible will receive a bounding box computed for the objects visible
+in this view only.
+<hr />
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_31.html"><img border="0" alt="7.3 Bookmarks" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_28.html"><img border="0" alt="7 Presentations" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_29.html"><img border="0" alt="7.1 Presentation stylesheets" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>7.2 Views</b></td></tr></table></body></html>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: manual.tex
+     using Hyperlatex v 2.6 (c) Otfried Cheong
+     on Emacs 22.2.1, Sat Oct 10 22:29:26 2009 -->
+<head>
+<title>Ipe Manual -- 8.3 Using Truetype fonts</title>
+
+<style type="text/css">
+.maketitle { text-align : center }
+div.abstract { margin-left: 20%; margin-right: 10%; }
+h3.abstract  { text-align : center }
+div.verse, div.quote, div.quotation {
+  margin-left : 10%; 
+  margin-right : 10%;
+}
+</style>
+
+<link rel="stylesheet"
+        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#ffffe6">
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_38.html"><img border="0" alt="8.4 Unicode text" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_36.html"><img border="0" alt="8.2 Troubleshooting the LaTeX-conversion" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.3 Using Truetype fonts</b></td></tr></table>
+<h2>8.3 Using Truetype fonts</h2>
+
+<p>To make PDF presentations that are as "fancy" as the PowerPoint
+presentations of competing speakers one needs to use fancy fonts.
+It's not hard to find nice fonts, but they are mostly in Truetype
+(TTF) format.  This section explains how to use TTF fonts in Ipe.
+<p>Ipe relies on Pdflatex to translate the text source representation
+into a string of PDF operators and font subsets, that can then be used
+to generate Postscript, PDF, and to display the text on the screen.
+Ipe can therefore use any font that Pdflatex can handle, and to use a
+TTF font we just have to add it to Pdflatex's font reportoire.
+<p>I've made a <a href="http://tclab.kaist.ac.kr/ipe/pdftex.html">webpage</a>
+explaining the steps necessary to add a TTF font to Pdftex's font
+repertoire, using the <i>lhandw.ttf</i> font as an example.  Let's
+assume that you have performed these steps, and that you can access
+the font when running Pdflatex normally (not from Ipe).
+<p>We are then ready to try the font from within Ipe.  Let's first assume
+you only want to use the new font in a few places in your Ipe
+document.  You should define a command analogous to <code>\textrm</code> to
+switch to the new font.  Open the <em>Document properties</em> dialog in
+the <em>Edit</em> menu, and add this line to the <em>Latex preamble</em>:
+<pre>
+\DeclareTextFontCommand{\textlh}
+{\fontencoding{T1}\fontfamily{lhandw}\selectfont}
+</pre>
+You can now use <code>\textlh</code> inside Ipe text objects to typeset in
+Lucida-Handwriting.
+<p>Finally, let's make a multi-page presentation typeset wholly using
+Lucida-Handwriting.  This declaration in the Latex preamble will
+change the document fonts:
+<pre>
+\renewcommand{\encodingdefault}{T1}
+\renewcommand{\rmdefault}{lhandw}
+\renewcommand{\sfdefault}{phv}
+\renewcommand{\ttdefault}{pcr}
+</pre>
+Note that this switches all text fonts to TTF or Postscript fonts.
+This is necessary, as we use the <code>T1</code> encoding (an 8-bit
+encoding) for Lucida-Handwriting. Keeping Computer-Modern as the font
+for <code>\textsf</code> or <code>\texttt</code> would cause LaTeX to load the
+<code>T1</code> version of Computer-Modern.  These are bitmapped "Type3"
+fonts, which Ipe cannot handle.
+<hr />
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_38.html"><img border="0" alt="8.4 Unicode text" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_36.html"><img border="0" alt="8.2 Troubleshooting the LaTeX-conversion" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.3 Using Truetype fonts</b></td></tr></table></body></html>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: manual.tex
+     using Hyperlatex v 2.6 (c) Otfried Cheong
+     on Emacs 22.2.1, Sat Oct 10 22:29:26 2009 -->
+<head>
+<title>Ipe Manual -- 6 Stylesheets</title>
+
+<style type="text/css">
+.maketitle { text-align : center }
+div.abstract { margin-left: 20%; margin-right: 10%; }
+h3.abstract  { text-align : center }
+div.verse, div.quote, div.quotation {
+  margin-left : 10%; 
+  margin-right : 10%;
+}
+</style>
+
+<link rel="stylesheet"
+        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#ffffe6">
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_28.html"><img border="0" alt="7 Presentations" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_21.html"><img border="0" alt="5 Snapping" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>6 Stylesheets</b></td></tr></table>
+<h1>6 Stylesheets</h1>
+
+<p>The symbolic attributes appearing in an Ipe document are translated to
+absolute values for rendering by a <em>stylesheet</em> that is attached
+to the document.  Documents can have multiple "cascaded"
+stylesheets, the sheets form a stack, and symbols are looked up from
+top to bottom.  At the bottom of any stylesheet cascade is always the
+minimal <em>standard</em> style sheet, which is built into Ipe.  
+<p>When you create a new empty document, it automatically gets a copy of
+this standard style sheet (which does little more than define the
+"normal" attribute for each kind of attribute).  In addition, Ipe
+inserts a predefined list of stylesheets.  The list of these
+stylesheets can be <a href="manual_39.html">customized</a> using an ipelet,
+using Ipe's command line options, and an environment variable.  By
+default, a new document gets the standard <i>basic.isy</i> stylesheet
+that comes with Ipe.
+<p>The stylesheet dialog (in the <em>Edit</em> menu under
+<em>Stylesheets</em>) allows you to inspect the cascade of stylesheets
+associated with your document, to add and remove stylesheets, and to
+change their order.  You can also save individual stylesheets.
+<p>The stylesheets of your document also determine the symbolic choices
+you have in the Ipe user interface.  If you feel that Ipe does not
+offer you the right choice of colors, pen widths, etc., you are ready
+to make your own style sheet!  Ipe's styles directory contains a few
+examples to look at. The <i>colors.isy</i> stylesheet defines all the
+colors of the X11 color database--you could make a selection of these
+for your own use.
+<p>When a stylesheet is "added" to an Ipe document, the contents of the
+stylesheet file is copied into the Ipe document.  Subsequent
+modification of the stylesheet file has no effect on the Ipe document.
+The right way to modify your stylesheet is to either "add" it again,
+and then to delete the <em>old</em> copy from your stylesheet cascade
+(the one further done in the list), or to use the <em>Update
+  stylesheets</em> function in the <em>Edit</em> menu.  This function
+assumes that the stylesheet file is in the same directory as the
+document and that the filename coincides with the name of the
+stylesheet (plus the extension <i>.isy</i>).
+<p>Removing or replacing a stylesheet can cause some of the symbolic
+attributes in your document to become undefined.  This is not a
+disaster--Ipe will simply use some default value for any undefined
+symbolic attribute.  To allow you to diagnose the problem, Ipe will
+show a warning listing all undefined symbolic attributes.
+<p>The style sheet is also responsible for determining the paper and
+frame size.  Ipe's default paper size is the ISO standard A4.  If you
+with to use U.S. letter size paper instead, include this style sheet:
+<pre>
+   &lt;ipestyle name="letterpaper"&gt;
+   &lt;layout paper="612 792" origin="0 0" frame="612 792"/&gt;
+   &lt;/ipestyle&gt;
+</pre>
+<p>Style sheets can also contain <em>symbols</em>, such as marks and
+arrows, or background patterns or logos to be displayed on each page.
+These are named Ipe objects that can be referenced by the document. If
+your document's stylesheets define a symbol named <em>Background</em>,
+it will be displayed automatically on all pages.  You can create and
+use symbols using the <em>Symbols</em> ipelet.  Here is a (silly)
+example of a style sheet that defines such a background:
+<pre>&lt;ipestyle name="background"&gt;
+&lt;symbol name="Background" xform="yes"&gt;
+&lt;text pos="10 10" stroke="black" size="LARGE"&gt;
+Background text
+&lt;/text&gt;
+&lt;/symbol&gt;
+&lt;/ipestyle&gt;
+</pre>
+<p>Note the use of the <code>xform</code> attribute--it ensures that the
+background is embedded only once into PDF document.  This can make a
+huge difference if your background is a complicated object.
+<p>Stylesheets can also define a piece of LaTeX-preamble for your
+document.  When your text objects are processed by LaTeX, the
+preamble used consists of the pieces on the style sheet cascade, from
+bottom to top, followed by the preamble set for the document itself.
+<p>If you wish to use transparency in your document, you need to define
+opacity values in its stylesheet.  The default stylesheet
+<i>basic.isy</i> does not define any opacity value, because documents
+using transparence cannot be saved in Postscript format.
+A minimal stylesheet defining an opacity value would be:
+<pre>
+   &lt;ipestyle name="transparency"&gt;
+   &lt;opacity name="50%" value="0.5"/&gt;
+   &lt;/ipestyle&gt;
+</pre>
+<p>You can also use a stylesheet to define additional mark shapes, arrow
+shapes, or tiling patterns.
+<p>Other stylesheet definitions that are meant for PDF presentations are
+discussed in the next section.
+<hr />
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_28.html"><img border="0" alt="7 Presentations" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_21.html"><img border="0" alt="5 Snapping" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>6 Stylesheets</b></td></tr></table></body></html>

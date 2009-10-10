@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: manual.tex
+     using Hyperlatex v 2.6 (c) Otfried Cheong
+     on Emacs 22.2.1, Sat Oct 10 22:29:26 2009 -->
+<head>
+<title>Ipe Manual -- 7.5 Ipe symbols used from text objects</title>
+
+<style type="text/css">
+.maketitle { text-align : center }
+div.abstract { margin-left: 20%; margin-right: 10%; }
+h3.abstract  { text-align : center }
+div.verse, div.quote, div.quotation {
+  margin-left : 10%; 
+  margin-right : 10%;
+}
+</style>
+
+<link rel="stylesheet"
+        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#ffffe6">
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_28.html"><img border="0" alt="7 Presentations" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_32.html"><img border="0" alt="7.4 Gradient patterns" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>7.5 Ipe symbols used from text objects</b></td></tr></table>
+<h2>7.5 Ipe symbols used from text objects</h2>
+<p>Presentations often make use of <code>itemize</code> environments.  You can
+make these prettier in a number of ways:
+<p>You can color your bullets:
+<pre>
+&lt;preamble&gt;
+\def\labelitemi{\LARGE\textcolor{red}{$\bullet$}}
+&lt;/preamble&gt;
+</pre>
+<p>Enumeration numbers could be put in a colored box:
+<pre>
+&lt;preamble&gt;
+\newcommand{\labelenumi}{\fbox{\Roman{enumi}}}
+&lt;/preamble&gt;
+</pre>
+<p>You could use the Dingbats font for nice enumerations, for instance
+by putting <code>\usepackage{pifont}</code> in your preamble, and then having
+text objects with <code>\begin{dinglist}{43}</code> or <code>\begin{dingautolist}{172}</code>
+(or use 182, 192, 202 for various circled numbers).
+<p>You can mark items as "good" and "bad" using these "bullets":
+<p><em>Bad item</em>:  <code>\textcolor{red}{\ding{55}}</code><br /><em>Good item</em>: <code>\textcolor{green}{\ding{52}}</code>
+<p>Finally, you can custom design your own bullets by creating an Ipe
+symbol for it.  For instance:
+<pre>
+&lt;symbol name="bullet(sfpx)"&gt;
+  &lt;path matrix="2 0 0 2 0 0" pen="sym-pen" stroke="sym-stroke" fill="sym-fill"&gt;
+    0 0 m -1.0 0.333 l -0.8 0 l -1.0 -0.333 l h&lt;/path&gt;
+&lt;/symbol&gt;
+&lt;preamble&gt;
+  \def\labelitemi{\raisebox{0.5ex}{\hbox to 0.3em%
+      {\ipesymbol{bullet(sfpx)}{blue}{yellow}{normal}}}}
+&lt;/preamble&gt;
+</pre>
+<p>Note the use of the <code>\ipesymbol{name}{stroke}{fill}{pen}</code> command. It
+allows you to use an Ipe symbol from inside a text object.  The symbol
+is magnified proportionally to the ex-height of the current font at
+the position where it is used.  (And so the symbol should be designed to be
+the correct for a font of ex-height&nbsp;1pt.)
+<p>In the following example, we redefine the bullet to be a blue glassy
+sphere:
+<pre>
+&lt;gradient name="ball" type="radial" colora="1 1 1" colorb="0 0 1" 
+	  coords="-4 10 2 0 0 18"/&gt;
+&lt;symbol name="sphere"&gt;
+  &lt;use matrix="0.04 0 0 0.04 0 0" name="ball"/&gt;
+&lt;/symbol&gt;
+&lt;preamble&gt;
+  \def\labelitemi{\raisebox{0.5ex}{\hbox to 0.3em{\ipesymbol{sphere}{}{}{}}}}
+&lt;/preamble&gt;
+</pre>
+<hr />
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_28.html"><img border="0" alt="7 Presentations" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_32.html"><img border="0" alt="7.4 Gradient patterns" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>7.5 Ipe symbols used from text objects</b></td></tr></table></body></html>

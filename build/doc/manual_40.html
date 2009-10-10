@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: manual.tex
+     using Hyperlatex v 2.6 (c) Otfried Cheong
+     on Emacs 22.2.1, Sat Oct 10 22:29:27 2009 -->
+<head>
+<title>Ipe Manual -- 9 The Ipe file format</title>
+
+<style type="text/css">
+.maketitle { text-align : center }
+div.abstract { margin-left: 20%; margin-right: 10%; }
+h3.abstract  { text-align : center }
+div.verse, div.quote, div.quotation {
+  margin-left : 10%; 
+  margin-right : 10%;
+}
+</style>
+
+<link rel="stylesheet"
+        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#ffffe6">
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_ipe6_to_ipe7.html"><img border="0" alt="10 If you have used Ipe&nbsp;6 before" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9 The Ipe file format</b></td></tr></table>
+<h1>9 The Ipe file format</h1>
+
+<p>Ipe can store documents in several possible formats.  Among them are
+standard PDF and Postscript, which can be read by any application
+capable of opening such files, such as Acrobat Reader, Xpdf, or
+Ghostview.  (Ipe embeds its own information inside PDF and Postscript
+files.  The way this is done is not documented here, and may change
+between releases of Ipe.)
+<p>There is one other Ipe file format, which is a pure XML
+implementation.  Files stored in this format can be parsed with any
+XML-aware application, and you can create XML files for Ipe from your
+own applications. 
+<p>A DTD for the Ipe format is available as <a href="ipe.dtd">ipe.dtd</a>. For
+instance, you can use this to validate an Ipe document using
+<pre>
+xmllint --valid --path &lt;path-to-ipe.dtd&gt; --noout &lt;file.ipe&gt;
+</pre>
+<p>The tags understood by Ipe are described informally in this section.
+Tags in the XML file can carry attributes other than the ones
+documented here.  Ipe ignores all attributes it does't understand, and
+they will be lost if the document is saved again from Ipe.  Ipe will
+complain about any XML elements not described here, with the exception
+that you can use elements whose name starts with "x-" freely to add
+your own information inside an Ipe file.
+<p>An Ipe XML file must contain exactly one <code>&lt;ipe&gt;</code> element, while
+an Ipe stylesheet file must contain exactly one <code>&lt;ipestyle&gt;</code>
+element (both types of files are allowed to start with an
+<code>&lt;?xml&gt;</code> tag, which is simply ignored by Ipe).  An Ipe file may
+also contain a <code>&lt;!DOCTYPE&gt;</code> tag.
+<p>All elements are documented below.
+<ul>
+<li><a href="manual_41.html">9.1 The <tt>&lt;ipe&gt;</tt> element</a>
+<li><a href="manual_42.html">9.2 The <tt>&lt;page&gt;</tt> element</a>
+<li><a href="manual_43.html">9.3 Ipe object elements</a>
+<li><a href="manual_44.html">9.4 The <tt>&lt;ipestyle&gt;</tt> element</a>
+</ul>
+<hr />
+<table width="100%" cellpadding=0 cellspacing=2><tr>
+    <td bgcolor="#99ccff"><a href="manual_ipe6_to_ipe7.html"><img border="0" alt="10 If you have used Ipe&nbsp;6 before" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9 The Ipe file format</b></td></tr></table></body></html>
