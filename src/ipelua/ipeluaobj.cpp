@@ -232,16 +232,16 @@ void ipelua::check_allattributes(lua_State *L, int i, AllAttributes &all)
   get_attribute(L, i, "symbolsize", all.iSymbolSize);
   get_attribute(L, i, "markshape", all.iMarkShape);
   get_attribute(L, i, "textsize", all.iTextSize);
-  get_boolean(L, i, "transformableText", all.iTransformableText);
+  get_boolean(L, i, "transformabletext", all.iTransformableText);
   get_attribute(L, i, "textstyle", all.iTextStyle);
   get_attribute(L, i, "opacity", all.iOpacity);
   get_attribute(L, i, "tiling", all.iTiling);
 
   int t;
-  t = get_option(L, i, "horizontalAlignment", horizontal_alignment_names);
+  t = get_option(L, i, "horizontalalignment", horizontal_alignment_names);
   if (t >= 0) all.iHorizontalAlignment = THorizontalAlignment(t);
 
-  t = get_option(L, i, "verticalAlignment", vertical_alignment_names);
+  t = get_option(L, i, "verticalalignment", vertical_alignment_names);
   if (t >= 0) all.iVerticalAlignment = TVerticalAlignment(t);
 
   t = get_option(L, i, "linejoin", linejoin_names);

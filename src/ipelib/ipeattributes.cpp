@@ -68,7 +68,8 @@ namespace ipe {
     "opacity", "tiling",
     "horizontalalignment", "verticalalignment",
     "linejoin", "linecap", "fillrule",
-    "pinned", "transformations", "minipage", "width", 0 };
+    "pinned", "transformations", "transformabletext",
+    "minipage", "width", 0 };
 }
 
 using namespace ipe;
@@ -199,6 +200,8 @@ Repository::Repository()
   iStrings.push_back("sym-pen");
   iStrings.push_back("arrow/normal(spx)");
   iStrings.push_back("opaque");
+  iStrings.push_back("arrow/arc(spx)");
+  iStrings.push_back("arrow/farc(spx)");
 }
 
 //! Get pointer to singleton Repository.

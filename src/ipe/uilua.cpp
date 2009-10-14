@@ -344,7 +344,7 @@ static int shapetool_setmarks(lua_State *L)
     Vector *v = check_vector(L, -1);
     lua_rawgeti(L, 1, i+1);
     luaL_argcheck(L, lua_isnumber(L, -1), 1, "element is not a number");
-    int t = lua_tonumber(L, -1);
+    int t = lua_tointeger(L, -1);
     luaL_argcheck(L, ShapeTool::EVertex <= t && t < ShapeTool::ENumMarkTypes,
 		  1, "number is not a mark type");
     lua_pop(L, 2); // v, t

@@ -110,7 +110,7 @@ static void render(TargetFormat fm, const char *dst, const Document *doc,
 // --------------------------------------------------------------------
 
 static int renderPage(TargetFormat fm, const char *src, const char *dst,
-		      int pageNum, double zoom)
+		      int pageNum, int viewNum, double zoom)
 {
   Document *doc = Document::loadWithErrorReport(src);
 
@@ -131,7 +131,7 @@ static int renderPage(TargetFormat fm, const char *src, const char *dst,
   }
 
   const Page *page = doc->page(pageNum - 1);
-  render(fm, dst, doc, page, 0, zoom);
+  render(fm, dst, doc, page, viewNum - 1, zoom);
   delete doc;
   return 0;
 }
@@ -142,11 +142,12 @@ static void usage()
 {
   fprintf(stderr,
 	  "Usage: iperender [ -svg | -png ] "
-	  "[ -page <page> ] [ -resolution <dpi> ] "
+	  "[ -page <page> ] [ -view <view> ] [ -resolution <dpi> ] "
 	  "infile outfile\n"
 	  "Iperender saves a single page of the Ipe document in some formats.\n"
-	  " -page       : page to save.\n"
-	  " -resolution : resolution (only used for png format).\n");
+	  " -page       : page to save (default 1).\n"
+	  " -view       : view to save (default 1).\n"
+	  " -resolution : resolution for png format (default 72.0 ppi).\n");
   exit(1);
 }
 
@@ -175,11 +176,17 @@ int main(int argc, char *argv[])
     usage();
 
   int page = 1;
+  int view = 1;
   double dpi = 72.0;
   int i = 2;
 
   if (!strcmp(argv[i], "-page")) {
     page = ipe::Lex(ipe::String(argv[i+1])).getInt();
+    i += 2;
+  }
+
+  if (!strcmp(argv[i], "-view")) {
+    view = ipe::Lex(ipe::String(argv[i+1])).getInt();
     i += 2;
   }
 
@@ -195,7 +202,7 @@ int main(int argc, char *argv[])
   const char *src = argv[i];
   const char *dst = argv[i+1];
 
-  return renderPage(fm, src, dst, page, dpi / 72.0);
+  return renderPage(fm, src, dst, page, view, dpi / 72.0);
 }
 
 // --------------------------------------------------------------------

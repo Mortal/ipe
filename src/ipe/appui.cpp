@@ -302,10 +302,10 @@ void PathView::paintEvent(QPaintEvent *ev)
     painter.drawPath(EStrokedOnly);
     if (iAll.iFArrow)
       Path::drawArrow(painter, v1, Angle(0),
-		      iAll.iFArrowShape, iAll.iFArrowSize);
+		      iAll.iFArrowShape, iAll.iFArrowSize, 100.0);
     if (iAll.iRArrow)
       Path::drawArrow(painter, v0, Angle(IpePi),
-		      iAll.iRArrowShape, iAll.iRArrowSize);
+		      iAll.iRArrowShape, iAll.iRArrowSize, 100.0);
     painter.setDashStyle(Attribute::NORMAL());
     painter.setTiling(iAll.iTiling);
     painter.newPath();
@@ -479,16 +479,16 @@ void AppUi::buildMenus()
   QMenu *m;
 
   m = new QMenu("Horizontal alignment");
-  addItem(m, "left", "horizontal_alignment|left");
-  addItem(m, "center", "horizontal_alignment|center");
-  addItem(m, "right", "horizontal_alignment|right");
+  addItem(m, "left", "horizontalalignment|left");
+  addItem(m, "center", "horizontalalignment|hcenter");
+  addItem(m, "right", "horizontalalignment|right");
   iMenu[EPropertiesMenu]->addMenu(m);
 
   m = new QMenu("Vertical alignment");
-  addItem(m, "bottom", "vertical_alignment|bottom");
-  addItem(m, "baseline", "vertical_alignment|baseline");
-  addItem(m, "center", "vertical_alignment|center");
-  addItem(m, "top", "vertical_alignment|top");
+  addItem(m, "bottom", "verticalalignment|bottom");
+  addItem(m, "baseline", "verticalalignment|baseline");
+  addItem(m, "center", "verticalalignment|vcenter");
+  addItem(m, "top", "verticalalignment|top");
   iMenu[EPropertiesMenu]->addMenu(m);
 
   m = new QMenu("Pinned");
@@ -499,8 +499,8 @@ void AppUi::buildMenus()
   iMenu[EPropertiesMenu]->addMenu(m);
 
   m = new QMenu("Transformable text");
-  addItem(m, "Yes", "transformable_text|true");
-  addItem(m, "No", "transformable_text|false");
+  addItem(m, "Yes", "transformabletext|true");
+  addItem(m, "No", "transformabletext|false");
   iMenu[EPropertiesMenu]->addMenu(m);
 
   m = new QMenu("Transformations");
@@ -1027,10 +1027,10 @@ void AppUi::setAttributes(const AllAttributes &all, Cascade *sheet)
     }
   }
 
-  setCheckMark("horizontal_alignment", Attribute(iAll.iHorizontalAlignment));
-  setCheckMark("vertical_alignment", Attribute(iAll.iVerticalAlignment));
+  setCheckMark("horizontalalignment", Attribute(iAll.iHorizontalAlignment));
+  setCheckMark("verticalalignment", Attribute(iAll.iVerticalAlignment));
   setCheckMark("pinned", Attribute(iAll.iPinned));
-  setCheckMark("transformable_text",
+  setCheckMark("transformabletext",
 	       Attribute::Boolean(iAll.iTransformableText));
   setCheckMark("transformations", Attribute(iAll.iTransformations));
   setCheckMark("linejoin", Attribute(iAll.iLineJoin));
@@ -1283,7 +1283,7 @@ static const char * const aboutText =
 "<li> Some code from Xpdf"
 "</ul>"
 "<p>Ipe is released under the GNU Public License.</p>"
-"<p>See <a href=\"http://tclab.kaist.ac.kr/ipe\">tclab.kaist.ac.kr/ipe</a>"
+"<p>See <a href=\"http://ipe7.sourceforge.net\">ipe7.sourceforge.net</a>"
 " for details.</p>"
 "</qt>";
 

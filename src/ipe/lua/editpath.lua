@@ -963,6 +963,7 @@ function MODEL:saction_join()
 
   local prim = p:primarySelection()
   local obj = p[prim]:clone()
+  obj:setMatrix( ipe.Matrix() )
   obj:setShape( { nsp } )
 
   local t = { label = "join paths",

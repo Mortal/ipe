@@ -1,4 +1,4 @@
-Ipe 7.0.3
+Ipe 7.0.4
 October, 2009
 
                     Ipe extensible drawing editor
@@ -67,7 +67,7 @@ Before reporting a bug, check that you have the latest version, and
 check that it is not yet mentioned in the FAQ on the Ipe webpage.
 
 You can report bugs on the bug tracking system at
-"http://tclab.kaist.ac.kr/ipe/bugzilla.html".  Check the existing
+"http://ipe7.sourceforge.net/bugzilla.html".  Check the existing
 reports to see whether your bug has already been reported.  Please do
 not send bug reports directly to me (the first thing I would do with
 the report is to enter it into the bug tracking system).
@@ -94,6 +94,6 @@ the Ipe web page.
 	KAIST
 	Daejeon, South Korea
 	Email: otfried@ipe.airpost.net
-	Ipe webpage: http://tclab.kaist.ac.kr/ipe
+	Ipe webpage: http://ipe7.sourceforge.net
 
 --------------------------------------------------------------------

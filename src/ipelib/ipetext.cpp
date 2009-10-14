@@ -485,6 +485,17 @@ bool Text::setAttribute(Property prop, Attribute value,
       return true;
     }
     break;
+  case EPropTransformableText:
+    assert(value.isEnum());
+    if (value.boolean() && transformations() != ETransformationsAffine) {
+      setTransformations(ETransformationsAffine);
+      return true;
+    } else if (!value.boolean() &&
+	       transformations() != ETransformationsTranslations) {
+      setTransformations(ETransformationsTranslations);
+      return true;
+    }
+    break;
   default:
     return Object::setAttribute(prop, value, nStroke, nFill);
   }
@@ -540,15 +551,18 @@ void Text::quadrilateral(const Matrix &m, Vector v[4]) const
   v[2] = offset + Vector(wid, ht);
   v[3] = offset + Vector(0, ht);
 
-  Matrix m1 = m * matrix();
-  if (iTransformations == ETransformationsAffine) {
-    Linear m2 = m1.linear();
-    for (int i = 0; i < 4; ++i)
-      v[i] = m2 * v[i];
+  Matrix m1 = m * matrix() * Matrix(iPos);
+
+  if (iTransformations == ETransformationsTranslations) {
+    m1 = Matrix(m1.translation());
+  } else if (iTransformations == ETransformationsRigidMotions) {
+    Angle alpha = Vector(m1.a[0], m1.a[1]).angle();
+    // ensure that (1,0) is rotated into this orientation
+    m1 = Matrix(m1.translation()) * Linear(alpha);
   }
-  Vector pos = m1 * iPos;
+
   for (int i = 0; i < 4; ++i)
-    v[i] = v[i] + pos;
+    v[i] = m1 * v[i];
 }
 
 //! Update the PDF code for this object.
