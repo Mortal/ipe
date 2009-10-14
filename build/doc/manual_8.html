@@ -4,21 +4,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Sat Oct 10 22:29:25 2009 -->
+     on Emacs 22.3.1, Wed Oct 14 16:35:15 2009 -->
 <head>
 <title>Ipe Manual -- 3.5 Pen, dash style, arrows, and tiling patterns</title>
 
 <style type="text/css">
-.maketitle { text-align : center }
+.maketitle { align : center }
 div.abstract { margin-left: 20%; margin-right: 10%; }
-h3.abstract  { text-align : center }
+h3.abstract  { align : center }
 div.verse, div.quote, div.quotation {
   margin-left : 10%; 
   margin-right : 10%;
 }
 </style>
 
-<link rel="stylesheet"
+<link rel=stylesheet
         href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
         content="text/html; charset=UTF-8">
 </head>
@@ -50,6 +50,10 @@ splines, and circular arcs can have arrows.
 <p>Various shapes and sizes of arrows are available through the context
 menu in the path properties field.  You can add other shapes and sizes
 using a stylesheet.
+<p>The arrow shapes <em>arc</em> and <em>farc</em> are special.  When the
+final segment of a path object is a circular arc, then these arcs take
+on a curved shape that depends on the radius of the arc.  They are
+designed to look right even for arcs with rather small radius.
 <p><a name="id1">
 A</A> tiling pattern allows you to hatch a path object instead of filling
 it with a solid color.  Only path objects can be filled with a tiling

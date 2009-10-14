@@ -4,21 +4,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Sat Oct 10 22:29:27 2009 -->
+     on Emacs 22.3.1, Wed Oct 14 16:35:17 2009 -->
 <head>
 <title>Ipe Manual -- 10 If you have used Ipe&nbsp;6 before</title>
 
 <style type="text/css">
-.maketitle { text-align : center }
+.maketitle { align : center }
 div.abstract { margin-left: 20%; margin-right: 10%; }
-h3.abstract  { text-align : center }
+h3.abstract  { align : center }
 div.verse, div.quote, div.quotation {
   margin-left : 10%; 
   margin-right : 10%;
 }
 </style>
 
-<link rel="stylesheet"
+<link rel=stylesheet
         href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
         content="text/html; charset=UTF-8">
 </head>
@@ -69,7 +69,9 @@ box.
 There is no longer a void color for filling, or a void pen for
 stroking. For each path object, you indicate whether you want it to be
 stroked, filled, or both.  This setting is independent of the stroke
-and fill color attribute setting.
+and fill color attribute setting.  Unlike in Ipe&nbsp;6, it is no longer
+possible to have path objects that are neither stroked nor filled
+(such an object would now be stroked in black).
 
 <h4><a name="id5">Path properties.</a></h4>
 Except for the pen width, path properties are now set in the path
@@ -124,10 +126,17 @@ screen. Cairo can handle images fast enough to make this unnecessary.
 
 <h4><a name="id15">Bounding boxes.</a></h4>
 When a page has several views, Ipe will now compute the same bounding
-box for each view of the page.  If you wish to force a larger bounding
-box, you can do so by drawing a rectangle in a layer named "BBOX"
-and making that layer invisible.  The layer will still be included in
-the bounding box calculation.
+box for each view of the page.  This is what you need when you make an
+animated figure consisting of several views, for instance for use from
+the "beamer" package.
+<p>If you need to force a larger bounding box, you can do so by drawing a
+rectangle in a layer named "BBOX" and making that layer invisible.
+(This specially named layer will be included in the bounding box
+calculation even if it is not visible in any view.)
+<p>If you do need independent bounding boxes for each view (as in Ipe&nbsp;6),
+create a layer named "VIEWBBOX".  Any view in which this layer is
+visible will receive a bounding box computed for the objects visible
+in this view only.
 
 <h4><a name="id16">To crop or not to crop.</a></h4>
 In Ipe&nbsp;6, use of the PDF <em>CropBox</em> was set in the document
