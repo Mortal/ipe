@@ -1,6 +1,31 @@
 --------------------------------------------------------------------
 
-Ipe 7.0.3 (2009-10-) 
+Ipe 7.0.4 (2009-10-14) SVN 335
+
+ * Fixed bug in save_as (bug #305).
+
+ * ipe6upgrade: fixed empty dash.
+ 
+ * Fixed handling of matrix in path join.
+
+ * Added "arc" and "farc" arrow types.  When the final segment of a
+   path is circular arc, then these arrows take on a shape that
+   depends on the radius of the arc, as metafont arrows do.
+
+ * Fixed handling of path objects with missing stroke and fill
+   attributes. 
+
+ * Added "presentation.isy" to styles directory.  You can now create a
+   new presentation by saying "ipe -sheet presentation".
+
+ * Fixed computation of bounding box of transformed text object.
+
+ * Fixed handling of horizontal and vertical alignment and
+   transformable text from Properties menu.
+
+--------------------------------------------------------------------
+
+Ipe 7.0.3 (2009-10-10) SVN 318
 
  * Style sheets now looked for in IPESTYLES directory, so it suffices
    to say "ipe -sheet presentation" to create a new presentations.

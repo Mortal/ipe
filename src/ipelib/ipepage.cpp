@@ -487,7 +487,7 @@ bool Page::setAttribute(int i, Property prop, Attribute value,
 			Attribute stroke, Attribute fill)
 {
   bool changed = object(i)->setAttribute(prop, value, stroke, fill);
-  if (changed && prop == EPropTextSize)
+  if (changed && (prop == EPropTextSize || prop == EPropTransformations))
     invalidateBBox(i);
   return changed;
 }

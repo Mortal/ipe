@@ -108,7 +108,7 @@ namespace ipe {
     void setRarrow(bool arrow, Attribute shape, Attribute size);
 
     static void drawArrow(Painter &painter, Vector pos, Angle alpha,
-			  Attribute shape, Attribute size);
+			  Attribute shape, Attribute size, double radius);
 
     //! Return shape of the path object.
     const Shape &shape() const { return iShape; }
@@ -128,6 +128,8 @@ namespace ipe {
     TFillRule iFillRule : 2;
     int iFArrowOk : 1;
     int iRArrowOk : 1;
+    int iFArrowArc : 1;
+    int iRArrowArc : 1;
 
     Attribute iStroke;
     Attribute iFill;

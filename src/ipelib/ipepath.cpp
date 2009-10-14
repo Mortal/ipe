@@ -79,6 +79,11 @@ Path::Path(const XmlAttributes &attr)
     filled = true;
   }
 
+  if (!stroked && !filled) {
+    stroked = true;
+    iStroke= Attribute::BLACK();
+  }
+
   iPathMode = (stroked ? (filled ? EStrokedAndFilled : EStrokedOnly) :
 	       EFilledOnly);
 
@@ -188,10 +193,12 @@ void Path::makeArrowData()
     CurveSegment seg = iShape.subPath(0)->asCurve()->segment(0);
     iRArrowOk = true;
     iRArrowPos = seg.cp(0);
+    iRArrowArc = 0;
     if (seg.type() == CurveSegment::EArc) {
+      iRArrowArc = 1;
       Angle alpha = (seg.matrix().inverse() * seg.cp(0)).angle();
-      iRArrowDir = (seg.matrix().linear() *
-		    Vector(Angle(alpha - IpeHalfPi))).angle();
+      Linear m = seg.matrix().linear();
+      iRArrowDir = (m * Vector(Angle(alpha - IpeHalfPi))).angle();
     } else {
       if (seg.cp(1) == seg.cp(0))
 	iRArrowOk = false;
@@ -202,10 +209,12 @@ void Path::makeArrowData()
     seg = iShape.subPath(0)->asCurve()->segment(-1);
     iFArrowOk = true;
     iFArrowPos = seg.last();
+    iFArrowArc = 0;
     if (seg.type() == CurveSegment::EArc) {
+      iFArrowArc = 1;
       Angle alpha = (seg.matrix().inverse() * seg.cp(1)).angle();
-      iFArrowDir = (seg.matrix().linear() *
-		    Vector(Angle(alpha + IpeHalfPi))).angle();
+      Linear m = seg.matrix().linear();
+      iFArrowDir = (m * Vector(Angle(alpha + IpeHalfPi))).angle();
     } else {
       if (seg.cp(seg.countCP() - 2) == seg.last())
 	iFArrowOk = false;
@@ -273,12 +282,11 @@ void Path::saveAsXml(Stream &stream, String layer) const
 
 //! Draw an arrow of \a size with tip at \a v1 directed from \a v0 to \a v1.
 void Path::drawArrow(Painter &painter, Vector pos, Angle angle,
-		     Attribute shape, Attribute size)
+		     Attribute shape, Attribute size, double radius)
 {
   const Symbol *symbol = painter.cascade()->findSymbol(shape);
   if (symbol) {
-    double s =
-      painter.cascade()->find(EArrowSize, size).number().toDouble();
+    double s = painter.cascade()->find(EArrowSize, size).number().toDouble();
     Color color = painter.stroke();
 
     painter.push();
@@ -286,12 +294,50 @@ void Path::drawArrow(Painter &painter, Vector pos, Angle angle,
     painter.translate(pos);
     painter.transform(Linear(angle));
     painter.untransform(ETransformationsRigidMotions);
-    Matrix m(s, 0, 0, s, 0, 0);
-    painter.transform(m);
-    painter.setSymStroke(Attribute(color));
-    painter.setSymFill(Attribute(color));
-    painter.setSymPen(Attribute(painter.pen()));
-    symbol->iObject->draw(painter);
+
+    bool cw = (radius < 0);
+    if (cw)
+      radius = -radius;
+
+    if ((shape == Attribute::ARROW_ARC() ||
+	 shape == Attribute::ARROW_FARC()) && (radius > s)) {
+      Angle delta = s / radius;
+      Angle alpha = atan(1.0/3.0);
+      Arc arc1;
+      Arc arc2;
+      if (cw) {
+	arc1 = Arc(Matrix(radius, 0, 0, radius, 0, -radius),
+		   IpeHalfPi, IpeHalfPi + delta);
+	arc2 = Arc(Matrix(radius, 0, 0, -radius, 0, -radius),
+		   -IpeHalfPi - delta, -IpeHalfPi);
+      } else {
+	arc1 = Arc(Matrix(radius, 0, 0, radius, 0, radius),
+		   -IpeHalfPi - delta, -IpeHalfPi);
+	arc2 = Arc(Matrix(radius, 0, 0, -radius, 0, radius),
+		   IpeHalfPi, IpeHalfPi + delta);
+      }
+      arc1 = Linear(alpha) * arc1;
+      arc2 = Linear(-alpha) * arc2;
+      painter.setStroke(Attribute(color));
+      if (shape == Attribute::ARROW_FARC())
+	painter.setFill(Attribute(Color(1000, 1000, 1000)));
+      else
+	painter.setFill(Attribute(color));
+      painter.newPath();
+      painter.moveTo(arc1.beginp());
+      painter.drawArc(arc1);
+      painter.lineTo(arc2.beginp());
+      painter.drawArc(arc2);
+      painter.closePath();
+      painter.drawPath(EStrokedAndFilled);
+    } else {
+      Matrix m(s, 0, 0, s, 0, 0);
+      painter.transform(m);
+      painter.setSymStroke(Attribute(color));
+      painter.setSymFill(Attribute(color));
+      painter.setSymPen(Attribute(painter.pen()));
+      symbol->iObject->draw(painter);
+    }
     painter.popMatrix();
     painter.pop();
   }
@@ -326,10 +372,30 @@ void Path::draw(Painter &painter) const
   iShape.draw(painter);
   painter.drawPath(iPathMode);
   // Draw arrows
-  if (iHasFArrow && iFArrowOk)
-    drawArrow(painter, iFArrowPos, iFArrowDir, iFArrowShape, iFArrowSize);
-  if (iHasRArrow && iRArrowOk)
-    drawArrow(painter, iRArrowPos, iRArrowDir, iRArrowShape, iRArrowSize);
+  if (iHasFArrow && iFArrowOk) {
+    double r = 0.0;
+    if (iFArrowArc && (iFArrowShape == Attribute::ARROW_ARC() ||
+		       iFArrowShape == Attribute::ARROW_FARC())) {
+      CurveSegment seg = iShape.subPath(0)->asCurve()->segment(-1);
+      Vector center = painter.matrix() * seg.matrix().translation();
+      r = (center - painter.matrix() * iFArrowPos).len();
+      if ((painter.matrix().linear() * seg.matrix().linear()).determinant()<0)
+	r = -r;
+    }
+    drawArrow(painter, iFArrowPos, iFArrowDir, iFArrowShape, iFArrowSize, r);
+  }
+  if (iHasRArrow && iRArrowOk) {
+    double r = 0.0;
+    if (iRArrowArc && (iRArrowShape == Attribute::ARROW_ARC() ||
+		       iRArrowShape == Attribute::ARROW_FARC())) {
+      CurveSegment seg = iShape.subPath(0)->asCurve()->segment(0);
+      Vector center = painter.matrix() * seg.matrix().translation();
+      r = (center - painter.matrix() * iRArrowPos).len();
+      if ((painter.matrix().linear() * seg.matrix().linear()).determinant()>0)
+	r = -r;
+    }
+    drawArrow(painter, iRArrowPos, iRArrowDir, iRArrowShape, iRArrowSize, r);
+  }
   painter.popMatrix();
   painter.pop();
 }

@@ -262,6 +262,7 @@ namespace ipe {
     inline bool isIdentity() const;
     inline Vector operator*(const Vector &rhs) const;
     inline bool operator==(const Linear &rhs) const;
+    inline double determinant() const;
   public:
     double a[4];
   };
@@ -517,6 +518,12 @@ namespace ipe {
   {
     return (a[0] == rhs.a[0] && a[1] == rhs.a[1] &&
 	    a[2] == rhs.a[2] && a[3] == rhs.a[3]);
+  }
+
+  //! Return determinant of a linear matrix.
+  inline double Linear::determinant() const
+  {
+    return (a[0] * a[3] - a[1] * a[2]);
   }
 
   // --------------------------------------------------------------------

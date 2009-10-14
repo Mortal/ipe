@@ -457,7 +457,7 @@ bool Parser::parseObject(String tag, const Attributes &a)
     if (dash != "void" && stroke != "void") {
       writeAttr(attr, "stroke", a.stroke);
       // in Ipe7 "solid" is "normal" and is the default anyway
-      if (dash != "solid")
+      if (dash != "" and dash != "solid")
 	iStream << " dash=\"" << dash << "\"";
       writeAttr(attr, "pen", a.pen);
       writeAttr(attr, "cap", a.cap);

@@ -33,7 +33,7 @@ label = "Goodies"
 revertOriginal = _G.revertOriginal
 
 about = [[
-Several cute little functions, like precise scale and rotate, precise
+Several small functions, like precise scale and rotate, precise
 boxes, marking circle centers, regular k-gons.
 
 This ipelet is part of Ipe.

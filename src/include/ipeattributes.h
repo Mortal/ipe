@@ -77,6 +77,7 @@ namespace ipe {
 		  EPropHorizontalAlignment, EPropVerticalAlignment,
 		  EPropLineJoin, EPropLineCap, EPropFillRule,
 		  EPropPinned, EPropTransformations,
+		  EPropTransformableText,
 		  EPropMinipage, EPropWidth,
   };
 
@@ -320,10 +321,14 @@ namespace ipe {
     inline static Attribute SYM_FILL() { return Attribute(ESymbolic + 4); }
     //! Create symbolic attribute "sym-pen"
     inline static Attribute SYM_PEN() { return Attribute(ESymbolic + 5); }
-    //! Create symbolic attribute "arrow/normal"
+    //! Create symbolic attribute "arrow/normal(spx)"
     inline static Attribute ARROW_NORMAL() { return Attribute(ESymbolic + 6); }
     //! Create symbolic attribute "opaque"
     inline static Attribute OPAQUE() { return Attribute(ESymbolic + 7); }
+    //! Create symbolic attribute "arrow/arc(spx)"
+    inline static Attribute ARROW_ARC() { return Attribute(ESymbolic + 8); }
+    //! Create symbolic attribute "arrow/farc(spx)"
+    inline static Attribute ARROW_FARC() { return Attribute(ESymbolic + 9); }
 
     static Attribute makeColor(String str, Attribute deflt);
     static Attribute makeScalar(String str, Attribute deflt);

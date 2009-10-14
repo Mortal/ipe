@@ -61,6 +61,7 @@ install: $(TARGET)
 	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPELUADIR) lua/*.lua
 	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPESTYLES) ../../styles/basic.isy
 	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPESTYLES) ../../styles/colors.isy
+	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPESTYLES) ../../styles/presentation.isy
 	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPEICONDIR) icons/*.png
 
 # --------------------------------------------------------------------

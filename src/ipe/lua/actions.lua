@@ -326,9 +326,9 @@ function MODEL:action_save()
 end
 
 function MODEL:action_save_as()
-  local dir = self.file_name:match("^(.+)/[^/]+")
+  local dir
+  if self.file_name then dir = self.file_name:match("^(.+)/[^/]+") end
   if not dir then dir = prefs.save_as_directory end
-  print("Save as starting in ", dir)
   local s, f =
     ipeui.fileDialog(self.ui, "save", "Save file as",
 		     "XML (*.ipe *.xml);;PDF (*.pdf);;EPS (*.eps)",
@@ -341,9 +341,9 @@ function MODEL:action_save_as()
     end
     if ipe.fileExists(s) then
       local b = ipeui.messageBox(self.ui, "question",
-				      "File already exists!",
-				      "Do you wish to overwrite?<br>" .. s,
-				      "okcancel")
+				 "File already exists!",
+				 "Do you wish to overwrite?<br>" .. s,
+				 "okcancel")
       if b ~= 1 then
 	self.ui:explain("File not saved")
 	return
@@ -1617,6 +1617,7 @@ function MODEL:saction_remove_clipping()
 	   end
   t.redo = function (t, doc)
 	     doc[t.pno][t.primary]:setClip()
+	     doc[t.pno]:invalidateBBox(t.primary)
 	   end
   self:register(t)
 end
@@ -1666,6 +1667,7 @@ function MODEL:saction_add_clipping()
 	   end
   t.redo = function (t, doc)
 	     doc[t.pno][t.primary]:setClip(t.shape)
+	     doc[t.pno]:invalidateBBox(t.primary)
 	     doc[t.pno]:remove(t.secondary)
 	   end
   self:register(t)
