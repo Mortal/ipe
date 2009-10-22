@@ -134,19 +134,64 @@ void CairoPainter::doDrawPath(TPathMode mode)
     if (!tiling().isNormal())
       t = cascade()->findTiling(tiling());
 
-    if (t == 0) {
-      // no tiling, or tiling not found
+    const Gradient *g = 0;
+    if (!gradient().isNormal())
+      g = cascade()->findGradient(gradient());
+
+    if (t == 0 && g == 0) {
+      // no tiling, no gradient
       cairo_set_source_rgba(iCairo, fillColor.iRed.toDouble(),
 			    fillColor.iGreen.toDouble(),
 			    fillColor.iBlue.toDouble(),
 			    opacity().toDouble());
+
       if (mode == EStrokedAndFilled)
 	cairo_fill_preserve(iCairo);
       else
 	cairo_fill(iCairo);
 
+    } else if (t == 0) {
+      // gradient
+
+      cairo_pattern_t *p;
+      if (g->iType == Gradient::ERadial)
+	p = cairo_pattern_create_radial(g->iV[0].x, g->iV[0].y, g->iRadius[0],
+					g->iV[1].x, g->iV[1].y, g->iRadius[1]);
+      else
+	p = cairo_pattern_create_linear(g->iV[0].x, g->iV[0].y,
+					g->iV[1].x, g->iV[1].y);
+
+      cairo_pattern_set_extend(p, g->iExtend ?
+			       CAIRO_EXTEND_PAD : CAIRO_EXTEND_NONE);
+
+      for (uint i = 0; i < g->iStops.size(); ++i)
+	cairo_pattern_add_color_stop_rgb(p, g->iStops[i].offset,
+					 g->iStops[i].color.iRed.toDouble(),
+					 g->iStops[i].color.iGreen.toDouble(),
+					 g->iStops[i].color.iBlue.toDouble());
+
+      const Matrix &m0 = (matrix()* g->iMatrix).inverse();
+      cairo_matrix_t m;
+      m.xx = m0.a[0];
+      m.yx = m0.a[1];
+      m.xy = m0.a[2];
+      m.yy = m0.a[3];
+      m.x0 = m0.a[4];
+      m.y0 = m0.a[5];
+      cairo_pattern_set_matrix(p, &m);
+
+      cairo_set_source(iCairo, p);
+
+      if (mode == EStrokedAndFilled)
+	cairo_fill_preserve(iCairo);
+      else
+	cairo_fill(iCairo);
+
+      cairo_pattern_destroy(p);
+
     } else {
       // tiling
+
       cairo_surface_t *s =
 	cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
       uchar *data = cairo_image_surface_get_data(s);
@@ -185,6 +230,7 @@ void CairoPainter::doDrawPath(TPathMode mode)
   if (mode <= EStrokedAndFilled) {
     Color strokeColor = stroke();
     // DimColor(qstroke);
+
     cairo_set_source_rgba(iCairo, strokeColor.iRed.toDouble(),
 			  strokeColor.iGreen.toDouble(),
 			  strokeColor.iBlue.toDouble(),
@@ -230,44 +276,6 @@ void CairoPainter::doDrawPath(TPathMode mode)
 void CairoPainter::doAddClipPath()
 {
   cairo_clip(iCairo);
-}
-
-void CairoPainter::doDrawGradient(Attribute gradient)
-{
-  const Gradient *g = cascade()->findGradient(gradient);
-  if (!g) return;
-  cairo_pattern_t *p;
-  if (g->iType == Gradient::ERadial)
-    p = cairo_pattern_create_radial(g->iV[0].x, g->iV[0].y, g->iRadius[0],
-				    g->iV[1].x, g->iV[1].y, g->iRadius[1]);
-  else
-    p = cairo_pattern_create_linear(g->iV[0].x, g->iV[0].y,
-				    g->iV[1].x, g->iV[1].y);
-  cairo_pattern_set_extend(p, g->iExtend ?
-			   CAIRO_EXTEND_PAD : CAIRO_EXTEND_NONE);
-  cairo_pattern_add_color_stop_rgb(p, 0.0,
-				   g->iColor[0].iRed.toDouble(),
-				   g->iColor[0].iGreen.toDouble(),
-				   g->iColor[0].iBlue.toDouble());
-  cairo_pattern_add_color_stop_rgb(p, 1.0,
-				   g->iColor[1].iRed.toDouble(),
-				   g->iColor[1].iGreen.toDouble(),
-				   g->iColor[1].iBlue.toDouble());
-
-  cairo_save(iCairo);
-  const Matrix &m0 = matrix();
-  cairo_matrix_t m;
-  m.xx = m0.a[0];
-  m.yx = m0.a[1];
-  m.xy = m0.a[2];
-  m.yy = m0.a[3];
-  m.x0 = m0.a[4];
-  m.y0 = m0.a[5];
-  cairo_transform(iCairo, &m);
-  cairo_set_source(iCairo, p);
-  cairo_paint(iCairo);
-  cairo_restore(iCairo);
-  cairo_pattern_destroy(p);
 }
 
 // --------------------------------------------------------------------

@@ -64,7 +64,6 @@ namespace ipe {
     virtual void doDrawText(const Text *text);
     virtual void doAddClipPath();
     virtual void doDrawSymbol(Attribute symbol);
-    virtual void doDrawGradient(Attribute gradient);
 
   protected:
     void drawAttributes();

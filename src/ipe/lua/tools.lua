@@ -680,7 +680,7 @@ end
 
 ----------------------------------------------------------------------
 
-function MODEL:createParagraph(pos, width)
+function MODEL:createParagraph(pos, width, pinned)
   local styles = self.doc:sheets():allNames("textstyle")
   local sizes = self.doc:sheets():allNames("textsize")
   local d = ipeui.Dialog(self.ui, "Create text object")
@@ -707,13 +707,16 @@ function MODEL:createParagraph(pos, width)
     local obj = ipe.Text(self.attributes, t, pos, width)
     obj:set("textsize", size)
     obj:set("textstyle", style)
+    if pinned then
+      obj:set("pinned", "horizontal")
+    end
     self:creation("create text paragraph", obj)
   end
 end
 
 function MODEL:action_insert_text_box()
   local r = self:page():textBox(self.doc:sheets())
-  self:createParagraph(r:topLeft(), r:width())
+  self:createParagraph(r:topLeft(), r:width(), true)
 end
 
 ----------------------------------------------------------------------
@@ -981,6 +984,8 @@ end
 function PASTETOOL:mouseButton(button, modifiers, press)
   self.translation = self.model.ui:pos() - self.start
   self.model.ui:finishTool()
+  print("ACTIVE:", self.model.pno, self.model.vno,
+	self.model:page():active(self.model.vno))
   local t = { label="paste objects at cursor",
 	      pno = self.model.pno,
 	      vno = self.model.vno,

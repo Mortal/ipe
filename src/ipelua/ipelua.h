@@ -169,7 +169,9 @@ namespace ipelua {
   extern void push_string(lua_State *L, ipe::String str);
   extern void push_color(lua_State *L, ipe::Color color);
   extern void push_attribute(lua_State *L, ipe::Attribute att);
-  extern ipe::Attribute check_attribute(lua_State *L, int i);
+  extern ipe::Attribute check_color_attribute(lua_State *L, int i);
+  extern ipe::Attribute check_number_attribute(lua_State *L, int i);
+  extern ipe::Attribute check_bool_attribute(lua_State *L, int i);
   extern ipe::Color check_color(lua_State *L, int i);
   extern ipe::Attribute check_property(ipe::Property prop, lua_State *L, int i);
   extern void check_allattributes(lua_State *L, int i, ipe::AllAttributes &all);

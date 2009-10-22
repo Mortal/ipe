@@ -61,12 +61,15 @@ namespace ipe {
     void setLineJoin(TLineJoin s);
     void setFillRule(TFillRule s);
     void setOpacity(Attribute opaq);
-    void setTiling(Attribute opaq);
+    void setTiling(Attribute a);
+    void setGradient(Attribute a);
 
     //! Return opacity of the opject.
     inline Attribute opacity() const { return iOpacity; }
     //! Return tiling pattern.
     inline Attribute tiling() const { return iTiling; }
+    //! Return gradient fill.
+    inline Attribute gradient() const { return iGradient; }
     inline TPathMode pathMode() const;
     inline Attribute stroke() const;
     inline Attribute fill() const;
@@ -137,6 +140,7 @@ namespace ipe {
     Attribute iPen;
     Attribute iOpacity;
     Attribute iTiling;
+    Attribute iGradient;
 
     Attribute iFArrowShape;
     Attribute iRArrowShape;

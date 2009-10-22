@@ -93,7 +93,7 @@ end
 function colorString(color)
   if type(color) == "string" then return color end
   -- else must be table
-  return string.format("(%d,%d,%d)", color.r, color.g, color.b)
+  return string.format("(%g,%g,%g)", color.r, color.g, color.b)
 end
 
 function extractElements(p, selection)

@@ -77,9 +77,17 @@ Bitmap::Bitmap(const XmlAttributes &attr, String data)
   // decode data
   iImp->iData = Buffer(length);
   char *p = iImp->iData.data();
-  Lex datalex(data);
-  while (length-- > 0)
-    *p++ = char(datalex.getHexByte());
+  if (attr["encoding"] ==  "base64") {
+    Buffer dbuffer(data.data(), data.size());
+    BufferSource source(dbuffer);
+    Base64Source b64source(source);
+    while (length-- > 0)
+      *p++ = b64source.getChar();
+  } else {
+    Lex datalex(data);
+    while (length-- > 0)
+      *p++ = char(datalex.getHexByte());
+  }
   computeChecksum();
 }
 
@@ -237,19 +245,13 @@ void Bitmap::saveAsXml(Stream &stream, int id, int pdfObjNum) const
     stream << " pdfObject=\"" << pdfObjNum << "\"/>\n";
   } else {
     // save data
-    stream << ">\n";
+    stream << " encoding=\"base64\">\n";
     const char *p = data();
     const char *fin = p + size();
-    int col = 0;
-    while (p != fin) {
-      stream.putHexByte(*p++);
-      if (++col == 36) {
-	stream << "\n";
-	col = 0;
-      }
-    }
-    if (col > 0)
-      stream << "\n";
+    Base64Stream b64(stream);
+    while (p != fin)
+      b64.putChar(*p++);
+    b64.close();
     stream << "</bitmap>\n";
   }
 }
@@ -301,32 +303,6 @@ void Bitmap::computeChecksum()
 }
 
 // --------------------------------------------------------------------
-
-#if 0
-static inline double clip01(double x) {
-  return (x < 0) ? 0 : ((x > 1) ? 1 : x);
-}
-
-// CMYK to RGB
-void GfxDeviceCMYKColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
-  double c, m, y, aw, ac, am, ay, ar, ag, ab;
-
-  c = clip01(color->c[0] + color->c[3]);
-  m = clip01(color->c[1] + color->c[3]);
-  y = clip01(color->c[2] + color->c[3]);
-  aw = (1-c) * (1-m) * (1-y);
-  ac = c * (1-m) * (1-y);
-  am = (1-c) * m * (1-y);
-  ay = (1-c) * (1-m) * y;
-  ar = (1-c) * m * y;
-  ag = c * (1-m) * y;
-  ab = c * m * (1-y);
-  rgb->r = clip01(aw + 0.9137*am + 0.9961*ay + 0.9882*ar);
-  rgb->g = clip01(aw + 0.6196*ac + ay + 0.5176*ag);
-  rgb->b = clip01(aw + 0.7804*ac + 0.5412*am + 0.0667*ar + 0.2118*ag +
-		  0.4863*ab);
-}
-#endif
 
 //! Convert bitmap data to a height x width pixel array in rgb format.
 /*! Returns empty buffer if it cannot decode the bitmap information.

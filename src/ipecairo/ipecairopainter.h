@@ -67,7 +67,6 @@ namespace ipe {
     virtual void doDrawPath(TPathMode mode);
     virtual void doDrawBitmap(Bitmap bitmap);
     virtual void doDrawText(const Text *text);
-    virtual void doDrawGradient(Attribute gradient);
 
   private:
     // void DimColor(QColor &col);

@@ -43,6 +43,7 @@ extern "C" {
 #include <QCheckBox>
 #include <QClipboard>
 #include <QCloseEvent>
+#include <QColorDialog>
 #include <QComboBox>
 #include <QDateTime>
 #include <QDialog>
@@ -836,6 +837,71 @@ static int ipeui_getString(lua_State *L)
     return 0;
 }
 
+static int ipeui_getDouble(lua_State *L)
+{
+  QWidget *parent = check_parent(L, 1);
+  QString title = checkstring(L, 2);
+  QString detail = checkstring(L, 3);
+  double value = luaL_checknumber(L, 4);
+  double minv = luaL_checknumber(L, 5);
+  double maxv = luaL_checknumber(L, 6);
+  int decimals = luaL_checkint(L, 7);
+  bool ok;
+  double d = QInputDialog::getDouble(parent, title, detail,
+				     value, minv, maxv, decimals, &ok);
+  if (ok) {
+    lua_pushnumber(L, d);
+    return 1;
+  } else
+    return 0;
+}
+
+static int ipeui_getInt(lua_State *L)
+{
+  QWidget *parent = check_parent(L, 1);
+  QString title = checkstring(L, 2);
+  QString detail = checkstring(L, 3);
+  int value = luaL_checkint(L, 4);
+  int minv = luaL_checkint(L, 5);
+  int maxv = luaL_checkint(L, 6);
+  int step = luaL_checkint(L, 7);
+  bool ok;
+#if QT_VERSION >= 0x040500
+  int d = QInputDialog::getInt(parent, title, detail,
+			       value, minv, maxv, step, &ok);
+#else
+  (void) step;
+  int d = int(QInputDialog::getDouble(parent, title, detail,
+				      value, minv, maxv, 0, &ok));
+#endif
+  if (ok) {
+    lua_pushnumber(L, d);
+    return 1;
+  } else
+    return 0;
+}
+
+static int ipeui_getColor(lua_State *L)
+{
+  QWidget *parent = check_parent(L, 1);
+  QString title = checkstring(L, 2);
+  QColor initial = QColor::fromRgbF(luaL_checknumber(L, 3),
+				    luaL_checknumber(L, 4),
+				    luaL_checknumber(L, 5));
+#if QT_VERSION >= 0x040500
+  QColor changed = QColorDialog::getColor(initial, parent, title);
+#else
+  QColor changed = QColorDialog::getColor(initial, parent);
+#endif
+  if (changed.isValid()) {
+    lua_pushnumber(L, changed.redF());
+    lua_pushnumber(L, changed.greenF());
+    lua_pushnumber(L, changed.blueF());
+    return 3;
+  } else
+    return 0;
+}
+
 // --------------------------------------------------------------------
 
 static int ipeui_fileDialog(lua_State *L)
@@ -1244,6 +1310,9 @@ static const struct luaL_Reg ipeui_functions[] = {
   { "Menu", menu_constructor },
   { "Timer", timer_constructor },
   { "getString", ipeui_getString },
+  { "getDouble", ipeui_getDouble },
+  { "getInt", ipeui_getInt },
+  { "getColor", ipeui_getColor },
   { "fileDialog", ipeui_fileDialog },
   { "messageBox", ipeui_messageBox },
   { "WaitDialog", ipeui_wait },

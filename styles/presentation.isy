@@ -69,7 +69,7 @@
 <textstyle name="center" begin="\begin{center}" end="\end{center}"/>
 <textstyle name="itemize" begin="\begin{flushleft}\begin{itemize}" end="\end{itemize}\end{flushleft}"/>
 <textstyle name="item" begin="\begin{flushleft}\begin{itemize}\item{}" end="\end{itemize}\end{flushleft}"/>
-<textstyle name="default" begin="\begin{flushleft}" end="\end{flushleft}"/>
+<textstyle name="normal" begin="\begin{flushleft}" end="\end{flushleft}"/>
 <symbol name="mark/circle(sx)" transformations="translations">
 <path fill="sym-stroke">
 0.6 0 0 0.6 0 0 e 0.4 0 0 0.4 0 0 e

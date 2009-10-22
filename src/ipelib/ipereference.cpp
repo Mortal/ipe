@@ -43,14 +43,9 @@ using namespace ipe;
   sheet, and can be reused arbitrarily often in the document.  This
   can, for instance, be used for backgrounds on multi-page documents.
 
-  Alternatively, a Reference can refer to a named gradient in the
-  style sheet.  The attributes stroke, fill, pen, and size are not
-  used in this case. (It is possible to transform the gradient using
-  position and matrix.)
-
   It is admissible to refer to an undefined object (that is, the
-  current style sheet cascade does not define a symbol or gradient
-  with the given name).  Nothing will be drawn in this case.
+  current style sheet cascade does not define a symbol with the given
+  name).  Nothing will be drawn in this case.
 
   The Reference has a stroke, fill, and pen attribute.  When drawing a
   symbol, these attributes are made available to the symbol through
@@ -170,8 +165,8 @@ void Reference::draw(Painter &painter) const
     Attribute si = painter.cascade()->find(ESymbolSize, iSize);
     double s = si.number().toDouble();
     painter.pushMatrix();
-    painter.transform(matrix());
     painter.translate(iPos);
+    painter.transform(matrix());
     painter.untransform(transformations());
     painter.untransform(symbol->iTransformations);
     if (iFlags & EHasSize) {
@@ -188,13 +183,6 @@ void Reference::draw(Painter &painter) const
     painter.drawSymbol(iName);
     painter.pop();
     painter.popMatrix();
-  } else if (painter.cascade()->findGradient(iName)){
-    painter.pushMatrix();
-    painter.transform(matrix());
-    painter.translate(iPos);
-    painter.untransform(transformations());
-    painter.drawGradient(iName);
-    painter.popMatrix();
   }
 }
 
@@ -202,8 +190,8 @@ void Reference::drawSimple(Painter &painter) const
 {
   const int size = 10;
   painter.pushMatrix();
-  painter.transform(matrix());
   painter.translate(iPos);
+  painter.transform(matrix());
   painter.untransform(ETransformationsTranslations);
   painter.newPath();
   painter.moveTo(Vector(-size, 0));

@@ -380,8 +380,9 @@ void Canvas::drawFrame(cairo_t *cc)
   const Layout *l = iCascade->findLayout();
   cairo_set_source_rgb(cc, 0.5, 0.5, 0.5);
   cairo_save(cc);
-  double dashes[2] = {1.0, 3.0};
+  double dashes[2] = {3.0 / iZoom, 7.0 / iZoom};
   cairo_set_dash(cc, dashes, 2, 0.0);
+  cairo_set_line_width(cc, 2.5 / iZoom);
   cairo_move_to(cc, 0.0, 0.0);
   cairo_line_to(cc, 0.0, l->iFrameSize.y);
   cairo_line_to(cc, l->iFrameSize.x, l->iFrameSize.y);

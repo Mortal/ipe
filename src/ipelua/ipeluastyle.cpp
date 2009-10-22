@@ -118,6 +118,39 @@ static int sheet_tostring(lua_State *L)
 
 // --------------------------------------------------------------------
 
+// i must be positive
+static Attribute check_absolute_attribute(Kind kind, lua_State *L, int i)
+{
+  switch (kind) {
+  case EPen:
+  case ESymbolSize:
+  case EArrowSize:
+  case ETextSize:
+  case ETextStretch:
+  case EOpacity:
+  case EGridSize:
+  case EAngleSize: {
+    double v = luaL_checknumber(L, i);
+    return Attribute(Fixed::fromInternal(int(v * 1000 + 0.5))); }
+  case EColor: {
+    Color color = check_color(L, i);
+    return Attribute(color); }
+  case EDashStyle: {
+    const char *s = luaL_checkstring(L, i);
+    Attribute ds = Attribute::makeDashStyle(s);
+    luaL_argcheck(L, !ds.isSymbolic(), i, "dashstyle is not absolute");
+    return ds; }
+  case ETextStyle:
+  case EEffect:
+  case ETiling:
+  case EGradient:
+  case ESymbol:
+    luaL_argerror(L, i, "cannot set absolute value of this kind");
+    break;
+  }
+  return Attribute::NORMAL(); // placate compiler
+}
+
 static int sheet_add(lua_State *L)
 {
   StyleSheet *s = check_sheet(L, 1)->sheet;
@@ -133,7 +166,7 @@ static int sheet_add(lua_State *L)
     Kind kind = Kind(luaL_checkoption(L, 2, NULL, kind_names));
     const char *name = luaL_checkstring(L, 3);
     Attribute sym(true, String(name));
-    Attribute value = check_attribute(L, 4);
+    Attribute value = check_absolute_attribute(kind, L, 4);
     s->add(kind, sym, value);
   }
   return 0;

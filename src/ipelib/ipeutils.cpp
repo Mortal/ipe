@@ -161,23 +161,6 @@ void BBoxPainter::doAddClipPath()
     iClipBox.back().clipTo(iPathBox);
 }
 
-void BBoxPainter::doDrawGradient(Attribute gradient)
-{
-  const Gradient *g = cascade()->findGradient(gradient);
-  if (!g) return;
-  if (g->iExtend || g->iType == Gradient::EAxial) // fills entire page
-    iBBox.addRect(iClipBox.back());
-  // handle bounded radial pattern: convex hull of two circles
-  Rect box;
-  for (int i = 0; i < 2; ++i) {
-    Arc arc(matrix() * Matrix(g->iRadius[i], 0, 0, g->iRadius[i],
-			      g->iV[i].x, g->iV[i].y));
-    box.addRect(arc.bbox());
-  }
-  box.clipTo(iClipBox.back());
-  iBBox.addRect(box);
-}
-
 // --------------------------------------------------------------------
 
 /*! \class ipe::A85Stream
@@ -250,6 +233,74 @@ void A85Stream::close()
 
 // --------------------------------------------------------------------
 
+/*! \class ipe::Base64Stream
+  \ingroup high
+  \brief Filter stream adding Base64 encoding.
+*/
+
+static const char base64letter[65] =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+inline uint base64word(const uchar *p)
+{
+  return (p[0] << 16) | (p[1] << 8) | p[2];
+}
+
+inline void base64encode(uint w, char *p)
+{
+  p[4] = '\0';
+  p[3] = base64letter[w % 64];
+  w >>= 6;
+  p[2] = base64letter[w % 64];
+  w >>= 6;
+  p[1] = base64letter[w % 64];
+  w >>= 6;
+  p[0] = base64letter[w % 64];
+}
+
+Base64Stream::Base64Stream(Stream &stream)
+  : iStream(stream)
+{
+  iN = 0;
+  iCol = 0;
+}
+
+void Base64Stream::putChar(char ch)
+{
+  iCh[iN++] = ch;
+  if (iN == 3) {
+    // encode and write
+    uint w = base64word(iCh);
+    char buf[5];
+    base64encode(w, buf);
+    iStream.putCString(buf);
+    iCol += 4;
+    if (iCol > 70) {
+      iStream.putChar('\n');
+      iCol = 0;
+    }
+    iN = 0;
+  }
+}
+
+void Base64Stream::close()
+{
+  if (iN) {
+    for (int k = iN; k < 3; ++k)
+      iCh[k] = 0;
+    uint w = base64word(iCh);
+    char buf[5];
+    base64encode(w, buf);
+    for (int k = iN + 1; k < 4; ++k)
+      buf[k] = '=';
+    iStream.putCString(buf);
+  }
+  iStream.putCString("\n");
+  iStream.close();
+}
+
+// --------------------------------------------------------------------
+
 /*! \class ipe::A85Source
   \ingroup high
   \brief Filter source adding ASCII85 decoding.
@@ -315,6 +366,83 @@ int A85Source::getChar()
     t >>= 8;
   }
 
+  return iBuf[0];
+};
+
+// --------------------------------------------------------------------
+
+/*! \class ipe::Base64Source
+  \ingroup high
+  \brief Filter source adding Base64 decoding.
+*/
+
+static signed char base64_value[] =
+  { 62, -1, -1, -1, 63,                                             // 2b..2f
+    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1,  0, -1, -1, // 30..3f
+    -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,           // 40..4f
+    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, // 50..5f
+    -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, // 60..6f
+    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,                     // 70..7a
+  };
+
+inline bool base64illegal(int ch)
+{
+  return (ch < '+' || ch > 'z' || base64_value[ch - '+'] < 0);
+}
+
+inline int base64value(int ch)
+{
+  return base64_value[ch - '+'];
+}
+
+Base64Source::Base64Source(DataSource &source)
+  : iSource(source)
+{
+  iEof = false;
+  iIndex = 0;    // buffer empty
+  iBufLen = 0;
+}
+
+int Base64Source::getChar()
+{
+  if (iEof)
+    return EOF;
+
+  if (iIndex < iBufLen)
+    return iBuf[iIndex++];
+
+  char buf[4];
+  for (int i = 0; i < 4; ++i) {
+    int ch;
+    do {
+      ch = iSource.getChar();
+    } while (ch == '\n' || ch == '\r' || ch == ' ');
+
+    // non-base64 characters terminate stream
+    if (ch == EOF || base64illegal(ch)) {
+      iEof = true; // no more data, immediate EOF
+      return EOF;
+    }
+
+    buf[i] = ch;
+  }
+
+  uint w = base64value(buf[0]) << 18;
+  w |= (base64value(buf[1]) << 12);
+  w |= (base64value(buf[2]) << 6);
+  w |= base64value(buf[3]);
+
+  iBuf[0] = (w >> 16) & 0xff;
+  iBuf[1] = (w >> 8) & 0xff;
+  iBuf[2] = w & 0xff;
+
+  iBufLen = 3;
+  if (buf[3] == '=') {
+    --iBufLen;
+    if (buf[2] == '=')
+      --iBufLen;
+  }
+  iIndex = 1;
   return iBuf[0];
 };
 

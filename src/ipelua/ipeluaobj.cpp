@@ -126,6 +126,7 @@ Color ipelua::check_color(lua_State *L, int i)
   return color;
 }
 
+#if 0
 // i must be positive
 Attribute ipelua::check_attribute(lua_State *L, int i)
 {
@@ -151,6 +152,40 @@ Attribute ipelua::check_attribute(lua_State *L, int i)
     luaL_argerror(L, i, "attribute expected");
     return Attribute::NORMAL();  // placate compiler
   }
+}
+#endif
+
+// i must be positive
+Attribute ipelua::check_color_attribute(lua_State *L, int i)
+{
+  if (lua_type(L, i) == LUA_TSTRING) {
+    const char *s = luaL_checkstring(L, i);
+    return Attribute(true, s);
+  } else {
+    Color color = check_color(L, i);
+    return Attribute(color);
+  }
+}
+
+// i must be positive
+Attribute ipelua::check_bool_attribute(lua_State *L, int i)
+{
+  static const char * const bool_names[] = { "false", "true" };
+  if (lua_type(L, i) == LUA_TBOOLEAN)
+    return Attribute::Boolean(lua_toboolean(L, i));
+  int val = luaL_checkoption(L, i, 0, bool_names);
+  return Attribute::Boolean(val);
+}
+
+// i must be positive
+Attribute ipelua::check_number_attribute(lua_State *L, int i)
+{
+  if (lua_type(L, i) == LUA_TNUMBER) {
+    double v = luaL_checknumber(L, i);
+    return Attribute(Fixed::fromInternal(int(v * 1000 + 0.5)));
+  }
+  const char *s = luaL_checkstring(L, i);
+  return Attribute(true, s);
 }
 
 Attribute ipelua::check_property(Property prop, lua_State *L, int i)
@@ -181,17 +216,43 @@ Attribute ipelua::check_property(Property prop, lua_State *L, int i)
   case EPropPathMode:
     val = luaL_checkoption(L, i, 0, pathmode_names);
     return Attribute(TPathMode(val));
-  default:
-    return check_attribute(L, i);
-    break;
+  case EPropPen:
+  case EPropSymbolSize:
+  case EPropFArrowSize:
+  case EPropRArrowSize:
+  case EPropTextSize:
+    return check_number_attribute(L, i);
+  case EPropWidth: { // absolute number only!
+    double v = luaL_checknumber(L, i);
+    return Attribute(Fixed::fromInternal(int(v * 1000 + 0.5))); }
+  case EPropFArrowShape:
+  case EPropRArrowShape:
+  case EPropMarkShape:
+  case EPropTextStyle:
+  case EPropOpacity:
+  case EPropGradient:
+  case EPropTiling:  // symbolic string only
+    return Attribute(true, luaL_checkstring(L, i));
+  case EPropStrokeColor:
+  case EPropFillColor:
+    return check_color_attribute(L, i);
+  case EPropDashStyle:
+    return Attribute::makeDashStyle(luaL_checkstring(L, i));
+  case EPropFArrow:
+  case EPropRArrow:
+  case EPropMinipage:
+  case EPropTransformableText:
+    return check_bool_attribute(L, i);
   }
+  return Attribute::NORMAL(); // placate compiler
 }
 
-static void get_attribute(lua_State *L, int i, const char *key, Attribute &att)
+static void get_attribute(lua_State *L, int i, Property prop,
+			  const char *key, Attribute &att)
 {
   lua_getfield(L, i, key);
   if (!lua_isnil(L, -1))
-    att = check_attribute(L, lua_gettop(L));  // arg must be positive
+    att = check_property(prop, L, lua_gettop(L));  // arg must be positive
   lua_pop(L, 1);
 }
 
@@ -219,23 +280,23 @@ static int get_option(lua_State *L, int i, const char *key,
 void ipelua::check_allattributes(lua_State *L, int i, AllAttributes &all)
 {
   luaL_checktype(L, i, LUA_TTABLE);
-  get_attribute(L, i, "stroke", all.iStroke);
-  get_attribute(L, i, "fill", all.iFill);
-  get_attribute(L, i, "dashstyle", all.iDashStyle);
-  get_attribute(L, i, "pen", all.iPen);
+  get_attribute(L, i, EPropStrokeColor, "stroke", all.iStroke);
+  get_attribute(L, i, EPropFillColor, "fill", all.iFill);
+  get_attribute(L, i, EPropDashStyle, "dashstyle", all.iDashStyle);
+  get_attribute(L, i, EPropPen, "pen", all.iPen);
   get_boolean(L, i, "farrow", all.iFArrow);
   get_boolean(L, i, "rarrow", all.iRArrow);
-  get_attribute(L, i, "farrowshape", all.iFArrowShape);
-  get_attribute(L, i, "rarrowshape", all.iRArrowShape);
-  get_attribute(L, i, "farrowsize", all.iFArrowSize);
-  get_attribute(L, i, "rarrowsize", all.iRArrowSize);
-  get_attribute(L, i, "symbolsize", all.iSymbolSize);
-  get_attribute(L, i, "markshape", all.iMarkShape);
-  get_attribute(L, i, "textsize", all.iTextSize);
+  get_attribute(L, i, EPropFArrowShape, "farrowshape", all.iFArrowShape);
+  get_attribute(L, i, EPropRArrowShape, "rarrowshape", all.iRArrowShape);
+  get_attribute(L, i, EPropFArrowSize, "farrowsize", all.iFArrowSize);
+  get_attribute(L, i, EPropRArrowSize, "rarrowsize", all.iRArrowSize);
+  get_attribute(L, i, EPropSymbolSize, "symbolsize", all.iSymbolSize);
+  get_attribute(L, i, EPropMarkShape, "markshape", all.iMarkShape);
+  get_attribute(L, i, EPropTextSize, "textsize", all.iTextSize);
   get_boolean(L, i, "transformabletext", all.iTransformableText);
-  get_attribute(L, i, "textstyle", all.iTextStyle);
-  get_attribute(L, i, "opacity", all.iOpacity);
-  get_attribute(L, i, "tiling", all.iTiling);
+  get_attribute(L, i, EPropTextStyle, "textstyle", all.iTextStyle);
+  get_attribute(L, i, EPropOpacity, "opacity", all.iOpacity);
+  get_attribute(L, i, EPropTiling, "tiling", all.iTiling);
 
   int t;
   t = get_option(L, i, "horizontalalignment", horizontal_alignment_names);
@@ -400,9 +461,9 @@ static int object_set(lua_State *L)
   Attribute stroke = Attribute::BLACK();
   Attribute fill = Attribute::WHITE();
   if (!lua_isnoneornil(L, 4))
-    stroke = check_attribute(L, 4);
+    stroke = check_color_attribute(L, 4);
   if (!lua_isnoneornil(L, 5))
-    fill = check_attribute(L, 5);
+    fill = check_color_attribute(L, 5);
   s->obj->setAttribute(prop, value, stroke, fill);
   return 0;
 }
