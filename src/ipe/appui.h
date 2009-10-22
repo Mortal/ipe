@@ -174,7 +174,8 @@ public:
 
   // change list in front of AppUi::selector if enum changes
   enum { EUiStroke, EUiFill, EUiPen, EUiTextSize, EUiMarkShape,
-	 EUiSymbolSize, EUiGridSize, EUiAngleSize, EUiNum };
+	 EUiSymbolSize, EUiGridSize, EUiAngleSize, EUiNum,
+	 EUiView = EUiNum, EUiPage };
 
 public:
   AppUi(lua_State *L0, int model, Qt::WFlags f=0);
@@ -188,6 +189,7 @@ public:
   void setZoom(double zoom);
   void setActionsEnabled(bool mode);
   IpeAction *findAction(const char *name) const;
+  void setNumbers(String vno, String pno);
 
   // direct Lua methods
   int setBookmarks(lua_State *L);
@@ -240,6 +242,9 @@ private:
 
   QToolButton *iButton[EUiGridSize];
   IpeComboBox *iSelector[EUiNum];
+
+  QToolButton *iViewNumber;
+  QToolButton *iPageNumber;
 
   QToolBar *iSnapTools;
   QToolBar *iObjectTools;

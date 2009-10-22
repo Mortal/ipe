@@ -450,12 +450,11 @@ static int appui_setAttributes(lua_State *L)
 static int appui_setGridAngleSize(lua_State *L)
 {
   AppUi **ui = check_appui(L, 1);
-  Attribute gs = check_attribute(L, 2);
-  Attribute as = check_attribute(L, 3);
+  Attribute gs = check_number_attribute(L, 2);
+  Attribute as = check_number_attribute(L, 3);
   (*ui)->setGridAngleSize(gs, as);
   return 0;
 }
-
 
 static int appui_setLayers(lua_State *L)
 {
@@ -463,6 +462,19 @@ static int appui_setLayers(lua_State *L)
   Page *page = check_page(L, 2)->page;
   int view = check_viewno(L, 3, page);
   (*ui)->setLayers(page, view);
+  return 0;
+}
+
+static int appui_setNumbers(lua_State *L)
+{
+  AppUi **ui = check_appui(L, 1);
+  String vno;
+  String pno;
+  if (!lua_isnil(L, 2))
+    vno = luaL_checkstring(L, 2);
+  if (!lua_isnil(L, 3))
+    pno = luaL_checkstring(L, 3);
+  (*ui)->setNumbers(vno, pno);
   return 0;
 }
 
@@ -527,6 +539,7 @@ static const struct luaL_Reg appui_methods[] = {
   { "setAttributes", appui_setAttributes },
   { "setGridAngleSize", appui_setGridAngleSize },
   { "setLayers", appui_setLayers },
+  { "setNumbers", appui_setNumbers },
   { "setBookmarks", appui_setBookmarks },
   { 0, 0},
 };

@@ -55,8 +55,8 @@ PdfPainter::PdfPainter(const Cascade *style, Stream &stream)
   state.iLineCap = style->lineCap();
   state.iLineJoin = style->lineJoin();
   state.iOpacity = Fixed(1);
-  iStream << state.iLineCap << " J "
-	  << state.iLineJoin << " j\n";
+  iStream << state.iLineCap - 1 << " J "
+	  << state.iLineJoin - 1 << " j\n";
   iActiveState.push_back(state);
 }
 
@@ -127,17 +127,17 @@ void PdfPainter::drawAttributes()
   }
   if (s.iLineCap != sa.iLineCap) {
     sa.iLineCap = s.iLineCap;
-    iStream << s.iLineCap << " J\n";
+    iStream << s.iLineCap - 1 << " J\n";
   }
   if (s.iLineJoin != sa.iLineJoin) {
     sa.iLineJoin = s.iLineJoin;
-    iStream << s.iLineJoin << " j\n";
+    iStream << s.iLineJoin - 1 << " j\n";
   }
   if (s.iStroke != sa.iStroke) {
     sa.iStroke = s.iStroke;
     drawColor(iStream, s.iStroke, "G", "RG");
   }
-  if (s.iFill != sa.iFill) {
+  if (s.iFill != sa.iFill || !s.iTiling.isNormal()) {
     sa.iFill = s.iFill;
     if (!s.iTiling.isNormal()) {
       iStream << "/PCS cs\n";
@@ -166,17 +166,34 @@ void PdfPainter::drawOpacity()
   }
 }
 
+// If gradient fill is set, then StrokeAndFill does NOT stroke!
 void PdfPainter::doDrawPath(TPathMode mode)
 {
   bool eofill = (fillRule() == EEvenOddRule);
+
   // if (!mode)
   // iStream << "n\n"; // no op path
-  if (mode == EFilledOnly)
-    iStream << (eofill ? "f*\n" : "f\n");
-  else if (mode == EStrokedOnly)
-    iStream << "S\n";
-  else
-    iStream << (eofill ? "B*\n" : "B\n"); // fill and then stroke
+
+  const Gradient *g = 0;
+  Attribute grad = iState.back().iGradient;
+  if (!grad.isNormal())
+    g = iCascade->findGradient(grad);
+
+  if (g) {
+    if (mode == EStrokedOnly)
+      iStream << "S\n";
+    else
+      iStream << (eofill ? "q W* n " : "q W n ")
+	      << matrix() * g->iMatrix << " cm /Grad" << grad.index()
+	      << " sh Q\n";
+  } else {
+    if (mode == EFilledOnly)
+      iStream << (eofill ? "f*\n" : "f\n");
+    else if (mode == EStrokedOnly)
+      iStream << "S\n";
+    else
+      iStream << (eofill ? "B*\n" : "B\n"); // fill and then stroke
+  }
 }
 
 void PdfPainter::doDrawBitmap(Bitmap bitmap)
@@ -292,12 +309,6 @@ void PdfPainter::doDrawSymbol(Attribute symbol)
     sym->iObject->draw(*this);
 }
 
-void PdfPainter::doDrawGradient(Attribute gradient)
-{
-  iStream << "q " << matrix() << " cm "
-	  << "/Grad" << gradient.index() << " sh Q\n";
-}
-
 // --------------------------------------------------------------------
 
 /*! \class ipe::PdfWriter
@@ -365,31 +376,6 @@ PdfWriter::PdfWriter(TellStream &stream, const Document *doc,
 	    << ">> endobj\n";
   }
 
-  // embed all gradients
-  AttributeSeq gs;
-  iDoc->cascade()->allNames(EGradient, gs);
-  for (uint i = 0; i < gs.size(); ++i) {
-    const Gradient *g = iDoc->cascade()->findGradient(gs[i]);
-    int num = startObject();
-    iStream << "<<\n"
-	    << " /ShadingType " << int(g->iType) << "\n"
-	    << " /ColorSpace /DeviceRGB\n";
-    if (g->iType == Gradient::EAxial)
-      iStream << " /Coords [" << g->iV[0] << " " << g->iV[1] << "]\n";
-    else
-      iStream << " /Coords [" << g->iV[0] << " " << g->iRadius[0]
-	      << " " << g->iV[1] << " " << g->iRadius[1] << "]\n";
-    iStream << " /Function << /FunctionType 2 /Domain [ 0 1 ] /N 1\n"
-	    << "     /C0 [";
-    g->iColor[0].saveRGB(iStream);
-    iStream << "]\n" << "     /C1 [";
-    g->iColor[1].saveRGB(iStream);
-    iStream << "] >>\n"
-	    << " /Extend [" << (g->iExtend ? "true true" : "false false")
-	    << "]\n" << ">> endobj\n";
-    iGradients[gs[i].index()] = num;
-  }
-
   // embed all opacities
   AttributeSeq os;
   iDoc->cascade()->allNames(EOpacity, os);
@@ -405,11 +391,66 @@ PdfWriter::PdfWriter(TellStream &stream, const Document *doc,
     iStream << ">> endobj\n";
   }
 
+  // embed all gradients
+  AttributeSeq gs;
+  iDoc->cascade()->allNames(EGradient, gs);
+  for (uint i = 0; i < gs.size(); ++i) {
+    const Gradient *g = iDoc->cascade()->findGradient(gs[i]);
+    int num = startObject();
+    iStream << "<<\n"
+	    << " /ShadingType " << int(g->iType) << "\n"
+	    << " /ColorSpace /DeviceRGB\n";
+    if (g->iType == Gradient::EAxial)
+      iStream << " /Coords [" << g->iV[0] << " " << g->iV[1] << "]\n";
+    else
+      iStream << " /Coords [" << g->iV[0] << " " << g->iRadius[0]
+	      << " " << g->iV[1] << " " << g->iRadius[1] << "]\n";
+
+    iStream << " /Extend [" << (g->iExtend ? "true true]\n" : "false false]\n");
+
+    if (g->iStops.size() == 2) {
+      iStream << " /Function << /FunctionType 2 /Domain [ 0 1 ] /N 1\n"
+	      << "     /C0 [";
+      g->iStops[0].color.saveRGB(iStream);
+      iStream << "]\n" << "     /C1 [";
+      g->iStops[1].color.saveRGB(iStream);
+      iStream << "] >>\n";
+    } else {
+      // need to stitch
+      iStream << " /Function <<\n"
+	      << "  /FunctionType 3 /Domain [ 0 1 ]\n"
+	      << "  /Bounds [";
+      int count = 0;
+      for (uint i = 1; i < g->iStops.size() - 1; ++i) {
+	if (g->iStops[i].offset > g->iStops[i-1].offset) {
+	  iStream << g->iStops[i].offset << " ";
+	  ++count;
+	}
+      }
+      iStream << "]\n  /Encode [";
+      for (int i = 0; i <= count; ++i)
+	iStream << "0.0 1.0 ";
+      iStream << "]\n  /Functions [\n";
+      for (uint i = 1; i < g->iStops.size(); ++i) {
+	if (g->iStops[i].offset > g->iStops[i-1].offset) {
+	  iStream << "   << /FunctionType 2 /Domain [ 0 1 ] /N 1 /C0 [";
+	  g->iStops[i-1].color.saveRGB(iStream);
+	  iStream << "] /C1 [";
+	  g->iStops[i].color.saveRGB(iStream);
+	  iStream << "] >>\n";
+	}
+      }
+      iStream << "] >>\n";
+    }
+    iStream << ">> endobj\n";
+    iGradients[gs[i].index()] = num;
+  }
+
   // embed all tilings
   AttributeSeq ts;
+  std::map<int, int> patterns;
   iDoc->cascade()->allNames(ETiling, ts);
-  if (ts.size()) {
-    std::map<int, int> patterns;
+  if (ts.size() > 0) {
     for (uint i = 0; i < ts.size(); ++i) {
       const Tiling *t = iDoc->cascade()->findTiling(ts[i]);
       Linear m(t->iAngle);
@@ -430,6 +471,7 @@ PdfWriter::PdfWriter(TellStream &stream, const Document *doc,
       createStream(s.data(), s.size(), false);
       patterns[ts[i].index()] = num;
     }
+
     // create pattern dictionary
     iPatternNum = startObject();
     iStream << "<<\n";
@@ -451,8 +493,9 @@ PdfWriter::PdfWriter(TellStream &stream, const Document *doc,
       const Symbol *sym = iDoc->cascade()->findSymbol(sys[i]);
       if (sym->iXForm) {
 	// compute bbox for object
-	Rect bbox;
-	sym->iObject->addToBBox(bbox, Matrix(), false); // no control points
+	BBoxPainter bboxPainter(iDoc->cascade());
+	sym->iObject->draw(bboxPainter);
+	Rect bbox = bboxPainter.bbox();
 	// embed all bitmaps it uses
 	BitmapFinder bm;
 	sym->iObject->accept(bm);

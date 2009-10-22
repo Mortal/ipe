@@ -136,6 +136,57 @@ function MODEL:bookmark(index)
   self:setPage()
 end
 
+function MODEL:absoluteButton(button)
+  print("Button:", button)
+  if button == "stroke" or button == "fill" then
+    local old = self.doc:sheets():find("color", self.attributes[button])
+    r, g, b = ipeui.getColor(self.ui, "Select " .. button .. " color",
+			     old.r, old.g, old.b)
+    if r then
+      self:set_absolute(button, { r = r, g = g, b = b });
+    end
+  elseif button == "pen" then
+    local old = self.doc:sheets():find(button, self.attributes[button])
+    local d = ipeui.getDouble(self.ui, "Select pen", "Pen width:",
+			      old, 0, 1000, 3)
+    if d then
+      self:set_absolute(button, d)
+    end
+  elseif button == "textsize" then
+    local old = self.doc:sheets():find(button, self.attributes[button])
+    local d = ipeui.getDouble(self.ui, "Select text size",
+			      "Text size in points:",
+			      10, 2, 1000, 3)
+    if d then
+      self:set_absolute(button, d)
+    end
+  elseif button == "symbolsize" then
+    local old = self.doc:sheets():find(button, self.attributes[button])
+    local d = ipeui.getDouble(self.ui, "Select symbol size",
+			      "Symbol size:", old, 0, 1000, 3)
+    if d then
+      self:set_absolute(button, d)
+    end
+  elseif button == "view" then
+    local d = ipeui.getInt(self.ui, "Select view", "View number:",
+			   self.vno, 1, self:page():countViews(), 1)
+    if d then
+      self.vno = d
+      self:setPage()
+    end
+  elseif button == "page" then
+    local d = ipeui.getInt(self.ui, "Select page", "Page number:",
+			   self.pno, 1, #self.doc, 1)
+    if d then
+      self.pno = d
+      self.vno = 1
+      self:setPage()
+    end
+  else
+    print("Unknown button: ", button)
+  end
+end
+
 ----------------------------------------------------------------------
 
 function MODEL:layeraction_select(layer, arg)
@@ -744,6 +795,7 @@ function MODEL:action_new_layer_view()
 	     end
 	     t.layer = doc[t.pno]:addLayer()
 	     p:setVisible(t.vno1, t.layer, true)
+	     p:setActive(t.vno1, t.layer)
 	   end
   self:register(t)
   self:nextView(1)
@@ -814,11 +866,13 @@ end
 
 function MODEL:action_first_page()
   self.pno = 1
+  self.vno = 1
   self:setPage()
 end
 
 function MODEL:action_last_page()
   self.pno = #self.doc
+  self.vno = 1
   self:setPage()
 end
 
@@ -1383,6 +1437,16 @@ end
 
 ----------------------------------------------------------------------
 
+function MODEL:action_check_style()
+  local syms = self.doc:checkStyle()
+  if #syms == 0 then
+    self.ui:explain("no undefined symbols")
+  else
+    self:warning("Undefined symbolic attributes:",
+		 "<qt><ul><li>" .. table.concat(syms, "<li>") .. "</qt>")
+  end
+end
+
 function MODEL:action_update_style_sheets()
   if not self.file_name then
     self:warning("Cannot update stylesheets",
@@ -1410,13 +1474,7 @@ function MODEL:action_update_style_sheets()
 	     t.original = doc:replaceSheets(t.final)
 	   end
   self:register(t)
-
-  local syms = self.doc:checkStyle()
-  if #syms > 0 then
-    self:warning("Updating the stylesheets caused some symbolic attributes " ..
-		 "to become undefined:",
-	       "<qt><ul><li>" .. table.concat(syms, "<li>") .. "</qt>")
-  end
+  self:action_check_style()
 end
 
 local function sheets_namelist(list)
@@ -1543,13 +1601,7 @@ function MODEL:action_style_sheets()
 	     t.original = doc:replaceSheets(t.final)
 	   end
   self:register(t)
-
-  local syms = self.doc:checkStyle()
-  if #syms > 0 then
-    self:warning("Your changes caused some symbolic attributes " ..
-		 "to become undefined:",
-	       "<qt><ul><li>" .. table.concat(syms, "<li>") .. "</qt>")
-  end
+  self:action_check_style()
 end
 
 ----------------------------------------------------------------------

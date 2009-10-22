@@ -1,5 +1,39 @@
 --------------------------------------------------------------------
 
+Ipe 7.0.5 (2009-10-22) SVN 357
+
+ * Created script "svgtoipe.py" to convert SVG files to Ipe format.
+   It is available as a separate download.
+
+ * Made Lua interface for attribute values more robust - interface now
+   checks that attributes have correct type before passing them to
+   Ipelib.  This fixes opacity names starting with digits. 
+   (Bug #2880502)
+
+ * #define to enable use of ancient pdftex versions ( < 130).
+   Bug #309.
+
+ * Show current view and page number in the properties window.
+
+ * Environment variable IPEQTSTYLE sets this Qt style.  Saying, for
+   instance, 'export IPEQTSTYLE="cleanlooks" ' would fix the Qt crash
+   in the GTK style on some systems. (See bug #308.)
+
+ * Gradient support changed: gradients are now used as fill patterns
+   for path objects.  Gradients can now have more than two color
+   stops.
+   The file format has changed slightly because of this, so the
+   current file format version is 70005.   There is no support for
+   reading 70000-version files with gradients.
+
+ * Support base64-encoding for bitmaps in XML format.
+
+ * Fixed views without active layer.
+
+ * Fixed filename in autosave (bug #2883631).
+
+--------------------------------------------------------------------
+
 Ipe 7.0.4 (2009-10-14) SVN 335
 
  * Fixed bug in save_as (bug #305).

@@ -174,12 +174,14 @@ function MODEL:setCaption()
   else
     s = s .. "[unsaved] "
   end
+--[[
   if #self.doc > 1 then
     s = s .. string.format("Page %d/%d ", self.pno, #self.doc)
   end
   if self:page():countViews() > 1 then
     s = s .. string.format("(View %d/%d) ", self.vno, self:page():countViews())
   end
+--]]
   self.ui:setWindowTitle(s)
 end
 
@@ -195,6 +197,15 @@ function MODEL:setPage()
   self.ui:update()
   self:setCaption()
   self:setBookmarks()
+  local vno
+  if self:page():countViews() > 1 then
+    vno = string.format("View %d/%d", self.vno, self:page():countViews())
+  end
+  local pno
+  if #self.doc > 1 then
+    pno = string.format("Page %d/%d", self.pno, #self.doc)
+  end
+  self.ui:setNumbers(vno, pno)
 end
 
 function MODEL:setBookmarks()
@@ -572,12 +583,12 @@ function MODEL:autosave()
   -- only autosave if document has been modified
   if not self:isModified() then return end
   local f
-  if self.file_name then
-    f = self.file_name:match("/([^/]+)$")
-  else
-    f = "unnamed"
-  end
   if prefs.autosave_filename:find("%%s") then
+    if self.file_name then
+      f = self.file_name:match("/([^/]+)$") or self.file_name
+    else
+      f = "unnamed"
+    end
     f = string.format(prefs.autosave_filename, f)
   else
     f = prefs.autosave_filename

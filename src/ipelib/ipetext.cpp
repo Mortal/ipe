@@ -170,7 +170,10 @@ Text::Text(const XmlAttributes &attr, String data)
   else
     iStyle = Attribute::NORMAL();
 
-  iOpacity = Attribute::makeScalar(attr["opacity"], Attribute::OPAQUE());
+  if (attr.has("opacity", str))
+    iOpacity = Attribute(true, str);
+  else
+    iOpacity = Attribute::OPAQUE();
 }
 
 // --------------------------------------------------------------------

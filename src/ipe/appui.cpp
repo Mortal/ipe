@@ -778,6 +778,23 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   // lo->setRowStretch(3, 1);
   iPropertiesTools->setWidget(wg);
 
+  QHBoxLayout *hol = new QHBoxLayout();
+  iViewNumber = new QToolButton();
+  iPageNumber = new QToolButton();
+  iViewNumber->setFocusPolicy(Qt::NoFocus);
+  iPageNumber->setFocusPolicy(Qt::NoFocus);
+  iViewNumber->setText("View 1/1");
+  iViewNumber->setToolTip("Current view number");
+  iPageNumber->setText("Page 1/1");
+  iPageNumber->setToolTip("Current page number");
+  bg->addButton(iViewNumber, EUiView);
+  bg->addButton(iPageNumber, EUiPage);
+  hol->setSpacing(0);
+  hol->addWidget(iViewNumber);
+  hol->addStretch(1);
+  hol->addWidget(iPageNumber);
+  lo->addLayout(hol, EUiSymbolSize + 2, 0, 1, -1);
+
   iBookmarks = new QListWidget();
   iBookmarks->setToolTip("Bookmarks of this document");
   iBookmarks->setFocusPolicy(Qt::NoFocus);
@@ -1058,6 +1075,22 @@ void AppUi::setGridAngleSize(Attribute abs_grid, Attribute abs_angle)
   }
 }
 
+void AppUi::setNumbers(String vno, String pno)
+{
+  if (vno.isEmpty()) {
+    iViewNumber->hide();
+  } else {
+    iViewNumber->setText(QIpe(vno));
+    iViewNumber->show();
+  }
+  if (pno.isEmpty()) {
+    iPageNumber->hide();
+  } else {
+    iPageNumber->show();
+    iPageNumber->setText(QIpe(pno));
+  }
+}
+
 void AppUi::setLayers(const Page *page, int view)
 {
   iLayerList->set(page, view);
@@ -1190,62 +1223,19 @@ void AppUi::callSelector(const char *name, double scalar)
   lua_call(L, 3, 0);
 }
 
-void AppUi::absoluteButton(int id)
-{
-  if (id == EUiStroke) {
-    Attribute old = iCascade->find(EColor, iAll.iStroke);
-    QColor initial(QIpe(old.color()));
-#if QT_VERSION >= 0x040500
-    QColor changed =
-      QColorDialog::getColor(initial, this, "Select stroke color");
-#else
-    QColor changed = QColorDialog::getColor(initial, this);
-#endif
-    if (changed.isValid())
-      callSelector("stroke", IpeQ(changed));
-  } else if (id == EUiFill) {
-    Attribute old = iCascade->find(EColor, iAll.iFill);
-    QColor initial(QIpe(old.color()));
-#if QT_VERSION >= 0x040500
-    QColor changed =
-      QColorDialog::getColor(initial, this, "Select fill color");
-#else
-    QColor changed = QColorDialog::getColor(initial, this);
-#endif
-    if (changed.isValid())
-      callSelector("fill", IpeQ(changed));
-  } else if (id == EUiPen) {
-    Attribute old = iCascade->find(EPen, iAll.iPen);
-    bool ok;
-    double d = QInputDialog::getDouble(this, "Select pen", "Pen width:",
-				       old.number().toDouble(),
-				       0, 1000, 3, &ok);
-    if (ok)
-      callSelector("pen", d);
-  } else if (id == EUiTextSize) {
-    bool ok;
-    double d = QInputDialog::getDouble(this, "Select text size",
-				       "Text size in points:",
-				       10, 2, 1000, 3, &ok);
-    if (ok)
-      callSelector("textsize", d);
-  } else if (id == EUiSymbolSize) {
-    Attribute old = iCascade->find(ESymbolSize, iAll.iSymbolSize);
-    bool ok;
-    double d = QInputDialog::getDouble(this, "Select symbol size",
-				       "Symbol size:",
-				       old.number().toDouble(),
-				       0, 1000, 3, &ok);
-    if (ok)
-      callSelector("symbolsize", d);
-  } else {
-    ipeDebug("button %d", id);
-  }
-}
-
 static const char * const selector_name[] =
   { "stroke", "fill", "pen", "textsize", "markshape",
-    "symbolsize", "gridsize", "anglesize" };
+    "symbolsize", "gridsize", "anglesize", "view", "page" };
+
+void AppUi::absoluteButton(int id)
+{
+  // calls model selector
+  lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
+  lua_getfield(L, -1, "absoluteButton");
+  lua_insert(L, -2); // method, model
+  lua_pushstring(L, selector_name[id]);
+  lua_call(L, 2, 0);
+}
 
 void AppUi::selector(int id, String value)
 {
@@ -1254,11 +1244,9 @@ void AppUi::selector(int id, String value)
 
 void AppUi::layerAction(String name, String layer)
 {
-  // calls model selector
   lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
   lua_getfield(L, -1, "layerAction");
-  lua_pushvalue(L, -2); // model
-  lua_remove(L, -3);
+  lua_insert(L, -2); // before model
   push_string(L, name);
   push_string(L, layer);
   lua_call(L, 3, 0);
@@ -1331,8 +1319,7 @@ void AppUi::action(String name)
     // calls model action
     lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
     lua_getfield(L, -1, "action");
-    lua_pushvalue(L, -2); // model
-    lua_remove(L, -3);
+    lua_insert(L, -2); // before model
     push_string(L, name);
     lua_call(L, 2, 0);
   }
@@ -1344,8 +1331,7 @@ void AppUi::mouseAction(int button)
 {
   lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
   lua_getfield(L, -1, "mouseAction");
-  lua_pushvalue(L, -2); // model
-  lua_remove(L, -3);
+  lua_insert(L, -2); // before model
   push_button(L, button);
   lua_call(L, 3, 0);
 }
@@ -1356,8 +1342,7 @@ void AppUi::showPathStylePopup(Vector v)
 {
   lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
   lua_getfield(L, -1, "showPathStylePopup");
-  lua_pushvalue(L, -2); // model
-  lua_remove(L, -3);
+  lua_insert(L, -2); // before model
   push_vector(L, v);
   lua_call(L, 2, 0);
 }

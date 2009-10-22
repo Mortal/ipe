@@ -1,4 +1,4 @@
-Ipe 7.0.4
+Ipe 7.0.5
 October, 2009
 
                     Ipe extensible drawing editor

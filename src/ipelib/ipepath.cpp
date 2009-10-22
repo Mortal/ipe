@@ -68,6 +68,8 @@ Path::Path(const XmlAttributes &attr)
 {
   bool stroked = false;
   bool filled = false;
+  iStroke = Attribute::BLACK();
+  iFill = Attribute::WHITE();
 
   String str;
   if (attr.has("stroke", str)) {
@@ -75,7 +77,7 @@ Path::Path(const XmlAttributes &attr)
     stroked = true;
   }
   if (attr.has("fill", str)) {
-    iFill = Attribute::makeColor(str, Attribute::BLACK());
+    iFill = Attribute::makeColor(str, Attribute::WHITE());
     filled = true;
   }
 
@@ -84,19 +86,25 @@ Path::Path(const XmlAttributes &attr)
     iStroke= Attribute::BLACK();
   }
 
-  iPathMode = (stroked ? (filled ? EStrokedAndFilled : EStrokedOnly) :
-	       EFilledOnly);
-
   iDashStyle = Attribute::makeDashStyle(attr["dash"]);
 
   iPen = Attribute::makeScalar(attr["pen"], Attribute::NORMAL());
 
-  iOpacity = Attribute::makeScalar(attr["opacity"], Attribute::OPAQUE());
-
-  if (attr.has("tiling", str))
-    iTiling = Attribute(true, str);
+  if (attr.has("opacity", str))
+    iOpacity = Attribute(true, str);
   else
-    iTiling = Attribute::NORMAL();
+    iOpacity = Attribute::OPAQUE();
+
+  iGradient = Attribute::NORMAL();
+  iTiling = Attribute::NORMAL();
+
+  if (attr.has("gradient", str))
+    iGradient = Attribute(true, str);
+  else if (attr.has("tiling", str))
+    iTiling = Attribute(true, str);
+
+  iPathMode = (stroked ? (filled ? EStrokedAndFilled : EStrokedOnly) :
+	       EFilledOnly);
 
   iLineCap = EDefaultCap;
   iLineJoin = EDefaultJoin;
@@ -147,6 +155,7 @@ void Path::init(const AllAttributes &attr, bool withArrows)
   iPen = attr.iPen;
   iOpacity = attr.iOpacity;
   iTiling = attr.iTiling;
+  iGradient = Attribute::NORMAL();
   iLineCap = attr.iLineCap;
   iLineJoin = attr.iLineJoin;
   iFillRule = attr.iFillRule;
@@ -243,38 +252,42 @@ void Path::accept(Visitor &visitor) const
 
 void Path::saveAsXml(Stream &stream, String layer) const
 {
+  bool stroked = (iPathMode <= EStrokedAndFilled);
+  bool filled = (iPathMode >= EStrokedAndFilled);
   stream << "<path";
   saveAttributesAsXml(stream, layer);
-  if (iPathMode <= EStrokedAndFilled)
+  if (stroked)
     stream << " stroke=\"" << iStroke.string() << "\"";
-  if (iPathMode >= EStrokedAndFilled)
+  if (filled)
     stream << " fill=\"" << iFill.string() << "\"";
-  if (!iDashStyle.isNormal())
+  if (stroked && !iDashStyle.isNormal())
     stream << " dash=\"" << iDashStyle.string() << "\"";
-  if (!iPen.isNormal())
+  if (stroked && !iPen.isNormal())
     stream << " pen=\"" << iPen.string() << "\"";
-  if (iLineCap != EDefaultCap)
+  if (stroked && iLineCap != EDefaultCap)
     stream << " cap=\"" << iLineCap << "\"";
-  if (iLineJoin != EDefaultJoin)
+  if (stroked && iLineJoin != EDefaultJoin)
     stream << " join=\"" << iLineJoin << "\"";
-  if (iFillRule == EWindRule)
+  if (filled && iFillRule == EWindRule)
     stream << " fillrule=\"wind\"";
-  else if (iFillRule == EEvenOddRule)
+  else if (filled && iFillRule == EEvenOddRule)
     stream << " fillrule=\"eofill\"";
-  if (iHasFArrow && iFArrowOk) {
+  if (stroked && iHasFArrow && iFArrowOk) {
     String s = iFArrowShape.string();
     stream << " arrow=\"" << s.substr(6, s.size() - 11)
 	   << "/" << iFArrowSize.string() << "\"";
   }
-  if (iHasRArrow && iRArrowOk) {
+  if (stroked && iHasRArrow && iRArrowOk) {
     String s = iRArrowShape.string();
     stream << " rarrow=\"" << s.substr(6, s.size() - 11)
 	   << "/" << iRArrowSize.string() << "\"";
   }
   if (iOpacity != Attribute::OPAQUE())
     stream << " opacity=\"" << iOpacity.string() << "\"";
-  if (!iTiling.isNormal())
+  if (filled && !iTiling.isNormal())
     stream << " tiling=\"" << iTiling.string() << "\"";
+  if (filled && !iGradient.isNormal())
+    stream << " gradient=\"" << iGradient.string() << "\"";
   stream << ">\n";
   iShape.save(stream);
   stream << "</path>\n";
@@ -362,15 +375,22 @@ void Path::draw(Painter &painter) const
   if (iPathMode >= EStrokedAndFilled) {
     painter.setFill(iFill);
     painter.setFillRule(fillRule());
+    painter.setTiling(iTiling);
+    painter.setGradient(iGradient);
   }
   painter.setOpacity(iOpacity);
-  painter.setTiling(iTiling);
   painter.pushMatrix();
   painter.transform(matrix());
   painter.untransform(transformations());
   painter.newPath();
   iShape.draw(painter);
   painter.drawPath(iPathMode);
+  if (iPathMode == EStrokedAndFilled && !iGradient.isNormal()) {
+    // need to stroke separately
+    painter.newPath();
+    iShape.draw(painter);
+    painter.drawPath(EStrokedOnly);
+  }
   // Draw arrows
   if (iHasFArrow && iFArrowOk) {
     double r = 0.0;
@@ -456,9 +476,19 @@ void Path::setFill(Attribute fill)
 }
 
 //! Set tiling pattern of the object.
+/*! Resets gradient fill. */
 void Path::setTiling(Attribute til)
 {
   iTiling = til;
+  iGradient = Attribute::NORMAL();
+}
+
+//! Set gradient fill of the object.
+/*! Resets tiling pattern. */
+void Path::setGradient(Attribute grad)
+{
+  iGradient = grad;
+  iTiling = Attribute::NORMAL();
 }
 
 //! Set opacity of the object.
@@ -526,6 +556,10 @@ void Path::checkStyle(const Cascade *sheet, AttributeSeq &seq) const
   checkSymbol(ESymbol, iFArrowShape, sheet, seq);
   checkSymbol(ESymbol, iRArrowShape, sheet, seq);
   checkSymbol(EOpacity, iOpacity, sheet, seq);
+  if (!iTiling.isNormal())
+    checkSymbol(ETiling, iTiling, sheet, seq);
+  if (!iGradient.isNormal())
+    checkSymbol(EGradient, iGradient, sheet, seq);
 }
 
 bool Path::setAttribute(Property prop, Attribute value,
@@ -570,6 +604,12 @@ bool Path::setAttribute(Property prop, Attribute value,
   case EPropTiling:
     if (value != tiling()) {
       setTiling(value);
+      return true;
+    }
+    break;
+  case EPropGradient:
+    if (value != gradient()) {
+      setGradient(value);
       return true;
     }
     break;
@@ -648,15 +688,9 @@ Attribute Path::getAttribute(Property prop)
   case EPropPathMode:
     return Attribute(iPathMode);
   case EPropStrokeColor:
-    if (iPathMode <= EStrokedAndFilled)
-      return stroke();
-    else
-      return Attribute::UNDEFINED();
+    return stroke();
   case EPropFillColor:
-    if (iPathMode >= EStrokedAndFilled)
-      return fill();
-    else
-      return Attribute::UNDEFINED();
+    return fill();
   case EPropPen:
     return pen();
   case EPropDashStyle:
@@ -665,6 +699,8 @@ Attribute Path::getAttribute(Property prop)
     return opacity();
   case EPropTiling:
     return tiling();
+  case EPropGradient:
+    return gradient();
   case EPropFArrow:
     return Attribute::Boolean(iHasFArrow);
   case EPropRArrow:

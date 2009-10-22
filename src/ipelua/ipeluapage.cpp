@@ -399,9 +399,9 @@ static int page_setAttribute(lua_State *L)
   Attribute stroke = Attribute::BLACK();
   Attribute fill = Attribute::WHITE();
   if (!lua_isnoneornil(L, 5))
-    stroke = check_attribute(L, 5);
+    stroke = check_color_attribute(L, 5);
   if (!lua_isnoneornil(L, 6))
-    fill = check_attribute(L, 6);
+    fill = check_color_attribute(L, 6);
   lua_pushboolean(L, p->setAttribute(n, prop, value, stroke, fill));
   return 1;
 }

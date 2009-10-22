@@ -488,11 +488,15 @@ void StyleSheet::saveAsXml(Stream &stream, bool saveBitmaps) const
       stream << " type=\"radial\" coords=\""
 	     << g.iV[0] << " " << g.iRadius[0] << " "
 	     << g.iV[1] << " " << g.iRadius[1] << "\"";
-    stream << " colora=\"" << g.iColor[0] << "\"";
-    stream << " colorb=\"" << g.iColor[1] << "\"";
     if (g.iExtend)
       stream << " extend=\"yes\"";
-    stream << "/>\n";
+    if (!g.iMatrix.isIdentity())
+      stream << " matrix=\"" << g.iMatrix << "\"";
+    stream << ">\n";
+    for (uint i = 0; i < g.iStops.size(); ++i)
+      stream << " <stop offset=\"" << g.iStops[i].offset
+	     << "\" color=\"" << g.iStops[i].color << "\"/>\n";
+    stream << "</gradient>\n";
   }
 
   for (TilingMap::const_iterator it = iTilings.begin();

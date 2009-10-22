@@ -92,6 +92,7 @@ Painter::Painter(const Cascade *style)
   state.iSymPen = Fixed(1);
   state.iOpacity = Fixed(1);
   state.iTiling = Attribute::NORMAL();
+  state.iGradient = Attribute::NORMAL();
   iState.push_back(state);
   iMatrix.push_back(Matrix()); // identity
   iInPath = 0;
@@ -266,13 +267,6 @@ void Painter::drawSymbol(Attribute symbol)
   doDrawSymbol(symbol);
 }
 
-//! Draw a gradient using the current matrix.
-void Painter::drawGradient(Attribute gradient)
-{
-  assert(!iInPath && gradient.isSymbolic());
-  doDrawGradient(gradient);
-}
-
 //! Add current path as clip path.
 void Painter::addClipPath()
 {
@@ -382,10 +376,23 @@ void Painter::setOpacity(Attribute opaq)
 }
 
 //! Set tiling pattern.
-void Painter::setTiling(Attribute til)
+/*! If \a tiling is not \c normal, resets the gradient pattern. */
+void Painter::setTiling(Attribute tiling)
 {
   assert(!iInPath);
-  iState.back().iTiling = til;
+  iState.back().iTiling = tiling;
+  if (!tiling.isNormal())
+    iState.back().iGradient = Attribute::NORMAL();
+}
+
+//! Set gradient fill.
+/*! If \a grad is not \c normal, resets the tiling pattern. */
+void Painter::setGradient(Attribute grad)
+{
+  assert(!iInPath);
+  iState.back().iGradient = grad;
+  if (!grad.isNormal())
+    iState.back().iTiling = Attribute::NORMAL();
 }
 
 //! Set symbol stroke color, resolving symbolic color.
@@ -583,12 +590,6 @@ void Painter::doDrawSymbol(Attribute symbol)
   const Symbol *sym = cascade()->findSymbol(symbol);
   if (sym)
     sym->iObject->draw(*this);
-}
-
-//! Draw the gradient.
-void Painter::doDrawGradient(Attribute gradient)
-{
-  // nothing
 }
 
 //! Add a clip path

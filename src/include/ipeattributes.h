@@ -73,7 +73,7 @@ namespace ipe {
 		  EPropStrokeColor, EPropFillColor, EPropMarkShape,
 		  EPropPathMode, EPropDashStyle,
 		  EPropTextSize, EPropTextStyle,
-		  EPropOpacity, EPropTiling,
+		  EPropOpacity, EPropTiling, EPropGradient,
 		  EPropHorizontalAlignment, EPropVerticalAlignment,
 		  EPropLineJoin, EPropLineCap, EPropFillRule,
 		  EPropPinned, EPropTransformations,
@@ -155,18 +155,27 @@ namespace ipe {
   //! A gradient pattern.
   /*! \ingroup attr */
   struct Gradient {
+    //! A color stop.
+    struct Stop {
+      //! Offset between 0.0 and 1.0.
+      double offset;
+      //! The color at this offset.
+      Color color;
+    };
     //! There are two types of gradients, along an axis or between two circles.
     enum TType { EAxial = 2, ERadial = 3 };
     //! The type of gradient: axial or radial.
     TType iType;
-    //! The extreme colors of the gradient.
-    Color iColor[2];
     //! The coordinates of the axis endpoints, or the two circle centers.
     Vector iV[2];
     //! The radii of the two circles (not used for axial gradients).
     double iRadius[2];
     //! Whether to extend the gradient beyond the endpoints.
     bool iExtend;
+    //! Gradient transformation.
+    Matrix iMatrix;
+    //! The color stops.
+    std::vector<Stop> iStops;
   };
 
   //! Layout of a Page.

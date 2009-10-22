@@ -66,7 +66,6 @@ namespace ipe {
     void drawBitmap(Bitmap bitmap);
     void drawText(const Text *text);
     void drawSymbol(Attribute symbol);
-    void drawGradient(Attribute gradient);
     void addClipPath();
 
     void setStroke(Attribute color);
@@ -81,6 +80,7 @@ namespace ipe {
     void setSymPen(Attribute wid);
     void setOpacity(Attribute opaq);
     void setTiling(Attribute til);
+    void setGradient(Attribute grad);
 
     //! Return style sheet cascade.
     inline const Cascade *cascade() const { return iCascade; }
@@ -111,6 +111,8 @@ namespace ipe {
     inline Fixed opacity() const { return iState.back().iOpacity; }
     //! Return current tiling.
     inline Attribute tiling() const { return iState.back().iTiling; }
+    //! Return current gradient fill.
+    inline Attribute gradient() const { return iState.back().iGradient; }
 
   protected:
     virtual void doPush();
@@ -127,7 +129,6 @@ namespace ipe {
     virtual void doDrawText(const Text *text);
     virtual void doDrawSymbol(Attribute symbol);
     virtual void doAddClipPath();
-    virtual void doDrawGradient(Attribute gradient);
 
     void drawArcAsBezier(double alpha);
 
@@ -145,6 +146,7 @@ namespace ipe {
       Fixed iSymPen;
       Fixed iOpacity;
       Attribute iTiling;
+      Attribute iGradient;
     };
     std::list<State> iState;
     std::list<Matrix> iMatrix;

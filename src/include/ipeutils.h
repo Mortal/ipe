@@ -68,7 +68,6 @@ namespace ipe {
     virtual void doDrawBitmap(Bitmap bitmap);
     virtual void doDrawText(const Text *text);
     virtual void doAddClipPath();
-    virtual void doDrawGradient(Attribute gradient);
 
   private:
     Rect iBBox;
@@ -85,6 +84,18 @@ namespace ipe {
   private:
     Stream &iStream;
     uchar iCh[4];
+    int iN;
+    int iCol;
+  };
+
+  class Base64Stream : public Stream {
+  public:
+    Base64Stream(Stream &stream);
+    virtual void putChar(char ch);
+    virtual void close();
+  private:
+    Stream &iStream;
+    uchar iCh[3];
     int iN;
     int iCol;
   };
@@ -120,6 +131,19 @@ namespace ipe {
     int iN;
     int iIndex;
     uchar iBuf[4];
+  };
+
+  class Base64Source : public DataSource {
+  public:
+    Base64Source(DataSource &source);
+    //! Get one more character, or EOF.
+    virtual int getChar();
+  private:
+    DataSource &iSource;
+    bool  iEof;
+    int   iIndex;
+    int   iBufLen;
+    uchar iBuf[3];
   };
 
   class InflateSource : public DataSource {

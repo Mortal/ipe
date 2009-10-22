@@ -228,11 +228,15 @@ bool ImlParser::parsePage(Page &page)
       page.setEffect(page.countViews() - 1, Attribute(true, str));
 
     Lex st(att["layers"]);
+    String last;
     do {
-      String layer = st.nextToken();
+      last = st.nextToken();
       st.skipWhitespace();
-      page.setVisible(page.countViews() - 1, layer, true);
+      page.setVisible(page.countViews() - 1, last, true);
     } while (!st.eos());
+
+    if (!att.has("active", str))
+      page.setActive(page.countViews() - 1, last);
 
     tag = parseToTag();
   }
@@ -527,7 +531,7 @@ bool ImlParser::parseStyle(StyleSheet &sheet)
 	return false;
       sheet.add(ETextStretch, Attribute(true, name), value);
     } else if (tag == "gradient") {
-      if (!parseAttributes(att) || !att.slash())
+      if (!parseAttributes(att) || att.slash())
 	return false;
       String name = att["name"];
       if (!symbolName(name))
@@ -544,8 +548,36 @@ bool ImlParser::parseStyle(StyleSheet &sheet)
 	    >> s.iV[1].x >> s.iV[1].y;
       String str;
       s.iExtend = (att.has("extend",str) && str == "yes");
-      s.iColor[0] = Color(att["colora"]);
-      s.iColor[1] = Color(att["colorb"]);
+      if (att.has("matrix", str))
+	s.iMatrix = Matrix(str);
+      tag = parseToTag();
+      while (tag == "stop") {
+	if (!parseAttributes(att) || !att.slash())
+	  return false;
+	Gradient::Stop st;
+	st.color = Color(att["color"]);
+	st.offset = Lex(att["offset"]).getDouble();
+	s.iStops.push_back(st);
+	tag = parseToTag();
+      }
+      if (s.iStops.size() < 2)
+	return false;
+      if (s.iStops.front().offset != 0.0) {
+	s.iStops.insert(s.iStops.begin(), s.iStops.front());
+	s.iStops.front().offset = 0.0;
+      }
+      if (s.iStops.back().offset != 1.0) {
+	s.iStops.push_back(s.iStops.back());
+	s.iStops.back().offset = 1.0;
+      }
+      if (s.iStops.front().offset < 0.0 || s.iStops.front().offset > 1.0)
+	return false;
+      for (uint i = 1; i < s.iStops.size(); ++i) {
+	if (s.iStops[i].offset < s.iStops[i-1].offset)
+	  return false;
+      }
+      if (tag != "/gradient")
+	return false;
       sheet.addGradient(Attribute(true, name), s);
     } else if (tag == "tiling") {
       if (!parseAttributes(att) || !att.slash())

@@ -154,6 +154,8 @@ function MODEL:properties_path(obj, m)
   local arrowshapes = symbolNames(sheet, "arrow/", "(spx)")
   local tilings = sheet:allNames("tiling")
   table.insert(tilings, 1, "normal")
+  local gradients = sheet:allNames("gradient")
+  table.insert(gradients, 1, "normal")
   local linecap = { "normal", "butt", "round", "square", }
   local linejoin = { "normal", "miter", "round", "bevel", }
   local fillrule = { "normal", "wind", "evenodd", }
@@ -200,6 +202,7 @@ function MODEL:properties_path(obj, m)
 
   if pm ~= "stroked" then
     m:add("tiling", "Tiling pattern: " .. obj:get("tiling"), tilings)
+    m:add("gradient", "Gradient: " .. obj:get("gradient"), gradients)
   end
   self:insertOpacity(m, obj)
 

@@ -65,7 +65,7 @@ namespace ipe {
     "stroke", "fill", "markshape",
     "pathmode", "dashstyle",
     "textsize", "textstyle",
-    "opacity", "tiling",
+    "opacity", "tiling", "gradient",
     "horizontalalignment", "verticalalignment",
     "linejoin", "linecap", "fillrule",
     "pinned", "transformations", "transformabletext",
@@ -357,7 +357,9 @@ Color::Color(String str)
 //! Make a color attribute.
 /*! If the string starts with a letter, make a symbolic attribute.
   Otherwise, it's either a single gray value (0.0 to 1.0), or the
-  three red, green, and blue components, separated by spaces. */
+  three red, green, and blue components, separated by spaces.
+  If it's an empty string, return \a deflt.
+*/
 Attribute Attribute::makeColor(String str, Attribute deflt)
 {
   if (str.isEmpty())
