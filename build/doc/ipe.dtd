@@ -24,6 +24,7 @@
 	  ColorSpace (DeviceGray|DeviceRGB|DeviceCMYK) #REQUIRED
 	  BitsPerComponent CDATA #FIXED "8"
 	  length CDATA #IMPLIED
+	  encoding (base64) #IMPLIED
 	  Filter (FlateDecode|DCTDecode) #IMPLIED >
 
 <!ELEMENT page (layer*,view*,(group|image|use|text|path)*)>
@@ -46,7 +47,7 @@
 <!ELEMENT group ((group|image|use|text|path)*)>
 <!ATTLIST group
 	  layer CDATA #IMPLIED
-	  matrix CDATA #IMPLIED
+	  matrix CDATA "1 0 0 1 0 0"
 	  pin (yes|h|v) #IMPLIED
 	  transformations (affine|rigid|translations) #IMPLIED
 	  clip CDATA #IMPLIED >
@@ -54,16 +55,23 @@
 <!ELEMENT image (#PCDATA)>
 <!ATTLIST image 
 	  layer CDATA #IMPLIED
-	  matrix CDATA #IMPLIED
+	  matrix CDATA "1 0 0 1 0 0"
 	  pin (yes|h|v) #IMPLIED
 	  transformations (affine|rigid|translations) #IMPLIED
-	  bitmap CDATA #REQUIRED
-	  rect CDATA #REQUIRED>
+	  bitmap CDATA #IMPLIED
+	  rect CDATA #IMPLIED
+	  width CDATA #IMPLIED
+	  height CDATA #IMPLIED
+	  ColorSpace (DeviceGray|DeviceRGB|DeviceCMYK) #IMPLIED
+	  BitsPerComponent CDATA #FIXED "8"
+	  length CDATA #IMPLIED
+	  encoding (base64) #IMPLIED
+	  Filter (FlateDecode|DCTDecode) #IMPLIED >
 
 <!ELEMENT use EMPTY>
 <!ATTLIST use
 	  layer CDATA #IMPLIED
-	  matrix CDATA #IMPLIED
+	  matrix CDATA "1 0 0 1 0 0"
 	  pin (yes|h|v) #IMPLIED
 	  transformations (affine|rigid|translations) #IMPLIED
 	  name CDATA #REQUIRED
@@ -76,7 +84,7 @@
 <!ELEMENT text (#PCDATA)>
 <!ATTLIST text
 	  layer CDATA #IMPLIED
-	  matrix CDATA #IMPLIED
+	  matrix CDATA "1 0 0 1 0 0"
 	  pin (yes|h|v) #IMPLIED
 	  transformations (affine|rigid|translations) #IMPLIED
 	  type (label|minipage) #REQUIRED
@@ -94,12 +102,13 @@
 <!ELEMENT path (#PCDATA)>
 <!ATTLIST path
 	  layer CDATA #IMPLIED
-	  matrix CDATA #IMPLIED
+	  matrix CDATA "1 0 0 1 0 0"
 	  pin (yes|h|v) #IMPLIED
 	  transformations (affine|rigid|translations) #IMPLIED
 	  stroke CDATA #IMPLIED
 	  fill CDATA #IMPLIED
 	  tiling CDATA "normal"
+	  gradient CDATA "normal"
 	  dash CDATA #IMPLIED
 	  pen CDATA "normal"
 	  opacity CDATA "normal"
@@ -151,14 +160,18 @@
 	  xform (yes|no) "no"
 	  transformations (affine|rigid|translations) #IMPLIED>
 
-<!ELEMENT gradient EMPTY>
+<!ELEMENT gradient (stop)+>
 <!ATTLIST gradient
 	  name CDATA #REQUIRED
 	  type (axial|radial) #REQUIRED
-	  colora CDATA #REQUIRED
-	  colorb CDATA #REQUIRED
 	  extend (yes|no) "no"
+	  matrix CDATA "1 0 0 1 0 0"
 	  coords CDATA #REQUIRED>
+
+<!ELEMENT stop EMPTY>
+<!ATTLIST stop
+	  offset CDATA #REQUIRED
+	  color CDATA #REQUIRED>
 
 <!ELEMENT tiling EMPTY>
 <!ATTLIST tiling

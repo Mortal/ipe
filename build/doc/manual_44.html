@@ -4,21 +4,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.3.1, Wed Oct 14 16:35:17 2009 -->
+     on Emacs 22.2.1, Thu Oct 22 23:40:09 2009 -->
 <head>
 <title>Ipe Manual -- 9.4 The &lt;ipestyle&gt; element</title>
 
 <style type="text/css">
-.maketitle { align : center }
+.maketitle { text-align : center }
 div.abstract { margin-left: 20%; margin-right: 10%; }
-h3.abstract  { align : center }
+h3.abstract  { text-align : center }
 div.verse, div.quote, div.quotation {
   margin-left : 10%; 
   margin-right : 10%;
 }
 </style>
 
-<link rel=stylesheet
+<link rel="stylesheet"
         href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
         content="text/html; charset=UTF-8">
 </head>
@@ -125,9 +125,7 @@ described below.
 <h3><a name="id17">9.4.9 The <tt>&lt;opacity&gt;</tt> element</a></h3>
 <p>The <code>opacity</code> element defines a possible opacity value (also
 known as an alpha-value).  All opacity values used in a document must
-be defined in the style sheet (even though Ipe objects can specify
-absolute opacities, the values must have been defined in the style
-sheet). 
+be defined in the style sheet.
 
 <h4><a name="id18">Attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) A symbolic name, to be used in the
@@ -138,28 +136,42 @@ sheet).
 </dl>
 
 <h3><a name="id19">9.4.10 The <tt>&lt;gradient&gt;</tt> element</a></h3>
+
 <p>The <code>gradient</code> element defines a gradient pattern.
 
-<h4><a name="id20">Attributes</a></h4>
-<dl><dt><b>name</b><dd> (required) The symbolic name (to be used in the <code>name</code>
-  attribute of <code>&lt;use&gt;</code> elements).
+<h4><a name="id20">Attributes of <code>&lt;gradient&gt;</code></a></h4>
+<dl><dt><b>name</b><dd> (required) The symbolic name (to be used in the
+  <code>gradient</code> attribute of <code>&lt;path&gt;</code> elements).
 <dt><b>type</b><dd> (required) Possible values are
 <code>axial</code> and <code>radial</code>.
-<dt><b>colora</b><dd> (required) First extreme color (endpoint of interpolation).
-<dt><b>colorb</b><dd> (required) Second extreme color.
-<dt><b>extend</b><dd> (required) Two
-integer flags, indicating whether to extend the gradient to the full
-page.
+<dt><b>extend</b><dd> (optional) <code>yes</code> or <code>no</code> (the default).
+  Indicates whether the gradient is extended beyond the boundaries.
 <dt><b>coords</b><dd> (required) For axial shading: the coordinates of the
-endpoints of the axis. For radial shading: the center and radius of
-both circles.  
+  endpoints of the axis (in the order <code>x1 y1 x2 y2</code>). For radial
+  shading: the center and radius of both circles (in the order
+  <code>cx1 cy1 r1 cx2 cy2 r2</code>).
+<dt><b>matrix</b><dd> (optional) A transformation that transforms the gradient
+  coordinate system into the coordinate system of the path object
+  using the gradient. The default is the identity matrix.
+</dl>
+<p>The contents of the <code>&lt;gradient&gt;</code> element are <code>&lt;stop&gt;</code>
+elements defining the color stops of the gradient.  There must be at
+least two stops.  Stops must be defined in increasing offset order.
+It is not necessary that the first offset is&nbsp;0.0 and the last one
+is&nbsp;1.0.
+
+<h4><a name="id21">Attributes of <code>&lt;stop&gt;</code></a></h4>
+<dl><dt><b>offset</b><dd> (required) Offset of the color stop (a number between
+  0.0 and 1.0).
+<dt><b>color</b><dd> (required) Color at this color stop (three
+  numbers). Symbolic names are not allowed.
 </dl>
 
-<h3><a name="id21">9.4.11 The <tt>&lt;tiling&gt;</tt> element</a></h3>
+<h3><a name="id22">9.4.11 The <tt>&lt;tiling&gt;</tt> element</a></h3>
 <p>The <code>tiling</code> element defines a tiling pattern.  Only very simple
 patterns that hatch the area with a line are supported.
 
-<h4><a name="id22">Attributes</a></h4>
+<h4><a name="id23">Attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) The symbolic name (to be used in the <code>tiling</code>
   attribute of <code>&lt;path&gt;</code> elements).
 <dt><b>angle</b><dd> (required) Slope of the hatching line in degrees, between
@@ -171,12 +183,12 @@ patterns that hatch the area with a line are supported.
 if the absolute value of <code>angle</code> is less than 45&nbsp;degrees, and in
 the <i>y</i>-direction otherwise.
 
-<h3><a name="id23">9.4.12 The <tt>&lt;effect&gt;</tt> element</a></h3>
+<h3><a name="id24">9.4.12 The <tt>&lt;effect&gt;</tt> element</a></h3>
 <p>The <code>effect</code> element defines a graphic effect to be used during a
 PDF page transition.  Acrobat Reader supports these effects, but not
 all PDF viewers do.
 
-<h4><a name="id24">Attributes</a></h4>
+<h4><a name="id25">Attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) The symbolic name (to be used in the <code>effect</code>
   attribute of <code>&lt;view&gt;</code> elements).
 <dt><b>duration</b><dd> (required) Value must be a real number, indicating the
@@ -188,7 +200,7 @@ all PDF viewers do.
   <code>ipe::Effect::TEffect</code> for the exact meaning).
 </dl>
 
-<h3><a name="id25">9.4.13 Other style definition elements</a></h3>
+<h3><a name="id26">9.4.13 Other style definition elements</a></h3>
 <p>The remaining style definition elements are:
 <ul><li><code>&lt;color&gt;</code> Defines a symbolic color.  The value must be an
   absolute color, that is either a single gray value (between 0 and
@@ -215,7 +227,7 @@ all PDF viewers do.
   fill the angle selector in the user interface.
 </ul>
 
-<h4><a name="id26">Common attributes</a></h4>
+<h4><a name="id27">Common attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) A symbolic name, which must start with a
   letter 'a' to 'z' or 'A' to 'Z'.
 <dt><b>value</b><dd> (required) A legal absolute value for the type of
