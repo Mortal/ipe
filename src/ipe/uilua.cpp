@@ -276,8 +276,10 @@ static int appui_selecttool(lua_State *L)
   Canvas *canvas = check_canvas(L, 1);
   Page *page = check_page(L, 2)->page;
   int view = check_viewno(L, 3, page);
-  bool nonDestructive = lua_toboolean(L, 4);
-  SelectTool *tool = new SelectTool(canvas, page, view, nonDestructive);
+  double selectDistance = luaL_checknumber(L, 4);
+  bool nonDestructive = lua_toboolean(L, 5);
+  SelectTool *tool = new SelectTool(canvas, page, view, selectDistance,
+				    nonDestructive);
   canvas->setTool(tool);
   return 0;
 }

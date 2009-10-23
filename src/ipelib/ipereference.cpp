@@ -165,8 +165,8 @@ void Reference::draw(Painter &painter) const
     Attribute si = painter.cascade()->find(ESymbolSize, iSize);
     double s = si.number().toDouble();
     painter.pushMatrix();
-    painter.translate(iPos);
     painter.transform(matrix());
+    painter.translate(iPos);
     painter.untransform(transformations());
     painter.untransform(symbol->iTransformations);
     if (iFlags & EHasSize) {
@@ -190,8 +190,8 @@ void Reference::drawSimple(Painter &painter) const
 {
   const int size = 10;
   painter.pushMatrix();
-  painter.translate(iPos);
   painter.transform(matrix());
+  painter.translate(iPos);
   painter.untransform(ETransformationsTranslations);
   painter.newPath();
   painter.moveTo(Vector(-size, 0));

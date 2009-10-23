@@ -1,6 +1,21 @@
 --------------------------------------------------------------------
 
-Ipe 7.0.6 (2009-10-23) SVN 358
+Ipe 7.0.7 (2009-10-23) SVN 361
+
+ * Removed -fno-exceptions and -fno-rtti from CXXFLAGS, to avoid
+   surprises like bug #308.
+
+ * Fixed broken interpretation of symbol/mark matrix (bug #310).
+
+ * Fixed page numbering (bug #311).
+
+ * Implemented "prefs.select_distance".
+
+ * Fixed incorrect handling of line cap and line join (bug #312).
+
+--------------------------------------------------------------------
+
+Ipe 7.0.6 (2009-10-23) SVN 359
 
  * Worked around Qt styling bug in QComboBox (bug #308).  Using
    QSignalMapper now to map signals (no derived classes).

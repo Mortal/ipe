@@ -265,9 +265,9 @@ void Path::saveAsXml(Stream &stream, String layer) const
   if (stroked && !iPen.isNormal())
     stream << " pen=\"" << iPen.string() << "\"";
   if (stroked && iLineCap != EDefaultCap)
-    stream << " cap=\"" << iLineCap << "\"";
+    stream << " cap=\"" << iLineCap - 1 << "\"";
   if (stroked && iLineJoin != EDefaultJoin)
-    stream << " join=\"" << iLineJoin << "\"";
+    stream << " join=\"" << iLineJoin - 1 << "\"";
   if (filled && iFillRule == EWindRule)
     stream << " fillrule=\"wind\"";
   else if (filled && iFillRule == EEvenOddRule)

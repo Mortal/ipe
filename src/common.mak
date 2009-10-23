@@ -87,7 +87,7 @@ endif
 
 else
   # -------------------- Unix --------------------
-  CXXFLAGS	+= -g -O2 -fno-rtti -fno-exceptions
+  CXXFLAGS	+= -g -O2
   DLL_LDFLAGS	+= -shared 
   buildlib	= $(BUILDDIR)/lib
   dll_target    = $(buildlib)/lib$1.so

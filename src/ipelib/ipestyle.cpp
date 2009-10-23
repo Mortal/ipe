@@ -467,9 +467,9 @@ void StyleSheet::saveAsXml(Stream &stream, bool saveBitmaps) const
       || iFillRule != EDefaultRule) {
     stream << "<pathstyle";
     if (iLineCap != EDefaultCap)
-      stream << " cap=\"" << iLineCap-1 << "\"";
+      stream << " cap=\"" << iLineCap - 1 << "\"";
     if (iLineJoin != EDefaultJoin)
-      stream << " join=\"" << iLineJoin-1 << "\"";
+      stream << " join=\"" << iLineJoin - 1 << "\"";
     if (iFillRule == EWindRule)
       stream << " fillrule=\"wind\"";
     else if (iFillRule == EEvenOddRule)
