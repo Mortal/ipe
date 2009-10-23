@@ -145,7 +145,7 @@ SelectTool::SelectTool(Canvas *canvas, Page *page, int view,
   iPage = page;
   iView = view;
   iNonDestructive = nonDestructive;
-  // iSelectDistance = iCanvas->snap().iSelectDistance;
+  // TODO! iSelectDistance = iCanvas->snap().iSelectDistance;
   iSelectDistance = 36;
 
   // coordinates in user space
@@ -159,7 +159,8 @@ SelectTool::SelectTool(Canvas *canvas, Page *page, int view,
   // Collect objects close enough
   double d;
   for (int i = iPage->count() - 1; i >= 0; --i) {
-    if (iPage->objectVisible(iView, i)) {
+    if (iPage->objectVisible(iView, i) &&
+	!iPage->isLocked(iPage->layerOf(i))) {
       if ((d = iPage->distance(i, v, bound)) < bound) {
 	SObj obj;
 	obj.index = i;

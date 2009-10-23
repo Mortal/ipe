@@ -70,39 +70,6 @@ private:
 
 // --------------------------------------------------------------------
 
-class IpeAction : public QAction {
-  Q_OBJECT
-public:
-  IpeAction(String name, const QString &text, QObject *parent);
-  String name() const { return iName; }
-
-signals:
-  void triggered(String name);
-private slots:
-  void forwardTrigger();
-private:
-  String iName;
-};
-
-// --------------------------------------------------------------------
-
-class IpeComboBox : public QComboBox {
-  Q_OBJECT
-
-public:
-  IpeComboBox(int id, QWidget *parent = 0);
-
-signals:
-  void activated(int id, String name);
-private slots:
-  void forwardActivated(const QString &text);
-
-private:
-  int iD;
-};
-
-// --------------------------------------------------------------------
-
 class LayerBox : public QListWidget {
   Q_OBJECT
 public:
@@ -112,9 +79,9 @@ public:
 
 signals:
   void activated(String name, String layer);
+  void showLayerBoxPopup(Vector v, String layer);
 
 public slots:
-  void action(String name);
   void layerChanged(QListWidgetItem *item);
 
 protected:
@@ -126,14 +93,9 @@ protected:
 
 private:
   bool iInSet;
-  enum { EIsLocked = 0x01, EHasNoSnapping = 0x02,
-	 ECanDelete = 0x04, EIsActive = 0x08 };
-  std::vector<uint> iFlags;
 };
 
 // --------------------------------------------------------------------
-
-class AppUi;
 
 class PathView : public QWidget {
   Q_OBJECT
@@ -149,9 +111,6 @@ signals:
   void activated(String name);
   void showPathStylePopup(Vector v);
 
-public slots:
-  void action(String name);
-
 protected:
   virtual void paintEvent(QPaintEvent *ev);
   virtual void mouseReleaseEvent(QMouseEvent *e);
@@ -163,6 +122,8 @@ private:
 };
 
 // --------------------------------------------------------------------
+
+class QSignalMapper;
 
 class AppUi : public QMainWindow {
   Q_OBJECT
@@ -188,7 +149,7 @@ public:
   void setLayers(const Page *page, int view);
   void setZoom(double zoom);
   void setActionsEnabled(bool mode);
-  IpeAction *findAction(const char *name) const;
+  QAction *findAction(const char *name) const;
   void setNumbers(String vno, String pno);
 
   // direct Lua methods
@@ -196,6 +157,11 @@ public:
 
 public slots:
   void action(String name);
+  void qAction(const QString &name);
+  void selectLayerAction(QAction *a);
+  void moveToLayerAction(QAction *a);
+  void textStyleAction(QAction *a);
+
   void layerAction(String name, String layer);
   void mouseAction(int button);
   void positionChanged();
@@ -205,12 +171,15 @@ public slots:
   void wheelZoom(int degrees);
   void absoluteButton(int id);
   void selector(int id, String value);
+  void comboSelector(int id);
+
   void bookmarkSelected(QListWidgetItem *item);
 
   void aboutToShowSelectLayerMenu();
   void aboutToShowMoveToLayerMenu();
   void aboutToShowTextStyleMenu();
   void showPathStylePopup(Vector v);
+  void showLayerBoxPopup(Vector v, String layer);
 
 private:
   void addItem(QMenu *m, const QString &title, const char *name);
@@ -241,7 +210,7 @@ private:
   QMenu *iTextStyleMenu;
 
   QToolButton *iButton[EUiGridSize];
-  IpeComboBox *iSelector[EUiNum];
+  QComboBox *iSelector[EUiNum];
 
   QToolButton *iViewNumber;
   QToolButton *iPageNumber;
@@ -262,7 +231,8 @@ private:
   QLabel *iMouse;
   QLabel *iResolution;
 
-  std::vector<IpeAction *> iActions;
+  QSignalMapper *iActionMap;
+  std::map<String, QAction *> iActions;
 };
 
 // --------------------------------------------------------------------

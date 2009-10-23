@@ -1,5 +1,20 @@
 --------------------------------------------------------------------
 
+Ipe 7.0.6 (2009-10-23) SVN 358
+
+ * Worked around Qt styling bug in QComboBox (bug #308).  Using
+   QSignalMapper now to map signals (no derived classes).
+
+ * LayerBox popup moved into Lua code.
+
+ * Fixed renaming of active layers.
+
+ * Fixed selection of objects in locked layers.
+
+ * Function to check symbolic attributes.
+
+--------------------------------------------------------------------
+
 Ipe 7.0.5 (2009-10-22) SVN 357
 
  * Created script "svgtoipe.py" to convert SVG files to Ipe format.
@@ -17,7 +32,7 @@ Ipe 7.0.5 (2009-10-22) SVN 357
 
  * Environment variable IPEQTSTYLE sets this Qt style.  Saying, for
    instance, 'export IPEQTSTYLE="cleanlooks" ' would fix the Qt crash
-   in the GTK style on some systems. (See bug #308.)
+   in some styles on some systems. (See bug #308.)
 
  * Gradient support changed: gradients are now used as fill patterns
    for path objects.  Gradients can now have more than two color

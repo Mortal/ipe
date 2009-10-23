@@ -58,148 +58,11 @@ extern "C" {
 #include <QColorDialog>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QSignalMapper>
 
 using namespace ipe;
 using namespace ipeqt;
 using namespace ipelua;
-
-// --------------------------------------------------------------------
-
-IpeAction::IpeAction(String name, const QString &text, QObject *parent)
-  : QAction(text, parent)
-{
-  iName = name;
-  connect(this, SIGNAL(triggered()), SLOT(forwardTrigger()));
-  connect(this, SIGNAL(triggered(String)), parent, SLOT(action(String)));
-}
-
-void IpeAction::forwardTrigger()
-{
-  emit triggered(iName);
-}
-
-// --------------------------------------------------------------------
-
-IpeComboBox::IpeComboBox(int id, QWidget *parent)
-  : QComboBox(parent)
-{
-  iD = id;
-  connect(this, SIGNAL(activated(const QString &)),
-	  SLOT(forwardActivated(const QString &)));
-  setFocusPolicy(Qt::NoFocus);
-}
-
-void IpeComboBox::forwardActivated(const QString &text)
-{
-  emit activated(iD, IpeQ(text));
-}
-
-// --------------------------------------------------------------------
-
-LayerBox::LayerBox(QWidget *parent)
-  : QListWidget(parent)
-{
-  setFocusPolicy(Qt::NoFocus);
-  setSelectionMode(NoSelection);
-  iInSet = false;
-  connect(this, SIGNAL(itemChanged(QListWidgetItem *)),
-	  SLOT(layerChanged(QListWidgetItem *)));
-}
-
-void LayerBox::action(String name)
-{
-  int i = name.find('|');
-  emit activated(name.left(i), name.substr(i+1));
-}
-
-void LayerBox::layerChanged(QListWidgetItem *item)
-{
-  if (iInSet)
-    return;
-  if (item->checkState() == Qt::Checked)
-    emit activated("selecton", IpeQ(item->text()));
-  else
-    emit activated("selectoff", IpeQ(item->text()));
-}
-
-void LayerBox::set(const Page *page, int view)
-{
-  iInSet = true;
-  clear();
-  iFlags.clear();
-  for (int i = 0; i < page->countLayers(); ++i) {
-    QListWidgetItem *item = new QListWidgetItem(QIpe(page->layer(i)), this);
-    item->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-    item->setCheckState(page->visible(view, i) ? Qt::Checked : Qt::Unchecked);
-    uint flags = 0;
-    if (page->layer(i) == page->active(view)) {
-      item->setBackgroundColor(Qt::yellow);
-      flags |= EIsActive;
-    }
-    if (page->isLocked(i)) {
-      flags |= EIsLocked;
-      item->setBackground(QColor(255, 220, 220));
-    }
-    if (!page->hasSnapping(i)) {
-      flags |= EHasNoSnapping;
-      item->setForeground(Qt::gray);
-    }
-    flags |= ECanDelete;
-    iFlags.push_back(flags);
-  }
-  // layers active in some view cannot be deleted
-  for (int j = 0; j < page->countViews(); ++j) {
-    int lno = page->findLayer(page->active(j));
-    iFlags[lno] &= ~ECanDelete;
-  }
-  // layers containing an object cannot be deleted
-  for (int j = 0; j < page->count(); ++j)
-    iFlags[page->layerOf(j)] &= ~ECanDelete;
-  iInSet = false;
-}
-
-void LayerBox::mousePressEvent(QMouseEvent *ev)
-{
-  QListWidgetItem *item = itemAt(ev->pos());
-  if (item && ev->button()== Qt::LeftButton && ev->x() > 30) {
-    emit activated("active", IpeQ(item->text()));
-  }
-  QListWidget::mousePressEvent(ev);
-}
-
-void LayerBox::addAction(QMenu *m, QListWidgetItem *item,
-			 String name, const QString &text)
-{
-  String s = IpeQ(item->text());
-  IpeAction *a = new IpeAction(name + "|" + s, text, this);
-  m->addAction(a);
-}
-
-void LayerBox::mouseReleaseEvent(QMouseEvent *ev)
-{
-  QListWidgetItem *item = itemAt(ev->pos());
-  if (item && ev->button() == Qt::RightButton) {
-    // make popup menu
-    int r = row(item);
-    QMenu *m = new QMenu();
-    addAction(m, item, "rename", "Rename");
-    if (iFlags[r] & ECanDelete)
-      addAction(m, item, "delete", "Delete");
-    // the active layer cannot be locked
-    if (!(iFlags[r] & EIsActive)) {
-      if (iFlags[r] & EIsLocked)
-	addAction(m, item, "lockoff", "Unlock");
-      else
-	addAction(m, item, "lockon", "Lock");
-    }
-    if (iFlags[r] & EHasNoSnapping)
-      addAction(m, item, "snapon", "Enable snapping");
-    else
-      addAction(m, item, "snapoff", "Disable snapping");
-    m->exec(ev->globalPos());
-  } else
-    QListWidget::mouseReleaseEvent(ev);
-}
 
 // --------------------------------------------------------------------
 
@@ -250,6 +113,66 @@ QIcon Prefs::colorIcon(Color color)
 
 // --------------------------------------------------------------------
 
+LayerBox::LayerBox(QWidget *parent)
+  : QListWidget(parent)
+{
+  setFocusPolicy(Qt::NoFocus);
+  setSelectionMode(NoSelection);
+  iInSet = false;
+  connect(this, SIGNAL(itemChanged(QListWidgetItem *)),
+	  SLOT(layerChanged(QListWidgetItem *)));
+}
+
+void LayerBox::layerChanged(QListWidgetItem *item)
+{
+  if (iInSet)
+    return;
+  if (item->checkState() == Qt::Checked)
+    emit activated("selecton", IpeQ(item->text()));
+  else
+    emit activated("selectoff", IpeQ(item->text()));
+}
+
+void LayerBox::set(const Page *page, int view)
+{
+  iInSet = true;
+  clear();
+  for (int i = 0; i < page->countLayers(); ++i) {
+    QListWidgetItem *item = new QListWidgetItem(QIpe(page->layer(i)), this);
+    item->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+    item->setCheckState(page->visible(view, i) ? Qt::Checked : Qt::Unchecked);
+    if (page->layer(i) == page->active(view))
+      item->setBackgroundColor(Qt::yellow);
+    if (page->isLocked(i))
+      item->setBackground(QColor(255, 220, 220));
+    if (!page->hasSnapping(i))
+      item->setForeground(Qt::gray);
+  }
+  iInSet = false;
+}
+
+void LayerBox::mousePressEvent(QMouseEvent *ev)
+{
+  QListWidgetItem *item = itemAt(ev->pos());
+  if (item && ev->button()== Qt::LeftButton && ev->x() > 30) {
+    emit activated("active", IpeQ(item->text()));
+  }
+  QListWidget::mousePressEvent(ev);
+}
+
+void LayerBox::mouseReleaseEvent(QMouseEvent *ev)
+{
+  QListWidgetItem *item = itemAt(ev->pos());
+  if (item && ev->button() == Qt::RightButton) {
+    // make popup menu
+    emit showLayerBoxPopup(Vector(ev->globalPos().x(), ev->globalPos().y()),
+			   IpeQ(item->text()));
+  } else
+    QListWidget::mouseReleaseEvent(ev);
+}
+
+// --------------------------------------------------------------------
+
 PathView::PathView(QWidget* parent, Qt::WFlags f)
   : QWidget(parent, f)
 {
@@ -261,11 +184,6 @@ void PathView::set(const AllAttributes &all, Cascade *sheet)
   iCascade = sheet;
   iAll = all;
   update();
-}
-
-void PathView::action(String name)
-{
-  emit activated(name);
 }
 
 void PathView::paintEvent(QPaintEvent *ev)
@@ -370,18 +288,18 @@ void PathView::mouseReleaseEvent(QMouseEvent *ev)
 
 // --------------------------------------------------------------------
 
-IpeAction *AppUi::findAction(const char *name) const
+QAction *AppUi::findAction(const char *name) const
 {
-  for (uint i = 0; i < iActions.size(); ++i) {
-    if (iActions[i]->name() == name)
-      return iActions[i];
-  }
-  return 0;
+  std::map<String, QAction*>::const_iterator it = iActions.find(name);
+  if (it != iActions.end())
+    return it->second;
+  else
+    return 0;
 }
 
 void AppUi::addItem(QMenu *m, const QString &title, const char *name)
 {
-  IpeAction *a = new IpeAction(name, title, this);
+  QAction *a = new QAction(title, this);
   lua_getglobal(L, "shortcuts");
   lua_getfield(L, -1, name);
   if (lua_isstring(L, -1)) {
@@ -402,7 +320,9 @@ void AppUi::addItem(QMenu *m, const QString &title, const char *name)
     // selector item
     a->setCheckable(true);
   }
-  iActions.push_back(a);
+  connect(a, SIGNAL(triggered()), iActionMap, SLOT(map()));
+  iActionMap->setMapping(a, name);
+  iActions[name] = a;
 }
 
 void AppUi::addItem(int m, const QString &title, const char *name)
@@ -412,7 +332,7 @@ void AppUi::addItem(int m, const QString &title, const char *name)
 
 void AppUi::addSnap(const char *name)
 {
-  IpeAction *a = findAction(name);
+  QAction *a = findAction(name);
   assert(a);
   a->setCheckable(true);
   iSnapTools->addAction(a);
@@ -472,6 +392,7 @@ void AppUi::buildMenus()
   addItem(EEditMenu, "Document properties", "document_properties");
   addItem(EEditMenu, "Style sheets", "style_sheets");
   addItem(EEditMenu, "Update style sheets", "update_style_sheets");
+  addItem(EEditMenu, "Check symbolic attributes", "check_style");
 
   iTextStyleMenu = new QMenu("Text style");
   iMenu[EPropertiesMenu]->addMenu(iTextStyleMenu);
@@ -695,14 +616,31 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   addToolBarBreak();
   iObjectTools = addToolBar("Objects");
 
+  iActionMap = new QSignalMapper(this);
+  connect(iActionMap, SIGNAL(mapped(const QString &)),
+	  SLOT(qAction(const QString &)));
+
   buildMenus();
 
-  iSelector[EUiGridSize] = new IpeComboBox(EUiGridSize);
-  iSelector[EUiAngleSize] = new IpeComboBox(EUiAngleSize);
-  connect(iSelector[EUiGridSize], SIGNAL(activated(int,String)),
-	  this, SLOT(selector(int,String)));
-  connect(iSelector[EUiAngleSize], SIGNAL(activated(int,String)),
-	  this, SLOT(selector(int,String)));
+  connect(iSelectLayerMenu, SIGNAL(triggered(QAction *)),
+	  SLOT(selectLayerAction(QAction *)));
+  connect(iMoveToLayerMenu, SIGNAL(triggered(QAction *)),
+	  SLOT(moveToLayerAction(QAction *)));
+  connect(iTextStyleMenu, SIGNAL(triggered(QAction *)),
+	  SLOT(textStyleAction(QAction *)));
+
+  QSignalMapper *comboMap = new QSignalMapper(this);
+
+  iSelector[EUiGridSize] = new QComboBox();
+  iSelector[EUiAngleSize] = new QComboBox();
+  iSelector[EUiGridSize]->setFocusPolicy(Qt::NoFocus);
+  iSelector[EUiAngleSize]->setFocusPolicy(Qt::NoFocus);
+  connect(iSelector[EUiGridSize], SIGNAL(activated(int)),
+	  comboMap, SLOT(map()));
+  connect(iSelector[EUiAngleSize], SIGNAL(activated(int)),
+	  comboMap, SLOT(map()));
+  comboMap->setMapping(iSelector[EUiGridSize], EUiGridSize);
+  comboMap->setMapping(iSelector[EUiAngleSize], EUiAngleSize);
 
   addSnap("snapvtx");
   addSnap("snapbd");
@@ -755,16 +693,19 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
       bg->addButton(iButton[i], i);
       lo->addWidget(iButton[i], i > 2 ? i+1 : i, 0);
     }
-    iSelector[i] = new IpeComboBox(i);
+    iSelector[i] = new QComboBox();
+    iSelector[i]->setFocusPolicy(Qt::NoFocus);
     lo->addWidget(iSelector[i], i > 2 ? i+1 : i, 1);
-    connect(iSelector[i], SIGNAL(activated(int,String)),
-	    this, SLOT(selector(int,String)));
+    connect(iSelector[i], SIGNAL(activated(int)), comboMap, SLOT(map()));
+    comboMap->setMapping(iSelector[i], i);
   }
   iButton[EUiStroke]->setIcon(Prefs::colorIcon(Color(1000, 0, 0)));
   iButton[EUiFill]->setIcon(Prefs::colorIcon(Color(1000, 1000, 0)));
   iButton[EUiPen]->setIcon(prefs->icon("pen"));
   iButton[EUiTextSize]->setIcon(prefs->icon("mode_label"));
   iButton[EUiSymbolSize]->setIcon(prefs->icon("mode_marks"));
+
+  connect(comboMap, SIGNAL(mapped(int)), this, SLOT(comboSelector(int)));
 
   QLabel *msl = new QLabel();
   msl->setPixmap(prefs->pixmap("mode_marks"));
@@ -808,6 +749,8 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   iLayerTools->setWidget(iLayerList);
   connect(iLayerList, SIGNAL(activated(String, String)),
 	  this, SLOT(layerAction(String, String)));
+  connect(iLayerList, SIGNAL(showLayerBoxPopup(Vector, String)),
+	  SLOT(showLayerBoxPopup(Vector, String)));
 
   connect(iSelectLayerMenu, SIGNAL(aboutToShow()),
 	  this, SLOT(aboutToShowSelectLayerMenu()));
@@ -846,24 +789,28 @@ void AppUi::aboutToShowSelectLayerMenu()
 {
   iSelectLayerMenu->clear();
   for (int i = 0; i < iLayerList->count(); ++i) {
-    IpeAction *a = new IpeAction(String("selectinlayer-") +
-				 IpeQ(iLayerList->item(i)->text()),
-				 iLayerList->item(i)->text(),
-				 this);
+    QAction *a = new QAction(iLayerList->item(i)->text(), iSelectLayerMenu);
     iSelectLayerMenu->addAction(a);
   }
+}
+
+void AppUi::selectLayerAction(QAction *a)
+{
+  action(String("selectinlayer-") + IpeQ(a->text()));
 }
 
 void AppUi::aboutToShowMoveToLayerMenu()
 {
   iMoveToLayerMenu->clear();
   for (int i = 0; i < iLayerList->count(); ++i) {
-    IpeAction *a = new IpeAction(String("movetolayer-") +
-				 IpeQ(iLayerList->item(i)->text()),
-				 iLayerList->item(i)->text(),
-				 this);
+    QAction *a = new QAction(iLayerList->item(i)->text(), iMoveToLayerMenu);
     iMoveToLayerMenu->addAction(a);
   }
+}
+
+void AppUi::moveToLayerAction(QAction *a)
+{
+  action(String("movetolayer-") + IpeQ(a->text()));
 }
 
 void AppUi::aboutToShowTextStyleMenu()
@@ -873,12 +820,17 @@ void AppUi::aboutToShowTextStyleMenu()
   iTextStyleMenu->clear();
   for (uint i = 0; i < seq.size(); ++i) {
     String s = seq[i].string();
-    IpeAction *a = new IpeAction(String("textstyle|") + s, QIpe(s), this);
+    QAction *a = new QAction(QIpe(s), iTextStyleMenu);
     a->setCheckable(true);
     if (s == iAll.iTextStyle.string())
       a->setChecked(true);
     iTextStyleMenu->addAction(a);
   }
+}
+
+void AppUi::textStyleAction(QAction *a)
+{
+  action(String("textstyle|") + IpeQ(a->text()));
 }
 
 void AppUi::wheelZoom(int degrees)
@@ -1013,10 +965,10 @@ void AppUi::setCheckMark(String name, Attribute a)
   String sa = name + "|";
   int na = sa.size();
   String sb = sa + a.string();
-  for (uint i = 0; i < iActions.size(); ++i) {
-    if (iActions[i]->name().left(na) == sa) {
-      iActions[i]->setChecked(iActions[i]->name() == sb);
-    }
+  for (std::map<String, QAction *>::iterator it = iActions.begin();
+       it != iActions.end(); ++it) {
+    if (it->first.left(na) == sa)
+      it->second->setChecked(it->first == sb);
   }
 }
 
@@ -1242,6 +1194,11 @@ void AppUi::selector(int id, String value)
   callSelector(String(selector_name[id]), value);
 }
 
+void AppUi::comboSelector(int id)
+{
+  callSelector(String(selector_name[id]), IpeQ(iSelector[id]->currentText()));
+}
+
 void AppUi::layerAction(String name, String layer)
 {
   lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
@@ -1298,6 +1255,11 @@ void AppUi::aboutIpe()
   msgBox.exec();
 }
 
+void AppUi::qAction(const QString &name)
+{
+  action(IpeQ(name));
+}
+
 void AppUi::action(String name)
 {
   if (name == "fullscreen") {
@@ -1345,6 +1307,16 @@ void AppUi::showPathStylePopup(Vector v)
   lua_insert(L, -2); // before model
   push_vector(L, v);
   lua_call(L, 2, 0);
+}
+
+void AppUi::showLayerBoxPopup(Vector v, String layer)
+{
+  lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
+  lua_getfield(L, -1, "showLayerBoxPopup");
+  lua_insert(L, -2); // before model
+  push_vector(L, v);
+  push_string(L, layer);
+  lua_call(L, 3, 0);
 }
 
 // --------------------------------------------------------------------

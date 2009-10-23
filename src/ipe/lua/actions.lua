@@ -88,7 +88,6 @@ function MODEL:selector(prop, value)
     local s = "mark/" .. value
     local name
     for _, ms in ipairs(self.doc:sheets():allNames("symbol")) do
-      print(name, ms, s, ms:sub(1,#s))
       if ms:sub(1, #s) == s then
 	name = ms
 	break
@@ -189,6 +188,71 @@ end
 
 ----------------------------------------------------------------------
 
+function MODEL:showPathStylePopup(v)
+  local m = ipeui.Menu()
+  local sheet = self.doc:sheets()
+  m:add("pathmode", "Stroke && Fill",
+	{ "stroked", "strokedfilled", "filled"},
+	{ "stroke only", "stroke && fill", "fill only" })
+  local dashstyles = sheet:allNames("dashstyle")
+  m:add("dashstyle", "Dash style", dashstyles)
+  local arrowsizes = sheet:allNames("arrowsize")
+  m:add("farrowsize", "Forward arrow size", arrowsizes)
+  m:add("rarrowsize", "Reverse arrow size", arrowsizes)
+  local arrowshapes = symbolNames(sheet, "arrow/", "(spx)")
+  m:add("farrowshape", "Forward arrow shape", arrowshapes, arrowshapeToName)
+  m:add("rarrowshape", "Reverse arrow shape", arrowshapes, arrowshapeToName)
+  local tilings = sheet:allNames("tiling")
+  table.insert(tilings, 1, "normal")
+  m:add("tiling", "Tiling pattern", tilings)
+  local r, n, value = m:execute(v.x, v.y)
+  if r then self:selector(r, value) end
+end
+
+----------------------------------------------------------------------
+
+function MODEL:showLayerBoxPopup(v, layer)
+  local p = self:page()
+  local m = ipeui.Menu()
+  local canDelete = true
+  local canLock = true
+  -- layers active in some view cannot be deleted or locked
+  for j = 1, p:countViews() do
+    if layer == p:active(j) then
+      canDelete = false
+      canLock = false
+      break
+    end
+  end
+  -- layers containing an object cannot be deleted
+  for i,obj,sel,l in p:objects() do
+    if l == layer then
+      canDelete = false
+      break
+    end
+  end
+  m:add("rename", "Rename")
+  if canDelete then
+    m:add("delete", "Delete")
+  end
+  if p:isLocked(layer) then
+    m:add("lockoff", "Unlock")
+  elseif canLock then
+    m:add("lockon", "Lock")
+  end
+  if p:hasSnapping(layer) then
+    m:add("snapoff", "Disable snapping")
+  else
+    m:add("snapon", "Enable snapping")
+  end
+  local r = m:execute(v.x, v.y)
+  if r then
+    self:layerAction(r, layer)
+  end
+end
+
+----------------------------------------------------------------------
+
 function MODEL:layeraction_select(layer, arg)
   local p = self:page()
   local t = { label="set visibility of layer " .. layer,
@@ -223,6 +287,8 @@ function MODEL:layeraction_lock(layer, arg)
 	     doc[t.pno]:setLocked(t.layer, t.locked)
 	   end
   self:register(t)
+  self:deselectNotInView()
+  self:setPage()
 end
 
 function MODEL:layeraction_snap(layer, arg)
@@ -283,9 +349,15 @@ function MODEL:layeraction_rename(layer)
 	    }
   t.undo = function (t, doc)
 	     doc[t.pno]:renameLayer(t.final, t.original)
+	     for i = 1,p:countViews() do
+	       if p:active(i) == t.final then p:setActive(i, t.original) end
+	     end
 	   end
   t.redo = function (t, doc)
 	     doc[t.pno]:renameLayer(t.original, t.final)
+	     for i = 1,p:countViews() do
+	       if p:active(i) == t.original then p:setActive(i, t.final) end
+	     end
 	   end
   self:register(t)
 end
