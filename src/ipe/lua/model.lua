@@ -349,29 +349,6 @@ end
 
 ----------------------------------------------------------------------
 
-function MODEL:showPathStylePopup(v)
-  local m = ipeui.Menu()
-  local sheet = self.doc:sheets()
-  m:add("pathmode", "Stroke && Fill",
-	{ "stroked", "strokedfilled", "filled"},
-	{ "stroke only", "stroke && fill", "fill only" })
-  local dashstyles = sheet:allNames("dashstyle")
-  m:add("dashstyle", "Dash style", dashstyles)
-  local arrowsizes = sheet:allNames("arrowsize")
-  m:add("farrowsize", "Forward arrow size", arrowsizes)
-  m:add("rarrowsize", "Reverse arrow size", arrowsizes)
-  local arrowshapes = symbolNames(sheet, "arrow/", "(spx)")
-  m:add("farrowshape", "Forward arrow shape", arrowshapes, arrowshapeToName)
-  m:add("rarrowshape", "Reverse arrow shape", arrowshapes, arrowshapeToName)
-  local tilings = sheet:allNames("tiling")
-  table.insert(tilings, 1, "normal")
-  m:add("tiling", "Tiling pattern", tilings)
-  local r, n, value = m:execute(v.x, v.y)
-  if r then self:selector(r, value) end
-end
-
-----------------------------------------------------------------------
-
 function MODEL:latexErrorBox(log)
   local d = ipeui.Dialog(self.ui, "Ipe: error running Latex")
   d:add("label", "label",

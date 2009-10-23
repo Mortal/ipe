@@ -414,9 +414,12 @@ static int appui_actionState(lua_State *L)
 {
   AppUi **ui = check_appui(L, 1);
   const char *name = luaL_checkstring(L, 2);
-  IpeAction *a = (*ui)->findAction(name);
-  lua_pushboolean(L, a->isChecked());
-  return 1;
+  QAction *a = (*ui)->findAction(name);
+  if (a) {
+    lua_pushboolean(L, a->isChecked());
+    return 1;
+  } else
+    return 0;
 }
 
 static int appui_setActionState(lua_State *L)
@@ -424,8 +427,9 @@ static int appui_setActionState(lua_State *L)
   AppUi **ui = check_appui(L, 1);
   const char *name = luaL_checkstring(L, 2);
   bool val = lua_toboolean(L, 3);
-  IpeAction *a = (*ui)->findAction(name);
-  a->setChecked(val);
+  QAction *a = (*ui)->findAction(name);
+  if (a)
+    a->setChecked(val);
   return 0;
 }
 
