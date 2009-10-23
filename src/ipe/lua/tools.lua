@@ -837,7 +837,8 @@ end
 
 function MODEL:startModeTool(modifiers)
   if self.mode == "select" then
-    self.ui:selectTool(self:page(), self.vno, modifiers.shift)
+    self.ui:selectTool(self:page(), self.vno,
+		       prefs.select_distance, modifiers.shift)
   elseif (self.mode == "translate" or self.mode == "stretch"
 	  or self.mode == "rotate") then
     local mode = self.mode
@@ -876,7 +877,8 @@ function MODEL:mouseAction(button, modifiers)
     if modifiers.alt then
       self:startTransform("translate", modifiers.shift)
     elseif modifiers.control then
-      self.ui:selectTool(self:page(), self.vno, modifiers.shift)
+      self.ui:selectTool(self:page(), self.vno,
+			 prefs.select_distance, modifiers.shift)
     else
       self:startModeTool(modifiers)
     end

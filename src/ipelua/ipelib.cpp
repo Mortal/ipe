@@ -463,7 +463,7 @@ static int document_setProperties(lua_State *L)
   luaL_checktype(L, 2, LUA_TTABLE);
   Document::SProperties prop = (*d)->properties();
   // take from table
-  propFlag(L, "numberPages", prop.iNumberPages);
+  propFlag(L, "numberpages", prop.iNumberPages);
   propFlag(L, "fullscreen", prop.iFullScreen);
   propString(L, "title", prop.iTitle);
   propString(L, "author", prop.iAuthor);

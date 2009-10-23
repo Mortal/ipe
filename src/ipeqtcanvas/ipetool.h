@@ -76,7 +76,8 @@ namespace ipeqt {
 
   class SelectTool : public Tool {
   public:
-    SelectTool(Canvas *canvas, Page *page, int view, bool nonDestructive);
+    SelectTool(Canvas *canvas, Page *page, int view,
+	       double selectDistance, bool nonDestructive);
 
     virtual void draw(Painter &painter) const;
     virtual void mouseButton(int button, bool press);

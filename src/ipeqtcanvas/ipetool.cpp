@@ -139,14 +139,13 @@ public:
 
 //! Constructor starts selection.
 SelectTool::SelectTool(Canvas *canvas, Page *page, int view,
-		       bool nonDestructive)
+		       double selectDistance, bool nonDestructive)
   : Tool(canvas)
 {
   iPage = page;
   iView = view;
   iNonDestructive = nonDestructive;
-  // TODO! iSelectDistance = iCanvas->snap().iSelectDistance;
-  iSelectDistance = 36;
+  iSelectDistance = selectDistance;
 
   // coordinates in user space
   Vector v = iCanvas->unsnappedPos();

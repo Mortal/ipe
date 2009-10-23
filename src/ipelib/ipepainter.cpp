@@ -337,35 +337,30 @@ void Painter::dashStyle(std::vector<double> &dashes, double &offset) const
 }
 
 //! Set line cap.
-/*! If \a cap is EDefaultCap, the value from the style sheet is set instead. */
+/*! If \a cap is EDefaultCap, the current setting remains unchanged. */
 void Painter::setLineCap(TLineCap cap)
 {
   assert(!iInPath);
-  if (cap == EDefaultCap)
-    cap = cascade()->lineCap();
-  iState.back().iLineCap = cap;
+  if (cap != EDefaultCap)
+    iState.back().iLineCap = cap;
 }
 
 //! Set line join.
-/*! If \a join is EDefaultJoin, the value from the style sheet is set
-  instead. */
+/*! If \a join is EDefaultJoin, the current setting remains unchanged. */
 void Painter::setLineJoin(TLineJoin join)
 {
   assert(!iInPath);
-  if (join == EDefaultJoin)
-    join = cascade()->lineJoin();
-  iState.back().iLineJoin = join;
+  if (join != EDefaultJoin)
+    iState.back().iLineJoin = join;
 }
 
 //! Set fill rule (wind or even-odd).
-/*! If the rule is EDefaultRule, the value from the style sheet is set
-  instead. */
+/*! If the rule is EDefaultRule, the current setting remains unchanged. */
 void Painter::setFillRule(TFillRule rule)
 {
   assert(!iInPath);
-  if (rule == EDefaultRule)
-    rule = cascade()->fillRule();
-  iState.back().iFillRule = rule;
+  if (rule != EDefaultRule)
+    iState.back().iFillRule = rule;
 }
 
 //! Set opacity.
