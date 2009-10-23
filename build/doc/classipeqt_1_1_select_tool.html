@@ -43,7 +43,7 @@ Inherits <a class="el" href="classipeqt_1_1_tool.html">ipeqt::Tool</a>.
 </ul>
 <h2>Public Member Functions</h2>
 <ul>
-<li><a class="el" href="classipeqt_1_1_select_tool.html#1632d5291dd5582f1db6b305fdb63142">SelectTool</a> (<a class="el" href="classipeqt_1_1_canvas.html">Canvas</a> *canvas, <a class="el" href="classipe_1_1_page.html">Page</a> *page, int view, bool nonDestructive)
+<li><a class="el" href="classipeqt_1_1_select_tool.html#e874e24121adf683e825e27470d9d6cb">SelectTool</a> (<a class="el" href="classipeqt_1_1_canvas.html">Canvas</a> *canvas, <a class="el" href="classipe_1_1_page.html">Page</a> *page, int view, double selectDistance, bool nonDestructive)
 <li>virtual void <a class="el" href="classipeqt_1_1_select_tool.html#8cb9d64117708e074fee177b2b1bae34">draw</a> (<a class="el" href="classipe_1_1_painter.html">Painter</a> &amp;painter) const 
 <li>virtual void <a class="el" href="classipeqt_1_1_select_tool.html#5530d0241cac5b25d36c5d36a81c2293">mouseButton</a> (int button, bool press)
 <li>virtual void <a class="el" href="classipeqt_1_1_select_tool.html#487f657f3089941293ab8336980063b2">mouseMove</a> (int button)
@@ -51,7 +51,7 @@ Inherits <a class="el" href="classipeqt_1_1_tool.html">ipeqt::Tool</a>.
 </ul>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 A tool for selecting objects. <hr><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" name="1632d5291dd5582f1db6b305fdb63142"></a><!-- doxytag: member="ipeqt::SelectTool::SelectTool" ref="1632d5291dd5582f1db6b305fdb63142" args="(Canvas *canvas, Page *page, int view, bool nonDestructive)" -->
+<a class="anchor" name="e874e24121adf683e825e27470d9d6cb"></a><!-- doxytag: member="ipeqt::SelectTool::SelectTool" ref="e874e24121adf683e825e27470d9d6cb" args="(Canvas *canvas, Page *page, int view, double selectDistance, bool nonDestructive)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -72,6 +72,12 @@ A tool for selecting objects. <hr><h2>Constructor &amp; Destructor Documentation
           <td></td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>view</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&nbsp;</td>
+          <td class="paramname"> <em>selectDistance</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
