@@ -667,7 +667,7 @@ function MODEL:createText(mode)
   addEditorField(d, "text", 3, 2)
   d:setStretch("row", 2, 1)
   d:setStretch("column", 1, 1)
-  local r = d:execute()
+  local r = d:execute(prefs.editor_size)
   if r then
     local t = d:get("text")
     if mode == "math" then
@@ -699,7 +699,7 @@ function MODEL:createParagraph(pos, width, pinned)
   if not size then size = indexOf("normal", sizes) end
   d:set("style", style)
   d:set("size", size)
-  local r = d:execute()
+  local r = d:execute(prefs.editor_size)
   if r then
     local t = d:get("text")
     local style = styles[d:get("style")]
@@ -831,6 +831,7 @@ end
 
 function MODEL:startTransform(mode, withShift)
   self:updateCloseSelection(false)
+  if mode == "stretch" and withShift then mode = "scale" end
   self.ui:transformTool(self:page(), self.vno, mode, withShift,
 			function (m) self:transformation(mode, m) end)
 end
@@ -841,9 +842,7 @@ function MODEL:startModeTool(modifiers)
 		       prefs.select_distance, modifiers.shift)
   elseif (self.mode == "translate" or self.mode == "stretch"
 	  or self.mode == "rotate") then
-    local mode = self.mode
-    if mode == "stretch" and modifiers.shift then mode = "scale" end
-    self:startTransform(mode, modifiers.shift)
+    self:startTransform(self.mode, modifiers.shift)
   elseif self.mode == "pan" then
     self.ui:panTool(self:page(), self.vno)
   elseif self.mode == "rectangles" then
@@ -891,6 +890,8 @@ function MODEL:mouseAction(button, modifiers)
       self:startTransform("rotate", modifiers.shift)
     elseif modifiers.control then
       self:startTransform("stretch", modifiers.shift)
+    elseif modifiers.shift then
+      self.ui:panTool(self:page(), self.vno)
     else
       self:propertiesPopup()
     end
@@ -926,7 +927,7 @@ function MODEL:action_edit_text(prim, obj)
       d:set("size", size)
     end
   end
-  local r = d:execute()
+  local r = d:execute(prefs.editor_size)
   if not r or string.match(d:get("text"), "^%s*$") then return end
   local final = obj:clone()
   final:setText(d:get("text"))

@@ -55,6 +55,9 @@ else
   -- prefs.external_editor = "emacsclient %s"
 end
 
+-- Size of dialog window for creating/editing text objects
+prefs.editor_size = { 600, 400 }
+
 -- Should the grid be visible when Ipe starts? (true or false)
 prefs.grid_visible = true
 

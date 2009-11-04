@@ -7,6 +7,8 @@ Quickstart
 
 If you have a recent Ubuntu or Debian system, the following steps
 should compile and install Ipe into /usr/local:
+(Note that Ubuntu 8.04 Hardy is NOT recent, and you'll need to compile
+recent versions of Cairo and Qt to get Ipe to work on Hardy.)
 
     sudo apt-get install zlib1g-dev libqt4-dev
     sudo apt-get install libfreetype6-dev libcairo2-dev 
@@ -38,7 +40,7 @@ and libraries:
    The Ipe makefiles are written for GNU make.  A Linux system will
    already have it.  On other Unix systems, GNU make is often
    installed as 'gmake'.  Otherwise, install it yourself from
-   www.gnu.org. 
+   www.gnu.org. Other "make" implementations will not work!
 
  * The compression library 'zlib'
 
@@ -54,7 +56,7 @@ and libraries:
    The original sources are at "www.freetype.org".  You need version
    2.1.8 or newer.
 
- * The Cairo library
+ * The Cairo library (version 1.8.0 or higher)
 
    The Gnome desktop uses this high-quality rendering library, so you
    may already have it.  You will need the development package,
@@ -65,8 +67,7 @@ and libraries:
    svg surfaces (backends).  You also need freetype support, but no
    fontconfig (Cairo 1.8 does not support freetype without fontconfig,
    but 1.10 will).  Since Ipe does not need any platform-dependent
-   backends, Cairo should compile fine on any platform.  You need at
-   least version 1.8.0.
+   backends, Cairo should compile fine on any platform.  
 
  * The Lua language
 
@@ -74,7 +75,7 @@ and libraries:
    "liblua5.1-0-dev".  Or compile from source at "www.lua.org" - the
    sources are ANSI C and compile very easily.  Ipe requires Lua 5.1.
 
- * The Qt toolkit
+ * The Qt toolkit (version 4.4 or higher)
 
    On Linux, you most likely already have it, otherwise you can find
    the sources at "qt.nokia.com".  You only need the QtCore and
@@ -82,7 +83,7 @@ and libraries:
 
    If possible, use Qt 4.5 or higher.  Ipe compiles with Qt 4.4, but
    there is at least one problem: shortcuts consisting of a letter
-   only (e.g. "d" for "duplicate") do not work.  Ipe may not compile
+   only (e.g. "d" for "duplicate") do not work.  Ipe does not compile
    with Qt 4.3 or earlier.
 
  * The 14 standard Postscript fonts
@@ -185,10 +186,9 @@ install any fontmap - you have to do this one step manually.
 Dynamic linking
 ---------------
 
-Note that the Ipe library is a shared library, and so your dynamic
-linker has to find "libipe.so".  If you have chosen a standard library
-directory for IPELIBDIR, saying "sudo ldconfig" will be enough to run
-Ipe.
+The Ipe libraries are shared libraries, and so your dynamic linker has
+to find "libipe*.so".  If you have chosen a standard library directory
+for IPELIBDIR, saying "sudo ldconfig" will be enough to run Ipe.
 
 If you installed in a different location, such as "/opt/ipe-7.0", you
 can make a small script called "ipe" like the following, and put it in

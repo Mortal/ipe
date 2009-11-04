@@ -397,6 +397,7 @@ namespace ipe {
     TFillRule iFillRule;        //!< Shape fill rule.
     Attribute iOpacity;         //!< Opacity.
     Attribute iTiling;          //!< Tiling pattern.
+    Attribute iGradient;        //!< Gradient pattern.
     Attribute iMarkShape;       //!< Shape of Mark to create.
   };
 

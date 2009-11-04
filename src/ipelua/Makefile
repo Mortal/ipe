@@ -35,6 +35,6 @@ $(DEPEND): Makefile
 
 install: $(TARGET)
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPELIBDIR)
-	$(INSTALL_PROGRAMS) $(INSTALL_ROOT)$(IPELIBDIR) $(TARGET)
+	$(INSTALL_PROGRAMS) $(TARGET) $(INSTALL_ROOT)$(IPELIBDIR)
 
 # --------------------------------------------------------------------

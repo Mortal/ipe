@@ -65,6 +65,7 @@ function MODEL:init(fname)
     fillrule = "normal",
     markshape = "mark/disk(sx)",
     tiling = "normal",
+    gradient = "normal",
     opacity = "opaque",
   }
 

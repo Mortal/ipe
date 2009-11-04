@@ -270,6 +270,9 @@ cairo_font_face_t *Engine::screenFont()
 #else
     iScreenFont = cairo_toy_font_face_create("Sans", CAIRO_FONT_SLANT_NORMAL,
 					     CAIRO_FONT_WEIGHT_BOLD);
+    // Alternative (in Cairo 1.6):
+    // FcPattern *pat = FcFontMatch(NULL, FcNameParse((FcChar8 *) "Sans"), 0);
+    // iScreenFont = cairo_ft_font_face_create_for_pattern(pat);
 #endif
   }
   return iScreenFont;

@@ -55,13 +55,13 @@ install: $(TARGET)
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPELUADIR) 
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPESTYLES) 
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPEICONDIR)
-	$(INSTALL_PROGRAMS) $(INSTALL_ROOT)$(IPEBINDIR) $(TARGET)
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPEMANDIR) ../../man/*.1
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPEDOCDIR) ../../build/doc/*
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPELUADIR) lua/*.lua
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPESTYLES) ../../styles/basic.isy
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPESTYLES) ../../styles/colors.isy
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPESTYLES) ../../styles/presentation.isy
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPEICONDIR) icons/*.png
+	$(INSTALL_PROGRAMS)  $(TARGET) $(INSTALL_ROOT)$(IPEBINDIR)
+	$(INSTALL_FILES) ../../man/*.1 $(INSTALL_ROOT)$(IPEMANDIR) 
+	$(INSTALL_FILES) ../../build/doc/* $(INSTALL_ROOT)$(IPEDOCDIR)
+	$(INSTALL_FILES) lua/*.lua $(INSTALL_ROOT)$(IPELUADIR)
+	$(INSTALL_FILES) ../../styles/basic.isy $(INSTALL_ROOT)$(IPESTYLES)
+	$(INSTALL_FILES) ../../styles/colors.isy $(INSTALL_ROOT)$(IPESTYLES)
+	$(INSTALL_FILES) ../../styles/presentation.isy $(INSTALL_ROOT)$(IPESTYLES)
+	$(INSTALL_FILES) icons/*.png $(INSTALL_ROOT)$(IPEICONDIR)
 
 # --------------------------------------------------------------------

@@ -140,8 +140,44 @@ end
 
 ----------------------------------------------------------------------
 
+local function show_configuration()
+  local s = config.version
+  s = s .. "\nLua code: " .. package.path
+  s = s .. "\nStyle directory: " .. config.styles
+  s = s .. "\nStyles for new documents: " .. table.concat(prefs.styles, ", ")
+  s = s .. "\nAutosave file: " .. prefs.autosave_filename
+  s = s .. "\nDocumentation: " .. config.docdir
+  s = s .. "\nIpelets: " .. table.concat(config.ipeletDirs, ", ")
+  s = s .. "\nLatex directory: " .. config.latexdir
+  s = s .. "\nFontmap: " .. config.fontmap
+  s = s .. "\nIcons: " .. config.icons
+  s = s .. "\n"
+  io.stdout:write(s)
+end
+
 local function usage()
   io.stderr:write("Usage: ipe { -sheet <filename.isy> } [ <filename> ]\n")
+  io.stderr:write("or:    ipe -show-configuration\n")
+  io.stderr:write("or:    ipe --help\n")
+end
+
+config.ipeletDirs = {}
+for w in string.gmatch(config.ipelets, "[^;]+") do
+  config.ipeletDirs[#config.ipeletDirs + 1] = w
+end
+
+if config.platform == "unix" then
+  table.insert(config.ipeletDirs, 1, config.home .. "/.ipe/ipelets")
+end
+
+if #argv == 1 and argv[1] == "-show-configuration" then
+  show_configuration()
+  return
+end
+
+if #argv == 1 and (argv[1] == "--help" or argv[1] == "-h") then
+  usage()
+  return
 end
 
 local first_file = nil
@@ -167,15 +203,6 @@ for _,w in ipairs(prefs.styles) do
   if w:sub(-4) ~= ".isy" then w = w .. ".isy" end
   if not w:find("/") then w = config.styles .. "/" .. w end
   config.styleList[#config.styleList + 1] = w
-end
-
-config.ipeletDirs = {}
-for w in string.gmatch(config.ipelets, "[^;]+") do
-  config.ipeletDirs[#config.ipeletDirs + 1] = w
-end
-
-if config.platform == "unix" then
-  table.insert(config.ipeletDirs, 1, config.home .. "/.ipe/ipelets")
 end
 
 -- look for ipelets

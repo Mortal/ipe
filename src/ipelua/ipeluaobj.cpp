@@ -297,6 +297,7 @@ void ipelua::check_allattributes(lua_State *L, int i, AllAttributes &all)
   get_attribute(L, i, EPropTextStyle, "textstyle", all.iTextStyle);
   get_attribute(L, i, EPropOpacity, "opacity", all.iOpacity);
   get_attribute(L, i, EPropTiling, "tiling", all.iTiling);
+  get_attribute(L, i, EPropGradient, "gradient", all.iGradient);
 
   int t;
   t = get_option(L, i, "horizontalalignment", horizontal_alignment_names);

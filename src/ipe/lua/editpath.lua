@@ -816,6 +816,7 @@ function EDITTOOL:acceptEdit()
 	      final=self.obj:clone(),
 	    }
   t.final:setShape(self.shape)
+  t.final:setMatrix(ipe.Matrix()) -- already in shape
   t.undo = function (t, doc)
 	     doc[t.pno]:replace(t.primary, t.original)
 	   end

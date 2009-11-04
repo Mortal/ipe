@@ -15,6 +15,12 @@ ifdef MINGWCROSS
   MINGLIBS ?= /windows/Home/Devel/ming
   QTDIR ?= /windows/Qt/4.5.2
 endif
+ifndef WIN32
+  UNAME = $(shell uname)
+  ifeq "$(UNAME)" "Darwin"
+    MACOS = 1
+  endif
+endif
 # --------------------------------------------------------------------
 # IPESRCDIR is Ipe's top "src" directory
 # if 'common.mak' is included on a different level than a subdirectory
@@ -88,7 +94,11 @@ endif
 else
   # -------------------- Unix --------------------
   CXXFLAGS	+= -g -O2
-  DLL_LDFLAGS	+= -shared 
+  ifdef MACOS
+    DLL_LDFLAGS	+= -dynamiclib 
+  else	
+    DLL_LDFLAGS	+= -shared 
+  endif
   buildlib	= $(BUILDDIR)/lib
   dll_target    = $(buildlib)/lib$1.so
   ipelet_target = $(BUILDDIR)/ipelets/$1.so
@@ -98,8 +108,8 @@ endif
 # Macros
 
 INSTALL_DIR = install -d
-INSTALL_FILES = install -m 0644 -t
-INSTALL_PROGRAMS = install -s -m 0755 -t
+INSTALL_FILES = install -m 0644
+INSTALL_PROGRAMS = install -s -m 0755
 
 MAKE_BINDIR = mkdir -p $(BUILDDIR)/bin
 

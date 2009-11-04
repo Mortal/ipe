@@ -115,6 +115,7 @@ protected:
   virtual void paintEvent(QPaintEvent *ev);
   virtual void mouseReleaseEvent(QMouseEvent *e);
   virtual void mousePressEvent(QMouseEvent *e);
+  virtual bool event(QEvent *ev);
 
 private:
   Cascade *iCascade;
