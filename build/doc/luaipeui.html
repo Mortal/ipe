@@ -66,6 +66,7 @@ value = d:get(name)
 
 -- returns true if dialog was accepted
 d:execute()
+d:execute(size)   -- where size == { width, height }
 </pre></div><p>
 <em>name</em> can be an arbitrary string. <em>what</em> must be one of <div class="fragment"><pre class="fragment">
 button, text, list, label, combo, checkbox, input
@@ -97,7 +98,7 @@ The argument of <em>set</em> is: <ul>
 </ul>
 The result value of <em>get</em> is: <ul>
 <li>a string for <em>text</em> and <em>input</em>, </li>
-<li>an integer for <em>list</em> or <em>combo</em>, </li>
+<li>an integer for <em>list</em> (or nil if there is no current item) or <em>combo</em>, </li>
 <li>a boolean for <em>checkbox</em>.</li>
 </ul>
 <h2><a class="anchor" name="luaipeuimenus">
@@ -116,7 +117,7 @@ When the strings in the table are not directly the visible labels for the submen
 m:add("name", "Submenu", { "alpha", "beta", "gamma" },
       function (i, item) return "select " .. item end )
 </pre></div><p>
-Finally, another Lua function can be provided to map item number and name to a color (three numbers in the range 0.0 to 1.0). This is then used to display a color icon.<h2><a class="anchor" name="luaipeuitimers">
+The final argument can either be a string or a function. If it is a string, then all items are checkable, and the item whose name is identical to the final argument is checked. Otherwise, the function maps item number and name to a color (three numbers in the range 0.0 to 1.0). This is then used to display a color icon.<h2><a class="anchor" name="luaipeuitimers">
 Timers</a></h2>
 Timers are constructed as follows: <div class="fragment"><pre class="fragment">
 t = ipeui.Timer(parent, table, "method")
