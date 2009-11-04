@@ -474,6 +474,7 @@ AllAttributes::AllAttributes()
   iFillRule = EDefaultRule;
   iOpacity = Attribute::OPAQUE();
   iTiling = Attribute::NORMAL();
+  iGradient = Attribute::NORMAL();
 }
 
 // --------------------------------------------------------------------

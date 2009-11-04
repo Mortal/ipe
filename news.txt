@@ -1,5 +1,45 @@
 --------------------------------------------------------------------
 
+Ipe 7.0.8 (2009-11-04) SVN 373
+
+ * Option -show-configuration to show the current configuration on
+   stdout. 
+
+ * Recognize Mac OS and change some compilation flags in Makefiles.
+ 
+ * FreeBSD and Mac OS do not support "install -t <dir>", and so
+   invocations of "install" were changed to use the traditional syntax
+   "install <files> <dir>".
+
+ * Fixed wrong transformation matrix after path editing (bug #313).
+
+ * New preference to set size of dialog to create/edit text objects.
+
+ * Fixed crash during stylesheet add (bug #315). 
+
+ * New shortcut "Ctrl+Return" to accept dialogs (useful in multi-line
+   text input fields).
+
+ * Enabled display of paper boundary during panning again.
+
+ * Menu item for showing/hiding bookmarks.
+
+ * Tooltips in "Properties" dock.
+ 
+ * "Edit" button in stylesheets dialog to edit stylesheet using
+   external editor.
+
+ * Fixed mouse shortcuts (Shift+Right and Shift+Ctrl+Right didn't work
+   properly).
+
+ * Moved path join/cap/fill rule to the path property menu.
+
+ * Added opacity and gradient pattern to path property menu.
+
+ * Current settings indicated in path property menu.
+
+--------------------------------------------------------------------
+
 Ipe 7.0.7 (2009-10-23) SVN 361
 
  * Removed -fno-exceptions and -fno-rtti from CXXFLAGS, to avoid

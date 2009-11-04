@@ -29,6 +29,6 @@ $(DEPEND): Makefile
 
 install: $(TARGET)
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPEBINDIR)
-	$(INSTALL_PROGRAMS) $(INSTALL_ROOT)$(IPEBINDIR) $(TARGET)
+	$(INSTALL_PROGRAMS) $(TARGET) $(INSTALL_ROOT)$(IPEBINDIR)
 
 # --------------------------------------------------------------------

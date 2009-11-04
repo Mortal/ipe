@@ -93,13 +93,13 @@ void PanTool::draw(Painter &painter) const
 {
   painter.translate(iPan);
   painter.setStroke(Attribute(Color(0, 0, 1000)));
-  /*
-    // Doing this triggers a Qt bug
+
+  // Doing this triggers a Qt bug
   painter.newPath();
-  Layout l = iCanvas->styleSheet()->findLayout();
-  painter.rect(Rect(-l.iOrigin, -l.iOrigin + l.iPaperSize));
-  painter.drawPath(Painter::EStrokePath);
-  */
+  const Layout *l = iCanvas->cascade()->findLayout();
+  painter.rect(Rect(-l->iOrigin, -l->iOrigin + l->iPaperSize));
+  painter.drawPath(EStrokedOnly);
+
   for (int i = 0; i < iPage->count(); ++i) {
     if (iPage->objectVisible(iView, i))
       iPage->object(i)->drawSimple(painter);

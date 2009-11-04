@@ -59,6 +59,8 @@ extern "C" {
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSignalMapper>
+#include <QToolTip>
+#include <QHelpEvent>
 
 using namespace ipe;
 using namespace ipeqt;
@@ -286,6 +288,28 @@ void PathView::mouseReleaseEvent(QMouseEvent *ev)
     emit showPathStylePopup(Vector(ev->globalPos().x(), ev->globalPos().y()));
 }
 
+bool PathView::event(QEvent *ev)
+{
+  if (ev->type() != QEvent::ToolTip)
+    return QWidget::event(ev);
+
+  QHelpEvent *hev = (QHelpEvent *) ev;
+  QSize s = size();
+
+  QString tip;
+  if (hev->x() < s.width() * 3 / 10)
+    tip = "Toggle reverse arrow";
+  else if (hev->x() > s.width() * 4 / 10 &&
+	   hev->x() < s.width() * 72 / 100)
+    tip = "Toggle forward arrow";
+  else if (hev->x() > s.width() * 78 / 100)
+    tip = "Toggle stroked/stroked & filled/filled";
+
+  if (!tip.isNull())
+    QToolTip::showText(hev->globalPos(), tip, this);
+  return true;
+}
+
 // --------------------------------------------------------------------
 
 QAction *AppUi::findAction(const char *name) const
@@ -394,10 +418,25 @@ void AppUi::buildMenus()
   addItem(EEditMenu, "Update style sheets", "update_style_sheets");
   addItem(EEditMenu, "Check symbolic attributes", "check_style");
 
+  QMenu *m;
+
+  m = new QMenu("Pinned");
+  addItem(m, "none", "pinned|none");
+  addItem(m, "horizontal", "pinned|horizontal");
+  addItem(m, "vertical", "pinned|vertical");
+  addItem(m, "fixed", "pinned|fixed");
+  iMenu[EPropertiesMenu]->addMenu(m);
+
+  m = new QMenu("Transformations");
+  addItem(m, "translations", "transformations|translations");
+  addItem(m, "rigid motions", "transformations|rigid");
+  addItem(m, "affine", "transformations|affine");
+  iMenu[EPropertiesMenu]->addMenu(m);
+
+  iMenu[EPropertiesMenu]->addSeparator();
+
   iTextStyleMenu = new QMenu("Text style");
   iMenu[EPropertiesMenu]->addMenu(iTextStyleMenu);
-
-  QMenu *m;
 
   m = new QMenu("Horizontal alignment");
   addItem(m, "left", "horizontalalignment|left");
@@ -412,42 +451,9 @@ void AppUi::buildMenus()
   addItem(m, "top", "verticalalignment|top");
   iMenu[EPropertiesMenu]->addMenu(m);
 
-  m = new QMenu("Pinned");
-  addItem(m, "none", "pinned|none");
-  addItem(m, "horizontal", "pinned|horizontal");
-  addItem(m, "vertical", "pinned|vertical");
-  addItem(m, "fixed", "pinned|fixed");
-  iMenu[EPropertiesMenu]->addMenu(m);
-
   m = new QMenu("Transformable text");
   addItem(m, "Yes", "transformabletext|true");
   addItem(m, "No", "transformabletext|false");
-  iMenu[EPropertiesMenu]->addMenu(m);
-
-  m = new QMenu("Transformations");
-  addItem(m, "translations", "transformations|translations");
-  addItem(m, "rigid motions", "transformations|rigid");
-  addItem(m, "affine", "transformations|affine");
-  iMenu[EPropertiesMenu]->addMenu(m);
-
-  m = new QMenu("Line join");
-  addItem(m, "normal", "linejoin|normal");
-  addItem(m, "miter join", "linejoin|miter");
-  addItem(m, "round join", "linejoin|round");
-  addItem(m, "bevel join", "linejoin|bevel");
-  iMenu[EPropertiesMenu]->addMenu(m);
-
-  m = new QMenu("Line cap");
-  addItem(m, "normal", "linecap|normal");
-  addItem(m, "butt cap", "linecap|butt");
-  addItem(m, "round cap", "linecap|round");
-  addItem(m, "square cap", "linecap|square");
-  iMenu[EPropertiesMenu]->addMenu(m);
-
-  m = new QMenu("Fill rule");
-  addItem(m, "normal", "fillrule|normal");
-  addItem(m, "even-odd", "fillrule|evenodd");
-  addItem(m, "wind", "fillrule|wind");
   iMenu[EPropertiesMenu]->addMenu(m);
 
   iModeActionGroup = new QActionGroup(this);
@@ -608,6 +614,7 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
 
   setWindowIcon(prefs->icon("ipe"));
   setAttribute(Qt::WA_DeleteOnClose);
+  setDockOptions(AnimatedDocks); // do not allow stacking properties and layers
 
   iCanvas = new Canvas(this);
   setCentralWidget(iCanvas);
@@ -667,6 +674,7 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   addDockWidget(Qt::RightDockWidgetArea, iBookmarkTools);
   iBookmarkTools->setAllowedAreas(Qt::LeftDockWidgetArea|
 				  Qt::RightDockWidgetArea);
+  iMenu[EPageMenu]->addAction(iBookmarkTools->toggleViewAction());
 
   // object names are used for saving toolbar state
   iSnapTools->setObjectName(QLatin1String("SnapTools"));
@@ -704,6 +712,22 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   iButton[EUiPen]->setIcon(prefs->icon("pen"));
   iButton[EUiTextSize]->setIcon(prefs->icon("mode_label"));
   iButton[EUiSymbolSize]->setIcon(prefs->icon("mode_marks"));
+
+  iButton[EUiStroke]->setToolTip("Absolute stroke color");
+  iButton[EUiFill]->setToolTip("Absolute fill color");
+  iButton[EUiPen]->setToolTip("Absolute pen width");
+  iButton[EUiTextSize]->setToolTip("Absolute text size");
+  iButton[EUiSymbolSize]->setToolTip("Absolute symbol size");
+
+  iSelector[EUiStroke]->setToolTip("Symbolic stroke color");
+  iSelector[EUiFill]->setToolTip("Symbolic fill color");
+  iSelector[EUiPen]->setToolTip("Symbolic pen width");
+  iSelector[EUiTextSize]->setToolTip("Symbolic text size");
+  iSelector[EUiMarkShape]->setToolTip("Mark shape");
+  iSelector[EUiSymbolSize]->setToolTip("Symbolic symbol size");
+
+  iSelector[EUiGridSize]->setToolTip("Grid size");
+  iSelector[EUiAngleSize]->setToolTip("Angle for angular snap");
 
   connect(comboMap, SIGNAL(mapped(int)), this, SLOT(comboSelector(int)));
 

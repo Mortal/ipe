@@ -56,6 +56,7 @@ extern "C" {
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QShortcut>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 #include <QThread>
@@ -204,6 +205,8 @@ Dialog::Dialog(lua_State *L0, QWidget *parent) :QDialog(parent)
   iLuaDialog = LUA_NOREF;
   QGridLayout *lo = new QGridLayout;
   setLayout(lo);
+  QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+Return"), this);
+  connect(shortcut, SIGNAL(activated()), SLOT(accept()));
 }
 
 Dialog::~Dialog()
@@ -544,7 +547,10 @@ int Dialog::get(lua_State *L)
 
   QListWidget *list = qobject_cast<QListWidget *>(iElements[idx].widget);
   if (list) {
-    lua_pushnumber(L, list->currentRow() + 1);
+    if (list->currentRow() >= 0)
+      lua_pushnumber(L, list->currentRow() + 1);
+    else
+      lua_pushnil(L);
     return 1;
   }
 
@@ -625,6 +631,17 @@ static int dialog_destructor(lua_State *L)
 static int dialog_execute(lua_State *L)
 {
   Dialog **dlg = check_dialog(L, 1);
+  if (!lua_isnoneornil(L, 2)) {
+    luaL_argcheck(L, lua_istable(L, 2), 2, "argument is not a table");
+    lua_rawgeti(L, 2, 1);
+    luaL_argcheck(L, lua_isnumber(L, -1), 2, "width is not a number");
+    lua_rawgeti(L, 2, 2);
+    luaL_argcheck(L, lua_isnumber(L, -1), 2, "height is not a number");
+    int w = lua_tointeger(L, -2);
+    int h = lua_tointeger(L, -1);
+    lua_pop(L, 2); // w & h
+    (*dlg)->resize(w, h);
+  }
   lua_pushboolean(L, (*dlg)->execute(L));
   return 1;
 }
@@ -760,12 +777,17 @@ static int menu_add(lua_State *L)
     luaL_argcheck(L, lua_istable(L, 4), 4, "argument is not a table");
     bool hasmap = !lua_isnoneornil(L, 5) && lua_isfunction(L, 5);
     bool hastable = !hasmap && !lua_isnoneornil(L, 5);
-    bool hascolor = !lua_isnoneornil(L, 6);
+    bool hascolor = !lua_isnoneornil(L, 6) && lua_isfunction(L, 6);
+    bool hascheck = !hascolor && !lua_isnoneornil(L, 6);
     if (hastable)
       luaL_argcheck(L, lua_istable(L, 5), 5,
 		    "argument is not a function or table");
-    if (hascolor)
-      luaL_argcheck(L, lua_isfunction(L, 6), 6, "argument is not a function");
+    QString current;
+    if (hascheck) {
+      luaL_argcheck(L, lua_isstring(L, 6), 6,
+		    "argument is not a function or string");
+      current = checkstring(L, 6);
+    }
     int no = lua_objlen(L, 4);
     QMenu *sm = new QMenu(title, *m);
     for (int i = 1; i <= no; ++i) {
@@ -800,6 +822,10 @@ static int menu_add(lua_State *L)
 	double blue = luaL_checknumber(L, -1);
 	lua_pop(L, 3);         // pop result
 	ma->setIcon(colorIcon(red, green, blue));
+      }
+      if (hascheck) {
+	ma->setCheckable(true);
+	ma->setChecked(item == current);
       }
       lua_pop(L, 1); // item
       sm->addAction(ma);

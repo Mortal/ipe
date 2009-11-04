@@ -155,7 +155,10 @@ void Path::init(const AllAttributes &attr, bool withArrows)
   iPen = attr.iPen;
   iOpacity = attr.iOpacity;
   iTiling = attr.iTiling;
-  iGradient = Attribute::NORMAL();
+  if (iTiling.isNormal())
+    iGradient = attr.iGradient;
+  else
+    iGradient = Attribute::NORMAL();
   iLineCap = attr.iLineCap;
   iLineJoin = attr.iLineJoin;
   iFillRule = attr.iFillRule;

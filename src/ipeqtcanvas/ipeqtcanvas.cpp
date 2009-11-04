@@ -340,6 +340,7 @@ void Canvas::drawGrid(cairo_t *cc)
 
   cairo_save(cc);
   cairo_set_source_rgb(cc, 0.3, 0.3, 0.3);
+#if 1
   double thinLine = 0.2 / iZoom;
   double thickLine = 0.9 / iZoom;
   int thickStep = 4 * step;
@@ -363,6 +364,26 @@ void Canvas::drawGrid(cairo_t *cc)
       cairo_stroke(cc);
     }
   }
+#else
+  /* find out how big pixels (device unit) are in the x and y directions
+   * choose the smaller of the two as our line width */
+  double xw = 1.0, yw = 1.0;
+  cairo_device_to_user_distance(cc, &xw, &yw);
+  double lw = std::min(fabs(xw),fabs(yw));
+  cairo_set_line_width(cc, lw);
+  for (int y = bottom; y < ur.y; y += vstep) {
+    if (screenLR.y <= y && y <= screenUL.y) {
+      for (int x = left; x < ur.x; x += vstep) {
+        if (screenUL.x <= x && x <= screenLR.x) {
+          cairo_move_to(cc, (double) x, (double) y - 0.5*lw);
+          cairo_line_to(cc, (double) x, (double) y + 0.5*lw);
+          cairo_stroke(cc);
+        }
+      }
+    }
+  }
+#endif
+
   cairo_restore(cc);
 }
 

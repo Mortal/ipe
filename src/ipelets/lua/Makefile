@@ -12,6 +12,6 @@ all:
 
 install: 
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPELETDIR)
-	$(INSTALL_FILES) $(INSTALL_ROOT)$(IPELETDIR) $(LUASCRIPTS)
+	$(INSTALL_FILES) $(LUASCRIPTS) $(INSTALL_ROOT)$(IPELETDIR)
 
 # --------------------------------------------------------------------

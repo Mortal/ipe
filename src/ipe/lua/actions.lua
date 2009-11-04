@@ -189,22 +189,42 @@ end
 ----------------------------------------------------------------------
 
 function MODEL:showPathStylePopup(v)
+  local a = self.attributes
   local m = ipeui.Menu()
   local sheet = self.doc:sheets()
   m:add("pathmode", "Stroke && Fill",
 	{ "stroked", "strokedfilled", "filled"},
-	{ "stroke only", "stroke && fill", "fill only" })
+	{ "stroke only", "stroke && fill", "fill only" },
+	a.pathmode)
   local dashstyles = sheet:allNames("dashstyle")
-  m:add("dashstyle", "Dash style", dashstyles)
+  m:add("dashstyle", "Dash style", dashstyles, nil, a.dashstyle)
   local arrowsizes = sheet:allNames("arrowsize")
-  m:add("farrowsize", "Forward arrow size", arrowsizes)
-  m:add("rarrowsize", "Reverse arrow size", arrowsizes)
+  m:add("farrowsize", "Forward arrow size", arrowsizes, nil, a.farrowsize)
+  m:add("rarrowsize", "Reverse arrow size", arrowsizes, nil, a.rarrowsize)
   local arrowshapes = symbolNames(sheet, "arrow/", "(spx)")
-  m:add("farrowshape", "Forward arrow shape", arrowshapes, arrowshapeToName)
-  m:add("rarrowshape", "Reverse arrow shape", arrowshapes, arrowshapeToName)
+  m:add("farrowshape", "Forward arrow shape", arrowshapes,
+	arrowshapeToName, a.farrowshape)
+  m:add("rarrowshape", "Reverse arrow shape", arrowshapes,
+	arrowshapeToName, a.rarrowshape)
+
+  local opacities = sheet:allNames("opacity")
+  m:add("opacity", "Opacity", opacities, nil, a.opacity)
+
   local tilings = sheet:allNames("tiling")
   table.insert(tilings, 1, "normal")
-  m:add("tiling", "Tiling pattern", tilings)
+  m:add("tiling", "Tiling pattern", tilings, nil, a.tiling)
+
+  local gradients = sheet:allNames("gradient")
+  table.insert(gradients, 1, "normal")
+  m:add("gradient", "Gradient pattern", gradients, nil, a.gradient)
+
+  m:add("linejoin", "Line join", { "normal", "miter", "round", "bevel" },
+	nil, a.linejoin)
+  m:add("linecap", "Line cap", { "normal", "butt", "round", "square" },
+	nil, a.linecap)
+  m:add("fillrule", "Fill rule", { "normal", "evenodd", "wind" },
+	nil, a.fillrule)
+
   local r, n, value = m:execute(v.x, v.y)
   if r then self:selector(r, value) end
 end
@@ -1576,6 +1596,40 @@ local function sheets_add(d, dd)
   dd.modified = true
 end
 
+local function sheets_edit(d, dd)
+  if not prefs.external_editor then
+    dd.model:warning("Cannot edit stylesheet",
+		     "No external editor defined")
+    return
+  end
+  local i = d:get("list")
+  if not i or dd.list[i]:isStandard() then return end
+  local data = dd.list[i]:xml(true)
+  local fname = os.tmpname()
+  local f = io.open(fname, "w")
+  f:write(data)
+  f:close()
+  local sheet, msg
+  while not sheet do
+    ipeui.WaitDialog(string.format(prefs.external_editor, fname))
+    sheet, msg = ipe.Sheet(fname)
+    if not sheet then
+      local r = ipeui.messageBox(dd.model.ui, "question",
+				 "Cannot load stylesheet - try again?",
+				 msg, "okcancel")
+      if r <= 0 then
+	os.remove(fname)
+	return
+      end
+    end
+  end
+  dd.list[i] = sheet
+  d:set("list", sheets_namelist(dd.list))
+  d:set("list", i)
+  dd.modified = true
+  os.remove(fname)
+end
+
 local function sheets_del(d, dd)
   local i = d:get("list")
   if not i then return end
@@ -1643,21 +1697,23 @@ function MODEL:action_style_sheets()
   end
   local d = ipeui.Dialog(self.ui, "Ipe style sheets")
   d:add("label1", "label", { label="<b>Style sheets</b>"}, 1, 1, 1, 4)
-  d:add("list", "list", sheets_namelist(dd.list), 2, 1, 6, 3)
+  d:add("list", "list", sheets_namelist(dd.list), 2, 1, 7, 3)
   d:add("add", "button",
 	{ label="&Add", action=function (d) sheets_add(d, dd) end }, 2, 4)
   d:add("del", "button",
 	{ label="Del", action=function (d) sheets_del(d, dd) end }, 3, 4)
+  d:add("edit", "button",
+	{ label="Edit", action=function (d) sheets_edit(d, dd) end }, 4, 4)
   d:add("up", "button",
-	{ label="&Up", action=function (d) sheets_up(d, dd) end }, 4, 4)
+	{ label="&Up", action=function (d) sheets_up(d, dd) end }, 5, 4)
   d:add("down", "button",
-	{ label="&Down", action=function (d) sheets_down(d, dd) end }, 5, 4)
+	{ label="&Down", action=function (d) sheets_down(d, dd) end }, 6, 4)
   d:add("save", "button",
-	{ label="&Save", action=function (d) sheets_save(d, dd) end }, 6, 4)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 8, 3)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 8, 4)
+	{ label="&Save", action=function (d) sheets_save(d, dd) end }, 7, 4)
+  d:add("cancel", "button", { label="&Cancel", action="reject" }, 9, 3)
+  d:add("ok", "button", { label="&Ok", action="accept" }, 9, 4)
   d:setStretch("column", 2, 1)
-  d:setStretch("row", 7, 1)
+  d:setStretch("row", 8, 1)
   if not d:execute() or not dd.modified then return end
   local t = { label="modify style sheets",
 	      final = ipe.Sheets(),
