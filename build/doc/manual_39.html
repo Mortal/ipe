@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Nov  4 20:55:09 2009 -->
+     on Emacs 22.2.1, Fri Nov 20 15:05:29 2009 -->
 <head>
-<title>Ipe Manual -- 8.5 Customizing Ipe</title>
+<title>Ipe Manual -- 8.5 Unicode text</title>
 
 <style type="text/css">
 .maketitle { text-align : center }
@@ -24,37 +24,30 @@ div.verse, div.quote, div.quotation {
 </head>
 <body bgcolor="#ffffe6">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_38.html"><img border="0" alt="8.4 Unicode text" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.5 Customizing Ipe</b></td></tr></table>
-<h2>8.5 Customizing Ipe</h2>
+    <td bgcolor="#99ccff"><a href="manual_40.html"><img border="0" alt="8.6 Customizing Ipe" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_38.html"><img border="0" alt="8.4 Using Truetype fonts" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.5 Unicode text</b></td></tr></table>
+<h2>8.5 Unicode text</h2>
 
-<p>Since most of Ipe is writing in Lua, an interpreted language, much of
-Ipe's behavior can be changed without recompilation. 
-<p>The main customization options are in the files <i>prefs.lua</i>
-(general settings) and <i>shortcuts.lua</i> (keyboard shortcuts).
-(Check the Lua code path in <em>Show configuration</em> in the
-<em>Help</em> menu if you can't locate the files.)
-<p>If you have installed Ipe for your personal use only (for instance
-under Windows), you can simply modify the original Lua file.  In all
-other cases, you need to provide a small Lua ipelet that will change
-the setting you wish to change.
-<p>A small example is the following ipelet that changes a keyboard
-shortcut and the maximum zoom:
+<p>
+
+
+<p>If you make figures containing text objects in languages other than
+English, you will need to enter accented characters, or characters
+from other scripts such as Greek, Hangul, Kana, or Chinese characters.
+Of course you can still use the LaTeX syntax <code>K\"onig</code> to
+enter the German word "K&ouml;nig", but for larger runs of text it's
+more convenient to enter text in a script supported by your system.
+When Ipe writes the Pdflatex source file, it writes the text in UTF-8
+encoded Unicode.  You only have to make sure that Pdflatex can handle
+this file. 
+<p>An easy solution, sufficient for German, French, and other languages
+for which support is already in a standard LaTeX-setup, is to add
+the line
 <pre>
-----------------------------------------------------------------------
--- My customization ipelet: customize.lua
-----------------------------------------------------------------------
-prefs.max_zoom = 100
-shortcuts.insert_text_box = "I",
-shortcuts.mode_splines = "Alt+Ctrl+I"
+\usepackage[utf8]{inputenc}
 </pre>
-<p>You can use keyboard shortcuts consisting of more than one key, such
-as <em>Ctrl+X,Ctrl+C</em>. Use commas to separate the key presses--up
-to four are supported.
-<p>The ipelet needs to be placed with the extension <i>.lua</i> somewhere
-on the ipelet path (check <em>Show configuration</em> again).  On Unix,
-the directory <code>&#36;HOME/.ipe/ipelets</code> will do nicely.  On Windows,
-you will have to set the environment variable IPELETPATH.
+in your <em>Latex preamble</em> (set in the <em>Document properties</em>
+dialog, available on the <em>Edit</em> menu).  
 
 <hr />
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_38.html"><img border="0" alt="8.4 Unicode text" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.5 Customizing Ipe</b></td></tr></table></body></html>
+    <td bgcolor="#99ccff"><a href="manual_40.html"><img border="0" alt="8.6 Customizing Ipe" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_38.html"><img border="0" alt="8.4 Using Truetype fonts" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.5 Unicode text</b></td></tr></table></body></html>

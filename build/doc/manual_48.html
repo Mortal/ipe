@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Nov  4 20:55:09 2009 -->
+     on Emacs 22.2.1, Fri Nov 20 15:05:29 2009 -->
 <head>
-<title>Ipe Manual -- 12.1 Command line options</title>
+<title>Ipe Manual -- 12 Command line options and environment variables</title>
 
 <style type="text/css">
 .maketitle { text-align : center }
@@ -24,148 +24,13 @@ div.verse, div.quote, div.quotation {
 </head>
 <body bgcolor="#ffffe6">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_49.html"><img border="0" alt="12.2 Environment variables" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_47.html"><img border="0" alt="12 Command line options and environment variables" src="up.png"></a></td><td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td align="center" bgcolor="#99ccff" width="100%"><b>12.1 Command line options</b></td></tr></table>
-<h2>12.1 Command line options</h2>
+    <td bgcolor="#99ccff"><a href="manual_51.html"><img border="0" alt="13 History and acknowledgments" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_47.html"><img border="0" alt="11 Using Ipe figures in Latex" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>12 Command line options and environment variables</b></td></tr></table>
+<h1>12 Command line options and environment variables</h1>
 
-<h4><a name="id1">Ipe command line options</a></h4>
-<p>Ipe supports the following command line options:
-<dl><dt><b><code>-sheet</code> <em>style sheet name</em></b><dd>
-  Adds the designated style sheet to any newly created documents.
-<dt><b><code>-show-configuration</code></b><dd>
-  With this option, Ipe will display the current configuration options
-  on stdout, and terminate.
-</dl>
-In addition, you can specify the name of an Ipe file to open on the
-command line.  Ipe also understands all options supported by the
-<a href="http://qt.nokia.com/doc/4.5/qapplication.html#QApplication">Qt
-  library</a>.
-
-<h4><a name="id2">Ipeview: a minimal Ipe viewer</a></h4>
-<p>Ipeview allows you to quickly view an Ipe file without starting the
-Ipe program. 
-
-<h4><a name="id3">Ipetoipe: converting Ipe file formats</a></h4>
-<p>The auxiliary program <em>ipetoipe</em> converts between the different
-Ipe file formats:
-<pre>
-  ipetoipe ( -xml | -pdf | -eps ) { &lt;options&gt; } infile [ outfile ]
-</pre>
-The first argument determines the format of the output file.  If no
-output filename is provided, Ipe will try to guess it by appending one
-of the extensions "ipe", "pdf", or "eps" to the input file's
-basename. 
-<p>For example, the command line syntax
-<pre>
-  ipetoipe -pdf figure1.eps
-</pre>
-converts <i>figure1.eps</i> to <i>figure1.pdf</i>.
-<p>Ipetoipe understands the following options:
-<dl><dt><b><code>-export</code></b><dd> No Ipe markup is included in the resulting
-  output file.  Ipe will not be able to open a file created that way,
-  so make sure you keep your original!
-<dt><b><code>-lastview</code></b><dd> (PDF only) <br />Only the last view of each Ipe
-  page will be created in PDF format.  This is often convenient to
-  make handouts for slides.
-<dt><b><code>-pages</code> from-to</b><dd> (PDF only) <br />Restrict exporting to PDF to this page range.  This implies  the
-  <code>-export</code> option.
-<dt><b><code>-view</code> page-view</b><dd> Only export this single view from the  document.   This  implies
-  the <code>-export</code> option.
-<dt><b><code>-runlatex</code></b><dd>
-  Run  Latex even for XML output. This has the effect of including
-  the dimensions of each text object in the XML file.
-<dt><b><code>-nocolor</code></b><dd>
-  Do not use any color commands in  Postscript  output.   This  is
-  useful  if  you are preparing a manuscript for publication where
-  the publisher checks that the figures are grayscale only.   Note
-  that  this  option  doesn't actually verify that the figure con-
-  tains no color (a figure using color processed with this  option
-  will cause a Postscript error when displayed).
-<dt><b><code>-nozip</code></b><dd> 
-  Do not compress streams in PDF or Postscript output.
-<dt><b><code>-styleupdate</code></b><dd> Update all style sheets in the document
-  from external style sheet files in the current directory.  The
-  external file's name must match the name of the style sheet and have
-  the extension 'isy'.
-</dl>
-
-<h4><a name="id4">Iperender: converting to a bitmap or SVG art</a></h4>
-<p>The program <em>iperender</em> converts a page of the document to a
-bitmap in PNG format or to scalable vector graphics in SVG format.
-(Of course the result contains no Ipe markup, so make sure you keep
-your original.)  For instance, the following command line
-<pre>
-  iperender -png -page 3 -resolution 150 presentation.pdf pres3.png
-</pre>
-converts page&nbsp;3 of the Ipe document <code>presentation.pdf</code> to a
-bitmap, with resolution <i>150</i> pixels per inch.
-
-<h4><a name="id5">Ipeextract: extract XML stream from Ipe PDF or EPS file</a></h4>
-<p>Ipeextract extracts the XML stream from a PDF or EPS file and saves it
-in a file.  It will work even if Ipe cannot actually parse the file,
-so you can use this tool to debug problems where Ipe fails to open
-your document.
-<pre>
-ipeextract infile [ outfile ]
-</pre>
-If not provided, the outfile is guessed by appending "xml" to the
-infile's basename.
-
-<h4><a name="id6">Ipe6upgrade: convert Ipe&nbsp;6 files to Ipe&nbsp;7 file format</a></h4>
-<p>Ipe6upgrade takes as input a file created by any version of Ipe&nbsp;6, and
-saves in the format of Ipe&nbsp;7.0.0.
-<pre>
-ipe6upgrade infile [ outfile ]
-</pre>
-If not provided, the outfile is guessed by adding the extension
-"ipe" to the infile's basename.
-
-<h4><a name="id7">Svgtoipe: Importing SVG figures</a></h4>
-
-<p>The auxiliary program <em>svgtoipe</em> converts an SVG figure to Ipe
-format. It cannot handle all SVG features (many SVG features are not
-supported by Ipe anyway), but it works for gradients.
-<p><em>svgtoipe</em> is not part of the Ipe source distribution. You can
-download it separately.
-
-<h4><a name="id8">Pdftoipe: Importing Postscript and PDF</a></h4>
-
-<p>You can convert arbitrary Postscript or PDF files into Ipe documents,
-making them editable.  The auxiliary program <em>pdftoipe</em> converts
-(pages from) a PDF file into an Ipe XML-file. (If your source is
-Postscript, you have to first convert it to PDF using Acrobat
-Distiller or <i>ps2pdf</i>.)  Once converted to XML, the file can be
-opened from Ipe as usual.
-<p>The conversion process should handle any graphics in the PDF file
-fine, but doesn't do very well on text--Ipe's text model is just too
-different.
-<p><em>pdftoipe</em> is not part of the Ipe source distribution. You can
-download and build it separately.
-
-<h4><a name="id9">Ipe5toxml: convert Ipe&nbsp;5 files to Ipe&nbsp;6 file format</a></h4>
-<p>If you still have figures that were created with Ipe&nbsp;5, you can use
-<em>ipe5toxml</em> to convert them to Ipe&nbsp;6 format.  You can then use
-<em>ipe6upgrade</em> to convert them to Ipe&nbsp;7 format.
-<p><em>ipe5toxml</em> is not part of the Ipe distribution, but available as
-a separate download.
-
-<h4><a name="id10">Figtoipe: Importing FIG figures</a></h4>
-
-<p>The auxiliary program <em>figtoipe</em> converts a figure in FIG format
-into an Ipe XML-file.  This is useful if you used to make figures with
-Xfig before discovering Ipe, of if your co-authors made figures for
-your article with Xfig (converting them will have the added benefit of
-forcing your co-authors to learn to use Ipe).  Finally, there are
-quite a number of programs that can export to FIG format, and
-<em>figtoipe</em> effectively turns that into the possibility of
-exporting to Ipe.
-<p>However, <em>figtoipe</em> is not quite complete.  The drawing models of
-FIG and Ipe are also somewhat different, which makes it impossible to
-properly render some FIG files in Ipe.  Ipe does not support depth
-ordering independent of grouping, pattern fill, and Postscript fonts.
-You may therefore have to edit the file after conversion.
-<p><em>figtoipe</em> is not part of the Ipe distribution. You can download
-and build it separately. <em>figtoipe</em> is now maintained by
-Alexander B&uuml;rger.
+<ul>
+<li><a href="manual_49.html">12.1 Command line options</a>
+<li><a href="manual_50.html">12.2 Environment variables</a>
+</ul>
 <hr />
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_49.html"><img border="0" alt="12.2 Environment variables" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_47.html"><img border="0" alt="12 Command line options and environment variables" src="up.png"></a></td><td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td align="center" bgcolor="#99ccff" width="100%"><b>12.1 Command line options</b></td></tr></table></body></html>
+    <td bgcolor="#99ccff"><a href="manual_51.html"><img border="0" alt="13 History and acknowledgments" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_47.html"><img border="0" alt="11 Using Ipe figures in Latex" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>12 Command line options and environment variables</b></td></tr></table></body></html>

@@ -23,6 +23,7 @@
 	  height CDATA #REQUIRED
 	  ColorSpace (DeviceGray|DeviceRGB|DeviceCMYK) #REQUIRED
 	  BitsPerComponent CDATA #FIXED "8"
+	  ColorKey CDATA #IMPLIED
 	  length CDATA #IMPLIED
 	  encoding (base64) #IMPLIED
 	  Filter (FlateDecode|DCTDecode) #IMPLIED >

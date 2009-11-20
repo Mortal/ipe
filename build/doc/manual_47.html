@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Nov  4 20:55:09 2009 -->
+     on Emacs 22.2.1, Fri Nov 20 15:05:29 2009 -->
 <head>
-<title>Ipe Manual -- 12 Command line options and environment variables</title>
+<title>Ipe Manual -- 11 Using Ipe figures in Latex</title>
 
 <style type="text/css">
 .maketitle { text-align : center }
@@ -24,13 +24,100 @@ div.verse, div.quote, div.quotation {
 </head>
 <body bgcolor="#ffffe6">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_50.html"><img border="0" alt="13 History and acknowledgments" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_46.html"><img border="0" alt="11 Using Ipe figures in Latex" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>12 Command line options and environment variables</b></td></tr></table>
-<h1>12 Command line options and environment variables</h1>
+    <td bgcolor="#99ccff"><a href="manual_48.html"><img border="0" alt="12 Command line options and environment variables" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_ipe6_to_ipe7.html"><img border="0" alt="10 If you have used Ipe&nbsp;6 before" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>11 Using Ipe figures in Latex</b></td></tr></table>
+<h1>11 Using Ipe figures in Latex</h1>
 
-<ul>
-<li><a href="manual_48.html">12.1 Command line options</a>
-<li><a href="manual_49.html">12.2 Environment variables</a>
-</ul>
+<p>Most Latex installations support the inclusion of figures in
+Encapsulated Postscript (EPS) format (the "Encapsulated" means that
+there is only a single Postscript page and that it contains a bounding
+box of the figure).
+<p>The standard way of including EPS figures is using the <code>graphicx</code>
+package. If you are not familiar with it, here is a quick overview.
+In the preamble of your document, add the declaration:
+<pre>
+  \usepackage{graphicx}
+</pre>
+One useful attribute to this declaration is <code>draft</code>, which stops
+LaTeX from actually including the figures--instead, a rectangle
+with the figure filename is shown:
+<pre>
+  \usepackage[draft]{graphicx}
+</pre>
+<p>To include the figure "figure1.eps", you use the command:
+<pre>
+  \includegraphics{figs/figure1}
+</pre>
+Note that it is common <em>not</em> to specify the file extension
+".eps".  The command <code>\includegraphics</code> has various options to
+scale and rotate the figure.  For instance, to scale the same figure
+to 50&#37;, use:
+<pre>
+  \includegraphics[scale=0.5]{figs/figure1}
+</pre>
+To scale such that the width of the figure becomes 5&nbsp;cm:
+<pre>
+  \includegraphics[width=5cm]{figs/figure1}
+</pre>
+Instead, one can specify the required height with <code>height</code>.
+<p>Here is an example that scales a figure to 200&#37; and rotates it by
+45&nbsp;degrees counter-clockwise.  Note that the scale argument should be
+given <em>before</em> the <code>angle</code> argument.
+<pre>
+  \includegraphics[scale=2,angle=45]{figs/figure1}
+</pre>
+<p>Let's stress once again that these commands are the standard commands
+for including EPS files in a LaTeX document.  Ipe files neither
+require nor support any special treatment.  If you are used to other
+commands for EPS inclusion, such as the old-fashioned <code>epsfig</code>
+package,<sup><a href="manual_54.html#id4">4</a></sup>  you can use them as well for Ipe figures.  If
+you want to know more about the LaTeX packages for including
+graphics and producing colour, check the <code>grfguide.tex</code> document
+that is probably somewhere in your TeX installation.
+<p><hr />
+<p>If you are a user of Pdflatex (a version of Latex that produces PDF
+instead of DVI output), you cannot include EPS files.  Instead, save
+your Ipe figures in PDF format, and include them in the way described
+above.  
+<p>There is a slight complication here: Each page of a PDF document can
+carry several "bounding boxes", such as the <em>MediaBox</em> (which
+indicates the paper size), the <em>CropBox</em> (which indicates how the
+paper will by cut), or the <em>ArtBox</em> (which indicates the extent
+of the actual contents of the page).  Ipe automatically saves, for
+each page, the paper size in the <em>MediaBox</em>, and a bounding box
+for the drawing in the <em>ArtBox</em>.  Ipe also puts the bounding box
+in the <em>CropBox</em> unless this has been turned off by the stylesheet.
+<p>Now, when including a PDF figure, Pdflatex will (by default) first
+look at the CropBox, and, if that is not set, fall back on the
+MediaBox.  It does not inspect the ArtBox, and so it is important that
+you use the correct stylesheet for the kind of figure you are
+making--with cropping for figures to be included, without cropping
+for presentations (as otherwise Acrobat Reader will not display full
+pages--Acrobat Reader actually crops each page to the CropBox).
+<p>If you have a recent version of Pdflatex (1.40 or higher), you can
+actually ask Pdflatex to inspect the ArtBox by saying
+<code>\pdfpagebox5</code> in your Latex file's preamble.
+<p>You can save all your figures in both EPS and PDF format, so that you
+can run both Latex and Pdflatex on your document--when including
+figures, Latex will look for the EPS variant, while Pdflatex will look
+for the PDF variant. (Here it comes in handy that you didn't specify
+the file extension in the <code>\includegraphics</code> command.)
+<p>It would be cumbersome to have to save an Ipe figure in both formats
+each time you modify it.  What you should do instead, is to always
+save in one format--let's say EPS.  You can then write a shell script
+or batch file that calls <a href="manual_48.html">ipetoipe</a> to
+do the conversion to PDF.  Alternatively, you can enable
+auto-exporting from EPS to PDF in Ipe.
+<p><hr />
+<p>On the other hand, if you <em>only</em> use Pdflatex, you might opt to
+exploit a feature of Pdflatex: You can keep all the figures for a
+document in a single, multi-page Ipe document, with one figure per
+page.  You can then include the figures one by one into your document
+by using the <code>page</code> argument of <code>\includegraphics</code>.
+<p>For example, to include page&nbsp;3 from the PDF file "figures.pdf"
+containing several figures, you could use
+<pre>
+  \includegraphics[page=3]{figures}
+</pre>
 <hr />
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_50.html"><img border="0" alt="13 History and acknowledgments" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_46.html"><img border="0" alt="11 Using Ipe figures in Latex" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>12 Command line options and environment variables</b></td></tr></table></body></html>
+    <td bgcolor="#99ccff"><a href="manual_48.html"><img border="0" alt="12 Command line options and environment variables" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_ipe6_to_ipe7.html"><img border="0" alt="10 If you have used Ipe&nbsp;6 before" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>11 Using Ipe figures in Latex</b></td></tr></table></body></html>

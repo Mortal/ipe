@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Nov  4 20:55:09 2009 -->
+     on Emacs 22.2.1, Fri Nov 20 15:05:29 2009 -->
 <head>
-<title>Ipe Manual -- 9 The Ipe file format</title>
+<title>Ipe Manual -- 8.6 Customizing Ipe</title>
 
 <style type="text/css">
 .maketitle { text-align : center }
@@ -24,43 +24,37 @@ div.verse, div.quote, div.quotation {
 </head>
 <body bgcolor="#ffffe6">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_ipe6_to_ipe7.html"><img border="0" alt="10 If you have used Ipe&nbsp;6 before" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9 The Ipe file format</b></td></tr></table>
-<h1>9 The Ipe file format</h1>
+    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_39.html"><img border="0" alt="8.5 Unicode text" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.6 Customizing Ipe</b></td></tr></table>
+<h2>8.6 Customizing Ipe</h2>
 
-<p>Ipe can store documents in several possible formats.  Among them are
-standard PDF and Postscript, which can be read by any application
-capable of opening such files, such as Acrobat Reader, Xpdf, or
-Ghostview.  (Ipe embeds its own information inside PDF and Postscript
-files.  The way this is done is not documented here, and may change
-between releases of Ipe.)
-<p>There is one other Ipe file format, which is a pure XML
-implementation.  Files stored in this format can be parsed with any
-XML-aware application, and you can create XML files for Ipe from your
-own applications. 
-<p>A DTD for the Ipe format is available as <a href="ipe.dtd">ipe.dtd</a>. For
-instance, you can use this to validate an Ipe document using
+<p>Since most of Ipe is writing in Lua, an interpreted language, much of
+Ipe's behavior can be changed without recompilation. 
+<p>The main customization options are in the files <i>prefs.lua</i>
+(general settings) and <i>shortcuts.lua</i> (keyboard shortcuts).
+(Check the Lua code path in <em>Show configuration</em> in the
+<em>Help</em> menu if you can't locate the files.)
+<p>If you have installed Ipe for your personal use only (for instance
+under Windows), you can simply modify the original Lua file.  In all
+other cases, you need to provide a small Lua ipelet that will change
+the setting you wish to change.
+<p>A small example is the following ipelet that changes a keyboard
+shortcut and the maximum zoom:
 <pre>
-xmllint --valid --path &lt;path-to-ipe.dtd&gt; --noout &lt;file.ipe&gt;
+----------------------------------------------------------------------
+-- My customization ipelet: customize.lua
+----------------------------------------------------------------------
+prefs.max_zoom = 100
+shortcuts.insert_text_box = "I",
+shortcuts.mode_splines = "Alt+Ctrl+I"
 </pre>
-<p>The tags understood by Ipe are described informally in this section.
-Tags in the XML file can carry attributes other than the ones
-documented here.  Ipe ignores all attributes it does't understand, and
-they will be lost if the document is saved again from Ipe.  Ipe will
-complain about any XML elements not described here, with the exception
-that you can use elements whose name starts with "x-" freely to add
-your own information inside an Ipe file.
-<p>An Ipe XML file must contain exactly one <code>&lt;ipe&gt;</code> element, while
-an Ipe stylesheet file must contain exactly one <code>&lt;ipestyle&gt;</code>
-element (both types of files are allowed to start with an
-<code>&lt;?xml&gt;</code> tag, which is simply ignored by Ipe).  An Ipe file may
-also contain a <code>&lt;!DOCTYPE&gt;</code> tag.
-<p>All elements are documented below.
-<ul>
-<li><a href="manual_41.html">9.1 The <tt>&lt;ipe&gt;</tt> element</a>
-<li><a href="manual_42.html">9.2 The <tt>&lt;page&gt;</tt> element</a>
-<li><a href="manual_43.html">9.3 Ipe object elements</a>
-<li><a href="manual_44.html">9.4 The <tt>&lt;ipestyle&gt;</tt> element</a>
-</ul>
+<p>You can use keyboard shortcuts consisting of more than one key, such
+as <em>Ctrl+X,Ctrl+C</em>. Use commas to separate the key presses--up
+to four are supported.
+<p>The ipelet needs to be placed with the extension <i>.lua</i> somewhere
+on the ipelet path (check <em>Show configuration</em> again).  On Unix,
+the directory <code>&#36;HOME/.ipe/ipelets</code> will do nicely.  On Windows,
+you will have to set the environment variable IPELETPATH.
+
 <hr />
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_ipe6_to_ipe7.html"><img border="0" alt="10 If you have used Ipe&nbsp;6 before" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9 The Ipe file format</b></td></tr></table></body></html>
+    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_39.html"><img border="0" alt="8.5 Unicode text" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.6 Customizing Ipe</b></td></tr></table></body></html>

@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Nov  4 20:55:09 2009 -->
+     on Emacs 22.2.1, Fri Nov 20 15:05:29 2009 -->
 <head>
-<title>Ipe Manual -- 9.3 Ipe object elements</title>
+<title>Ipe Manual -- 9.2 The &lt;page&gt; element</title>
 
 <style type="text/css">
 .maketitle { text-align : center }
@@ -24,201 +24,57 @@ div.verse, div.quote, div.quotation {
 </head>
 <body bgcolor="#ffffe6">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_44.html"><img border="0" alt="9.4 The &lt;ipestyle&gt; element" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_40.html"><img border="0" alt="9 The Ipe file format" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_42.html"><img border="0" alt="9.2 The &lt;page&gt; element" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9.3 Ipe object elements</b></td></tr></table>
-<h2>9.3 Ipe object elements</h2>
+    <td bgcolor="#99ccff"><a href="manual_44.html"><img border="0" alt="9.3 Ipe object elements" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_42.html"><img border="0" alt="9.1 The &lt;ipe&gt; element" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9.2 The <tt>&lt;page&gt;</tt> element</b></td></tr></table>
+<h2>9.2 The <tt>&lt;page&gt;</tt> element</h2>
 
-<h4><a name="id1">Common attributes</a></h4>
-<dl><dt><b>layer</b><dd> (optional) Only allowed on "top-level" objects, that
-  is, objects directly inside a <code>&lt;page&gt;</code> element.  The value
-  indicates into which layer the object goes.  If the attribute is
-  missing, the object goes into the same layer as the preceding
-  object.  If the first object has no layer attribute, it goes into
-  the layer defined first in the page, or the default "alpha" layer.
-<dt><b>matrix</b><dd> (optional) A sequence of six real numbers,
-  separated by white space, indicating a transformation matrix for all
-  coordinates inside the element (including embedded elements if this is
-  a <code>&lt;group&gt;</code> element).  A missing <code>matrix</code> attribute is
-  interpreted as the identity matrix.
-<dt><b>pin</b><dd> (optional) Possible values are <code>yes</code> (object is fixed
-  on the page), <code>h</code> (object is pinned horizontally, but can move
-  in the vertical direction), and <code>v</code> (the opposite).  The
-  default is no pinning.
-<dt><b>transformations</b><dd> (optional) This attribute determines how
-  objects can be deformed by transformations. Possible values are
-  <em>affine</em> (the default), <em>rigid</em>, and <em>translations</em>.
+<h4><a name="id1">Attributes</a></h4>
+<dl><dt><b>title</b><dd> (optional) title of this page (displayed at a fixed
+  location in a format specified by the style sheet),
+<dt><b>section</b><dd> (optional) Title of document section starting with this
+  page. If the attribute is not present, this page continues the
+  section of the previous page.  If the attribute is present, but its
+  value is an empty string, then the contents of the <code>title</code>
+  attribute is used instead.
+<dt><b>subsection</b><dd> (optional) Title of document subsection starting
+  with this page. If the attribute is not present, this page continues
+  the subsection of the previous page.  If the attribute is present,
+  but its value is an empty string, then the contents of the
+  <code>title</code> attribute is used instead.
 </dl>
 
-<h4><a name="id2">Color attribute values</a></h4>
-<p>A color attribute value is either a symbolic name defined in one of
-the style sheets of the document, one of the predefined names
-"black" or "white", a single real number between <i>0</i>&nbsp;(black) and
-<i>1</i>&nbsp;(white) indicating a gray level, or three real numbers in the
-range&nbsp;<i>[0,1]</i> indicating the red, green, and blue component (in this
-order), separated by white space.
+<h4><a name="id2">Contents</a></h4>
+<ol><li>A possibly empty sequence of <code>&lt;layer&gt;</code> elements,
+<li>a possibly empty sequence of <code>&lt;view&gt;</code> elements,
+<li>a possibly empty sequence of Ipe object elements.
+</ol>
+<p>If a page contains no layer element, Ipe automatically adds a default
+layer named "alpha", visible and editable. 
+<p>If a page contains no view element, a single view where all layers are
+visible is assumed.
 
-<h4><a name="id3">Path construction operators</a></h4>
-<p>Graphical shapes in Ipe are described using a series of "path
-construction operators" with arguments. This generalizes the PDF path
-construction syntax.
-<p>Each operator follows its arguments.  The operators are
-<ul class="menu"><li><code>m</code> (moveto) (1 point argument): begin new subpath,
-<li><code>l</code> (lineto) (1 point argument): add straight segment to
-  subpath,
-<li><code>c</code> (curveto) (3 point arguments): add a cubic B&eacute;zier spline,
-<li><code>q</code> (quadratic curveto) (2 point arguments): add a
-  quadratic B&eacute;zier spline,
-<li><code>e</code> (ellipse) (1 matrix argument): add a closed subpath
-  consisting of an ellipse, the ellipse is the image of the unit
-  circle under the transformation described by the matrix,
-<li><code>a</code> (arcto) (1 matrix argument, 1 point argument): add an
-  elliptic arc, on the ellipse describe by the matrix, from current
-  position to given point,
-<li><code>s</code> (spline) (<i>n</i> point arguments): add a uniform cubic
-  B-spline with <i>n + 5</i> control points (current position and nth
-  point have multiplicity 3),
-<li><code>u</code> (closed spline) (<i>n</i> point arguments): add a closed
-  subpath consisting of a closed uniform B-spline with <i>n</i> control
-  points.
-<li><code>h</code> (closepath) (no arguments): close the current subpath.
-  No more segments can be added to this subpath, so the next operator
-  (if there is one) must start a new subpath.
-</ul>
-Paths consisting of more than one closed loop are allowed.  A subpath
-can consist of any mix of straight segments, quadratic and cubic
-B&eacute;zier splines, elliptic arcs, and B-splines.
+<h3><a name="id3">9.2.1 The <tt>&lt;layer&gt;</tt> element</a></h3>
 
-<h3><a name="id4">9.3.1 The <tt>&lt;group&gt;</tt> element</a></h3>
-<p>The <code>&lt;group&gt;</code> element allows to group objects together, so that
-they appear as one in the user interface.  
-
-<h4><a name="id5">Attributes</a></h4>
-<dl><dt><b>clip</b><dd> (optional) The value is a sequence of path construction
-  operators, forming a clipping path for the objects inside the group.
+<h4><a name="id4">Attributes</a></h4>
+<dl><dt><b>name</b><dd> (required) Name of the layer.  It must not contain white
+  space.
+<dt><b>edit</b><dd> (optional) The value should be <code>yes</code> or
+  <code>no</code> and indicates whether the user can select and modify the
+  contents of the layer in the Ipe user interface (of course the user
+  can always modify the setting of the attribute).
 </dl>
-<p>The contents of the <code>&lt;group&gt;</code> element is a series of Ipe object
-elements.
+<p>The layer element must be empty.
 
-<h3><a name="id6">9.3.2 The <tt>&lt;image&gt;</tt> element</a></h3>
+<h3><a name="id5">9.2.2 The <tt>&lt;view&gt;</tt> element</a></h3>
 
-<h4><a name="id7">Attributes</a></h4>
-<dl><dt><b>bitmap</b><dd> (required) Value is an integer referring
-  to a bitmap defined in a <code>&lt;bitmap&gt;</code> element in the document,
-<dt><b>rect</b><dd> (required) Four real coordinates separated by white space,
-  in the order <i>x<sub>1</sub></i>, <i>y<sub>1</sub></i>, <i>x<sub>2</sub></i>, <i>y<sub>2</sub></i>, indicating two
-  opposite corners of the image in Ipe coordinates).
+<h4><a name="id6">Attributes</a></h4>
+<dl><dt><b>layers</b><dd> (required) The value must be a sequence of layer names
+  defined in this page, separated by white space.
+<dt><b>active</b><dd> (required) The layer that is the active layer in this view.
+<dt><b>effect</b><dd> (optional) The symbolic name of a graphics effect to be
+  used during the PDF page transition.  The effect must be defined in
+  the style sheet.
 </dl>
-<p>The image element is normally empty.  However, it is allowed to omit
-the <code>bitmap</code> attribute.  In this case, the <code>&lt;image&gt;</code> must
-carry all the attributes of the <code>&lt;bitmap&gt;</code> element, with the
-exception of <code>id</code>.  The element contents is then the bitmap data,
-as described for <code>&lt;bitmap&gt;</code>.
-
-<h3><a name="id8">9.3.3 The <tt>&lt;use&gt;</tt> element</a></h3>
-<p>The <code>&lt;use&gt;</code> element refers to a symbol (an Ipe object) defined in
-the style sheet.  The attributes <code>stroke</code>, <code>fill</code>,
-<code>pen</code>, and <code>size</code> make sense only when the symbol accepts
-these parameters.
-
-<h4><a name="id9">Attributes</a></h4>
-<dl><dt><b>name</b><dd> (required) The name of a <code>symbol</code> defined in a style
-  sheet of the document.
-<dt><b>pos</b><dd> (optional) Position of the symbol on the page (two real
-  numbers, separated by white space).  This is the location of the
-  origin of the symbol coordinate system.  The default is the origin.
-<dt><b>stroke</b><dd> (optional) A stroke color (used whereever the symbol
-  uses the symbolic color "sym-stroke").  The default is black.
-<dt><b>fill</b><dd> (optional) A fill color (used whereever the symbol uses
-  the symbolic color "sym-fill").  The default is white.
-<dt><b>pen</b><dd> (optional) A line width (used whereever the symbol uses
-  the symbolic value "sym-pen").  The default is "normal".
-<dt><b>size</b><dd> (optional) The size of the symbol, either a symbolic size
-  (of type "symbol size"), or an absolute scaling factor.  The
-  default is <i>1.0</i>.
-</dl>
-<p>The <code>&lt;use&gt;</code> element must be empty.
-
-<h3><a name="id10">9.3.4 The <tt>&lt;text&gt;</tt> element</a></h3>
-
-<h4><a name="id11">Attributes</a></h4>
-<dl><dt><b>stroke</b><dd> (optional) The stroke color. If the attribute is
-  missing, black will be used.
-<dt><b>type</b><dd> (required) Possible  values are <em>label</em> and
-  <em>minipage</em>.
-<dt><b>size</b><dd> (optional) The font size--either a symbolic name defined
-  in a style sheet, or a real number.  The default is "normal".
-<dt><b>pos</b><dd> (required) Two real numbers separated by white space,
-  defining the position of the text on the paper.
-<dt><b>width</b><dd> (required for minipage objects, optional for label
-  objects) The width of the object in points.
-<dt><b>height</b><dd> (optional) The total height of the object in points.
-<dt><b>depth</b><dd> (optional) The depth of the object in points.
-<dt><b>valign</b><dd> (optional) Possible values are <em>top</em> (default
-  for a minipage object), <em>bottom</em> (default for a label object),
-  <em>center</em>, and <em>baseline</em>.
-<dt><b>halign</b><dd> (optional, label only) Possible values are <em>left</em>,
-  <em>right</em>, and <em>center</em>. <em>left</em> is the default.  This
-  determines the position of the reference point with respect to the
-  text box.  
-<dt><b>style</b><dd> (optional, minipage only) Selects a LaTeX "style" to
-  be used for formatting the text, and must be a symbolic name defined
-  in a style sheet.  The standard style sheet defines the styles
-  "normal", "center", "itemize", and "item".  If the
-  attribute is not present, the "normal" style is applied.
-<dt><b>opacity</b><dd> (optional) Opacity of the element.  This must be a
-  symbolic name. The default is&nbsp;1.0, meaning fully opaque.
-</dl>  
-<p>The dimensions are recomputed by Ipe when running LaTeX, with the
-exception of <code>width</code> for minipage objects whose width is fixed.
-<p>The contents of the <code>&lt;text&gt;</code> element must be a legal LaTeX
-fragment that can be interpreted by LaTeX inside <code>\hbox</code>,
-possibly using the macros or packages defined in the preamble.
-
-<h3><a name="id12">9.3.5 The <tt>&lt;path&gt;</tt> element</a></h3>
-
-<h4><a name="id13">Attributes</a></h4>
-<dl><dt><b>stroke</b><dd> (optional) The stroke color. If the attribute is
-  missing, the shape will not be stroked.
-<dt><b>fill</b><dd> (optional) The fill color.  If the attribute is missing,
-  the shape will not be filled.
-<dt><b>dash</b><dd> (optional) Either a symbolic name defined in a style
-  sheet, or a dash pattern in PDF format, such as "[3 1] 0" for
-  "three pixels on, one off, starting with the first pixel".
-  If the attribute is missing, a solid line is drawn.
-<dt><b>pen</b><dd> (optional) The line width, either symbolic (defined in
-  a style sheet), or as a single real number.  The default value is
-  "normal". 
-<dt><b>cap</b><dd> (optional) The <em>line cap</em> setting of PDF as an
-  integer.  If the argument is missing, the setting from the style
-  sheet is used.
-<dt><b>join</b><dd> (optional) The <em>line join</em> setting of PDF as an
-  integer. If the argument is missing, the setting from the style
-  sheet is used.
-<dt><b>fillrule</b><dd> (optional) Possible values are <code>wind</code> and
-  <code>eofill</code>, selecting one of two algorithms for determining
-  whether a point lies inside a filled object. If the argument is
-  missing, the setting from the style sheet is used.
-<dt><b>arrow</b><dd> (optional) The value consists of a symbolic name, say
-  "triangle" for an arrow type (a symbol with name
-  "arrow/triangle(spx)"), followed by a slash and the size of the arrow.
-  The size is either a symbolic name (of type "arrowsize") defined
-  in a style sheet, or a real number.  If the attribute is missing, no
-  arrow is drawn.
-<dt><b>rarrow</b><dd> (optional) Same for an arrow in the reverse direction
-  (at the beginning of the first subpath).
-<dt><b>opacity</b><dd> (optional) Opacity of the element.  This must be a
-  symbolic name. The default is&nbsp;1.0, meaning fully opaque.
-<dt><b>tiling</b><dd> (optional) A tiling pattern to be used to fill the
-  element.  The default is not to tile the element.  If the element is
-  not filled, then the tiling pattern is ignored.
-<dt><b>gradient</b><dd> (optional) A gradient pattern to be used to fill the
-  element.  If the element is not filled, then the gradient pattern is
-  ignored. (The fill color is only used for rendering where gradients
-  are not available, for instance currently in Postscript.)
-  If <code>gradient</code> is set, then <code>tiling</code> is ignored.
-</dl>
-<p>The contents of the <code>&lt;path&gt;</code> element is a sequence of path
-construction operators. The entire shape will be stroked and/or filled
-with a single stroke and fill operation.
+<p>The view element must be empty.
 <hr />
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_44.html"><img border="0" alt="9.4 The &lt;ipestyle&gt; element" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_40.html"><img border="0" alt="9 The Ipe file format" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_42.html"><img border="0" alt="9.2 The &lt;page&gt; element" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9.3 Ipe object elements</b></td></tr></table></body></html>
+    <td bgcolor="#99ccff"><a href="manual_44.html"><img border="0" alt="9.3 Ipe object elements" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_42.html"><img border="0" alt="9.1 The &lt;ipe&gt; element" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9.2 The <tt>&lt;page&gt;</tt> element</b></td></tr></table></body></html>

@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Nov  4 20:55:09 2009 -->
+     on Emacs 22.2.1, Fri Nov 20 15:05:28 2009 -->
 <head>
-<title>Ipe Manual -- 8.1 Writing ipelets</title>
+<title>Ipe Manual -- 8.1 Sharing Latex definitions with your Latex document</title>
 
 <style type="text/css">
 .maketitle { text-align : center }
@@ -24,16 +24,37 @@ div.verse, div.quote, div.quotation {
 </head>
 <body bgcolor="#ffffe6">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_36.html"><img border="0" alt="8.2 Troubleshooting the LaTeX-conversion" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.1 Writing ipelets</b></td></tr></table>
-<h2>8.1 Writing ipelets</h2>
-
-<p>An ipelet is an extension to Ipe.  Ipe&nbsp;7 uses the scripting language
-<a href="http://www.lua.org">Lua</a> (in fact, most of the Ipe program
-itself is written in Lua), and loads ipelets written in Lua when it
-starts up.  It is also possible to write ipelets in C++, using a small
-Lua wrapper that declares the methods available inside the ipelet.
-<p>Documentation about writing ipelets can be found in the <a href="index.html">Ipelib
-  documentation</a>.
+    <td bgcolor="#99ccff"><a href="manual_36.html"><img border="0" alt="8.2 Writing ipelets" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.1 Sharing Latex definitions with your Latex document</b></td></tr></table>
+<h2>8.1 Sharing Latex definitions with your Latex document</h2>
+<p>When using Ipe figures in a Latex document, it is convenient to have
+access to some of the definitions from the document.
+<p>Ipe comes with a Lua script <i>ipe-update-master</i> that makes this
+easy.
+<p>In your Latex document, say <i>master.tex</i>, surround the
+interesting definitions using <code>%%BeginIpePreamble</code> and
+<code>%%EndIpePreamble</code>, for instance like this:
+<pre>
+  %%BeginIpePreamble
+  \usepackage{amsfonts}
+  \newcommand{\R}{\mathbb{R}}
+  %%EndIpePreamble
+</pre>
+<p>Running the script as 
+<pre>
+  ipe-update-master master.tex
+</pre>
+extracts these definitions and saves them as a stylesheet
+<i>master-preamble.isy</i>. (This filename is fixed, and does not
+depend on the document name.)
+<p>Running this script as 
+<pre>
+  ipe-update-master master.tex figures/*.ipe
+</pre>
+creates the stylesheet <i>master-preamble.isy</i> as above.  In
+addition, it looks at all the Ipe figures mentioned on the command
+line. The script adds the new stylesheet to each figure, or updates
+the stylesheet to the newest version (if the figure already contains a
+stylesheet named "master-preamble").
 <hr />
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_36.html"><img border="0" alt="8.2 Troubleshooting the LaTeX-conversion" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.1 Writing ipelets</b></td></tr></table></body></html>
+    <td bgcolor="#99ccff"><a href="manual_36.html"><img border="0" alt="8.2 Writing ipelets" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_34.html"><img border="0" alt="8 Advanced topics" src="up.png"></a></td><td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td align="center" bgcolor="#99ccff" width="100%"><b>8.1 Sharing Latex definitions with your Latex document</b></td></tr></table></body></html>
