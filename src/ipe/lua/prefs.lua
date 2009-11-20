@@ -77,8 +77,13 @@ prefs.max_zoom = 100
 prefs.text_transformable = false
 
 -- How to start browser to show Ipe manual
--- prefs.browser = "sensible-browser %s &"
-prefs.browser = "gnome-open %s"
+if config.platform == "apple" then
+  prefs.browser = "open %s"
+else
+  -- 'sensible-browser' and 'gnome-open' both work on Linux
+  -- prefs.browser = "sensible-browser %s &"
+  prefs.browser = "gnome-open %s"
+end
 
 -- Auto-exporting when document is being saved
 -- if auto_export_only_if_exists is true, then the file will only

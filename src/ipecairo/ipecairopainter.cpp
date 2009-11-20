@@ -310,7 +310,7 @@ void CairoPainter::doDrawBitmap(Bitmap bitmap)
   // is this legal?  I don't want cairo to modify my bitmap temporarily.
   cairo_surface_t *image =
     cairo_image_surface_create_for_data((uchar *) data.data(),
-					CAIRO_FORMAT_RGB24,
+					CAIRO_FORMAT_ARGB32,
 					bitmap.width(), bitmap.height(),
 					4 * bitmap.width());
   cairo_save(iCairo);
@@ -326,6 +326,7 @@ void CairoPainter::doDrawBitmap(Bitmap bitmap)
   matrix.y0 = tf.a[5];
   cairo_transform(iCairo, &matrix);
   cairo_set_source_surface(iCairo, image, 0, 0);
+  cairo_pattern_set_filter(cairo_get_source(iCairo), CAIRO_FILTER_NEAREST);
   cairo_paint(iCairo);
   cairo_restore(iCairo);
 }

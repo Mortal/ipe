@@ -141,6 +141,8 @@ namespace ipelua {
   extern const char *const linecap_names[];
   extern const char *const fillrule_names[];
 
+  extern ipe::String check_filename(lua_State *L, int index);
+
   // geo
 
   extern void push_vector(lua_State *L, const ipe::Vector &v);

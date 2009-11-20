@@ -53,6 +53,9 @@ and libraries:
    On Linux, you most likely already have this on your system.  You
    will need the development package (on Debian/Ubuntu, this is
    "libfreetype6-dev").  
+
+   On Mac OS 10.6, install via MacPorts.
+
    The original sources are at "www.freetype.org".  You need version
    2.1.8 or newer.
 
@@ -61,6 +64,8 @@ and libraries:
    The Gnome desktop uses this high-quality rendering library, so you
    may already have it.  You will need the development package,
    e.g. on Debian/Ubuntu "libcairo2-dev".  
+
+   On Mac OS 10.6, install via MacPorts.
 
    You can also install from sources at "www.cairographics.org".  If
    you compile Cairo yourself, note that you only need the image and
@@ -75,6 +80,8 @@ and libraries:
    "liblua5.1-0-dev".  Or compile from source at "www.lua.org" - the
    sources are ANSI C and compile very easily.  Ipe requires Lua 5.1.
 
+   On Mac OS 10.6, install via MacPorts.
+
  * The Qt toolkit (version 4.4 or higher)
 
    On Linux, you most likely already have it, otherwise you can find
@@ -85,6 +92,8 @@ and libraries:
    there is at least one problem: shortcuts consisting of a letter
    only (e.g. "d" for "duplicate") do not work.  Ipe does not compile
    with Qt 4.3 or earlier.
+
+   On MacOS 10.6, install Qt 4.6 cocoa binaries.
 
  * The 14 standard Postscript fonts
 
@@ -133,6 +142,9 @@ and libraries:
    Ipe uses Pdflatex, a PDF-producing version of Latex, to convert
    Latex source code to Postscript/PDF.  Every modern TeX installation
    includes it.
+
+   Ipe likes Pdftex 1.40.  If you have an earlier version of Pdftex,
+   set the environment variable IPEANCIENTPDFTEX when running Ipe.
 
 
 Configuring and building Ipe

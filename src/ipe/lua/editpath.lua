@@ -827,7 +827,7 @@ function EDITTOOL:acceptEdit()
 end
 
 function EDITTOOL:key(code, modifiers, text)
-  print("Key:", code, text)
+  -- print("Key:", code, text)
   if text == "\027" then  -- Esc
     self.model.ui:finishTool()
     return true
@@ -865,13 +865,10 @@ end
 
 local function findPartner(l, src, beg)
   local v = l[src][2]
-  -- print("FindPartner for", src, v)
   while beg <= #l do
     local w1 = l[beg][1]
-    -- print("   Considering", beg, w1)
     if (v - w1):sqLen() < join_threshold then return beg end
     local w2 = l[beg][2]
-    -- print("   Considering", beg, w2)
     if (v - w2):sqLen() < join_threshold then flip(l[beg]) return beg end
     beg = beg + 1
   end

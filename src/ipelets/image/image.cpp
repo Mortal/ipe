@@ -235,7 +235,7 @@ bool ImageIpelet::insertBitmap(QString name)
       return false;
     }
   }
-  QImage im1 = im.convertToFormat(QImage::Format_RGB32);
+  QImage im1 = im.convertToFormat(QImage::Format_ARGB32);
   iWidth = im1.width();
   iHeight = im1.height();
   iDotsPerInch = Vector(72, 72);
@@ -246,6 +246,9 @@ bool ImageIpelet::insertBitmap(QString name)
     iDotsPerInch.y = double(im1.dotsPerMeterY()) / InchPerMeter;
 
   bool isGray = im1.allGray();
+  bool hasAlpha = false;
+  uint colorKey = 0;
+
   iColorSpace = isGray ? Bitmap::EDeviceGray : Bitmap::EDeviceRGB;
   int datalen = iWidth * iHeight * (isGray ? 1 : 3);
   Buffer data(datalen);
@@ -253,6 +256,10 @@ bool ImageIpelet::insertBitmap(QString name)
   for (int y = 0; y < iHeight; ++y) {
     uint *p = (uint *) im1.scanLine(y);
     for (int x = 0; x < iWidth; ++x) {
+      if (qAlpha(*p) != 0xff) {
+	hasAlpha = true;
+	colorKey = (*p & 0x00ffffff);
+      }
       if (isGray) {
 	*d++ = qRed(*p++);
       } else {
@@ -263,7 +270,27 @@ bool ImageIpelet::insertBitmap(QString name)
     }
   }
 
+  // determine if image has a color key
+  bool hasColorKey = hasAlpha;
+  if (hasAlpha) {
+    for (int y = 0; hasColorKey && y < iHeight; ++y) {
+      uint *p = (uint *) im1.scanLine(y);
+      for (int x = 0; hasColorKey && x < iWidth; ++x, ++p) {
+	int alpha = qAlpha(*p);
+	if ((alpha == 0 && *p != colorKey) ||
+	    (alpha != 0 && alpha != 0xff) ||
+	    (alpha == 0xff && (*p & 0x00ffffff) == colorKey))
+	  hasColorKey = false;
+      }
+    }
+  }
+
+  ipeDebug("hasAlpha: %d, colorkeyed %d: %x", hasAlpha, hasColorKey, colorKey);
+
   Bitmap bitmap(iWidth, iHeight, iColorSpace, 8, data, Bitmap::EDirect, true);
+  if (hasColorKey)
+    bitmap.setColorKey(colorKey);
+
   Image *obj = new Image(computeRect(), bitmap);
   iData->iPage->append(ESecondarySelected, iData->iLayer, obj);
   return true;

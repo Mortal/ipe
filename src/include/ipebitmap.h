@@ -72,6 +72,9 @@ namespace ipe {
     inline int width() const;
     inline int height() const;
 
+    int colorKey() const;
+    void setColorKey(int key);
+
     inline const char *data() const;
     inline int size() const;
 
@@ -99,6 +102,7 @@ namespace ipe {
       int iWidth;
       int iHeight;
       int iComponents;
+      int iColorKey;
       Buffer iData;
       TFilter iFilter;
       int iChecksum;

@@ -8,7 +8,8 @@ include ../common.mak
 TARGET = $(call exe_target,ipeview)
 
 CPPFLAGS += -I../include -I../ipeqtcanvas $(QT_CFLAGS)
-LIBS += -L$(buildlib) -lipeqtcanvas -lipecairo -lipe $(QT_LIBS)
+LIBS += -L$(buildlib) -lipeqtcanvas -lipecairo -lipe \
+	$(QT_LIBS) $(CAIRO_LIBS)
 
 all: $(TARGET)
 

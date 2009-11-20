@@ -7,8 +7,8 @@ include ../common.mak
 
 TARGET = $(call dll_target,ipelua)
 
-CPPFLAGS += -I../include $(LUA_CFLAGS) 
-LIBS += -L$(buildlib) -lipe $(LUA_LIBS) 
+CPPFLAGS += -I../include $(LUA_CFLAGS) $(QT_CFLAGS)
+LIBS += -L$(buildlib) -lipe $(LUA_LIBS) $(QT_LIBS)
 CXXFLAGS += $(DLL_CFLAGS)
 
 all: $(TARGET)

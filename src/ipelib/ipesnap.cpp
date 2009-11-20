@@ -355,10 +355,12 @@ bool Snap::snap(Vector &pos, const Page *page, double snapDist,
 /*! Returns \c true if successful. */
 bool Snap::setEdge(const Vector &pos, const Page *page)
 {
-  CollectSegs segs(pos, 0.001, page);
+  // bound cannot be too small, as distance to Bezier
+  // is computed based on an approximation of precision 1.0
+  CollectSegs segs(pos, 2.0, page);
 
   if (!segs.iSegs.empty()) {
-    Segment seg = segs.iSegs.front();
+    Segment seg = segs.iSegs.back();
     Line l = seg.line();
     iOrigin = l.project(pos);
     Vector dir = l.dir();
@@ -366,9 +368,22 @@ bool Snap::setEdge(const Vector &pos, const Page *page)
       dir = -dir;
     iDir = dir.angle();
     return true;
+  } else if (!segs.iArcs.empty()) {
+    Arc arc = segs.iArcs.back();
+    Angle alpha;
+    (void) arc.distance(pos, 3.0, iOrigin, alpha);
+    iDir = (arc.iM.linear() * Vector(Angle(alpha + IpeHalfPi))).angle();
+    return true;
+  } else if (!segs.iBeziers.empty()) {
+    Bezier bez = segs.iBeziers.back();
+    double t;
+    double bound = 2.0;
+    if (!bez.snap(pos, t, iOrigin, bound))
+      return false;
+    iDir = bez.tangent(t).angle();
+    return true;
   }
 
-  // TODO should also support Arc and Bezier
   return false;
 }
 

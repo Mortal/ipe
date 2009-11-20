@@ -124,10 +124,12 @@ int main(int argc, char *argv[])
   lua_setfield(L, -2, "path");
 
   lua_newtable(L);  // config table
-#ifdef WIN32
-  lua_pushstring(L, "win");
+#if defined(WIN32)
+  lua_pushliteral(L, "win");
+#elif defined(__MacOSX__)
+  lua_pushliteral(L, "apple");
 #else
-  lua_pushstring(L, "unix");
+  lua_pushliteral(L, "unix");
 #endif
   lua_setfield(L, -2, "platform");
 

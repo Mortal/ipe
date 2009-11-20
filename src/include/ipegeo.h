@@ -230,6 +230,7 @@ namespace ipe {
     inline Bezier(const Vector &p0, const Vector &p1,
 		  const Vector &p2, const Vector &p3);
     Vector point(double t) const;
+    Vector tangent(double t) const;
     double distance(const Vector &v, double bound);
     bool straight(double precision) const;
     void subdivide(Bezier &l, Bezier &r) const;

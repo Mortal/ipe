@@ -149,14 +149,16 @@ int Latex::scanPage(Page *page)
 */
 int Latex::createLatexSource(Stream &stream, String preamble)
 {
+  bool ancient = (getenv("IPEANCIENTPDFTEX") != 0);
   int count = 0;
   stream << "\\pdfcompresslevel0\n"
-	 << "\\nonstopmode\n"
-#ifndef ANCIENT_PDFTEX
-	 << "\\ifnum\\the\\pdftexversion<130"
-	 << "\\errmessage{Pdflatex version too old}\\fi\n"
-#endif
-	 << "\\documentclass{article}\n"
+	 << "\\nonstopmode\n";
+  if (!ancient) {
+    stream << "\\ifnum\\the\\pdftexversion<140"
+	   << "\\errmessage{Pdftex is too old. "
+	   << "Set IPEANCIENTPDFTEX environment variable!}\\fi\n";
+  }
+  stream << "\\documentclass{article}\n"
     // << "\\newcommand{\\Ipechar}[1]{\\unichar{#1}}\n"
 	 << "\\newcommand{\\PageTitle}[1]{#1}\n"
 	 << "\\newdimen\\ipefs\n"
@@ -178,14 +180,14 @@ int Latex::createLatexSource(Stream &stream, String preamble)
 	     << value.iRed << "," << value.iGreen << ","
 	     << value.iBlue << "}\n";
   }
-#ifndef ANCIENT_PDFTEX
-  stream << "\\def\\ipesetcolor{\\pdfcolorstack0 push{0 0 0 0 k 0 0 0 0 K}}\n"
-	 << "\\def\\iperesetcolor{\\pdfcolorstack0 pop}\n"
-#else
-  stream << "\\def\\ipesetcolor{\\color[cmyk]{0,0,0,0}}\n"
-	 << "\\def\\iperesetcolor{}\n"
-#endif
-	 << iCascade->findPreamble() << "\n"
+  if (!ancient) {
+    stream << "\\def\\ipesetcolor{\\pdfcolorstack0 push{0 0 0 0 k 0 0 0 0 K}}\n"
+	   << "\\def\\iperesetcolor{\\pdfcolorstack0 pop}\n";
+  } else {
+    stream << "\\def\\ipesetcolor{\\color[cmyk]{0,0,0,0}}\n"
+	   << "\\def\\iperesetcolor{}\n";
+  }
+  stream << iCascade->findPreamble() << "\n"
 	 << preamble << "\n"
 	 << "\\pagestyle{empty}\n"
 	 << "\\newcount\\bigpoint\\dimen0=0.01bp\\bigpoint=\\dimen0\n"

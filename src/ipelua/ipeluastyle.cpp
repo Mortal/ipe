@@ -71,11 +71,11 @@ void ipelua::push_sheet(lua_State *L, StyleSheet *s0, bool owned)
 int ipelua::sheet_constructor(lua_State *L)
 {
   if (lua_type(L, 1) == LUA_TSTRING) {
-    const char *fname = luaL_checkstring(L, 1);
-    FILE *fd = fopen(fname, "rb");
+    String fname = check_filename(L, 1);
+    FILE *fd = fopen(fname.z(), "rb");
     if (!fd) {
       lua_pushnil(L);
-      lua_pushfstring(L, "cannot open '%s': %s", fname, strerror(errno));
+      lua_pushfstring(L, "fopen error: %s", strerror(errno));
       return 2;
     }
     FileSource source(fd);
@@ -84,7 +84,7 @@ int ipelua::sheet_constructor(lua_State *L)
     fclose(fd);
     if (!sheet) {
       lua_pushnil(L);
-      lua_pushstring(L, "cannot parse stylesheet");
+      lua_pushfstring(L, "Parsing error at %d", parser.parsePosition());
       return 2;
     }
     push_sheet(L, sheet);
