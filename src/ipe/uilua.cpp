@@ -493,8 +493,8 @@ static int appui_setBookmarks(lua_State *L)
 static int appui_setWindowTitle(lua_State *L)
 {
   AppUi **ui = check_appui(L, 1);
-  String s = luaL_checkstring(L, 2);
-  (*ui)->setWindowTitle(QIpe(s));
+  const char *s = luaL_checkstring(L, 2);
+  (*ui)->setWindowTitle(QString::fromUtf8(s));
   return 0;
 }
 
@@ -502,7 +502,7 @@ static int appui_explain(lua_State *L)
 {
   AppUi **ui = check_appui(L, 1);
   const char *s = luaL_checkstring(L, 2);
-  (*ui)->statusBar()->showMessage(s, 4000);
+  (*ui)->statusBar()->showMessage(QString::fromUtf8(s), 4000);
   return 0;
 }
 

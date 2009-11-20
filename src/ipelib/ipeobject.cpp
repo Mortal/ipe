@@ -48,6 +48,10 @@
    the Ipe program itself.  The Ipe program itself is mostly written
    in Lua and uses these Lua bindings.
 
+   All filenames passed to Ipelib are assumed to be in the local
+   system's encoding.  All Lua strings are assumed to be UTF-8
+   (filenames are converted by the ipelua bindings).
+
    \subpage ipelets explains how to write ipelets, that is, extensions
    to Ipe.  Ipelets are either written in Lua or in C++ (using a small
    Lua wrapper to describe the ipelet).  C++ ipelets have to be linked

@@ -32,6 +32,7 @@
 #include "ipedoc.h"
 
 #include <cerrno>
+#include <QString>
 
 using namespace ipe;
 using namespace ipelua;
@@ -64,25 +65,29 @@ bool ipelua::is_type(lua_State *L, int ud, const char *tname)
   return false;
 }
 
+String ipelua::check_filename(lua_State *L, int index)
+{
+  QString s = QString::fromUtf8(luaL_checkstring(L, index));
+  return String(s.toLocal8Bit().constData());
+}
+
 // --------------------------------------------------------------------
 // Document
 // --------------------------------------------------------------------
 
 static int document_constructor(lua_State *L)
 {
-  const char *fname = 0;
-  if (lua_gettop(L) > 0)
-    fname = luaL_checkstring(L, 1);
-
+  bool has_fname = (lua_gettop(L) > 0);
   Document **d = (Document **) lua_newuserdata(L, sizeof(Document *));
   *d = 0;
   luaL_getmetatable(L, "Ipe.document");
   lua_setmetatable(L, -2);
 
   // should we load a document?
-  if (fname) {
+  if (has_fname) {
+    String fname = check_filename(L, 1);
     int reason;
-    *d = Document::load(fname, reason);
+    *d = Document::load(fname.z(), reason);
     if (*d)
       return 1;
 
@@ -91,13 +96,13 @@ static int document_constructor(lua_State *L)
 
     switch (reason) {
     case Document::EVersionTooOld:
-      lua_pushstring(L, "The Ipe version of this document is too old");
+      lua_pushliteral(L, "The Ipe version of this document is too old");
       break;
     case Document::EVersionTooRecent:
-      lua_pushstring(L, "The document was created by a newer version of Ipe");
+      lua_pushliteral(L, "The document was created by a newer version of Ipe");
       break;
     case Document::EFileOpenError:
-      lua_pushstring(L, strerror(errno));
+      lua_pushfstring(L, "Error opening file: %s", strerror(errno));
       break;
     default:
       lua_pushfstring(L, "Parsing error at position %d", reason);
@@ -215,14 +220,14 @@ static uint check_flags(lua_State *L, int index)
 static int document_save(lua_State *L)
 {
   Document **d = check_document(L, 1);
-  const char *fname = luaL_checkstring(L, 2);
+  String fname = check_filename(L, 2);
   int format;
   if (lua_isnoneornil(L, 3))
     format = Document::formatFromFilename(fname);
   else
     format = luaL_checkoption(L, 3, 0, format_name);
   uint flags = check_flags(L, 4);
-  bool result = (*d)->save(fname, Document::TFormat(format), flags);
+  bool result = (*d)->save(fname.z(), Document::TFormat(format), flags);
   lua_pushboolean(L, result);
   return 1;
 }
@@ -230,11 +235,11 @@ static int document_save(lua_State *L)
 static int document_exportPages(lua_State *L)
 {
   Document **d = check_document(L, 1);
-  const char *fname = luaL_checkstring(L, 2);
+  String fname = check_filename(L, 2);
   uint flags = check_flags(L, 3);
   int fromPage = check_pageno(L, 4, *d);
   int toPage = check_pageno(L, 5, *d);
-  bool result = (*d)->exportPages(fname, flags, fromPage, toPage);
+  bool result = (*d)->exportPages(fname.z(), flags, fromPage, toPage);
   lua_pushboolean(L, result);
   return 1;
 }
@@ -242,7 +247,7 @@ static int document_exportPages(lua_State *L)
 static int document_exportView(lua_State *L)
 {
   Document **d = check_document(L, 1);
-  const char *fname = luaL_checkstring(L, 2);
+  String fname = check_filename(L, 2);
   int format;
   if (lua_isnoneornil(L, 3))
     format = Document::formatFromFilename(fname);
@@ -251,7 +256,7 @@ static int document_exportView(lua_State *L)
   uint flags = check_flags(L, 4);
   int pno = check_pageno(L, 5, *d);
   int vno = check_viewno(L, 6, (*d)->page(pno));
-  bool result = (*d)->exportView(fname, Document::TFormat(format),
+  bool result = (*d)->exportView(fname.z(), Document::TFormat(format),
 				 flags, pno, vno);
   lua_pushboolean(L, result);
   return 1;
@@ -327,34 +332,33 @@ static int document_runLatex(lua_State *L)
   } else if (result == Document::ErrNoText) {
     lua_pushboolean(L, true);
     lua_pushnil(L);
-    lua_pushstring(L, "notext");
+    lua_pushliteral(L, "notext");
   } else {
     lua_pushboolean(L, false);
     switch (result) {
     case Document::ErrNoDir:
-      lua_pushfstring(L, "Directory '%s' does not exist and cannot be created",
-		      Platform::latexDirectory().z());
-      lua_pushstring(L, "nodir");
+      lua_pushliteral(L, "Directory does not exist and cannot be created");
+      lua_pushliteral(L, "nodir");
       break;
     case Document::ErrWritingSource:
-      lua_pushstring(L, "Error writing Latex source");
-      lua_pushstring(L, "writingsource");
+      lua_pushliteral(L, "Error writing Latex source");
+      lua_pushliteral(L, "writingsource");
       break;
     case Document::ErrOldPdfLatex:
-      lua_pushstring(L, "Your installed version of Pdflatex is too old");
-      lua_pushstring(L, "oldpdflatex");
+      lua_pushliteral(L, "Your installed version of Pdflatex is too old");
+      lua_pushliteral(L, "oldpdflatex");
       break;
     case Document::ErrRunLatex:
-      lua_pushstring(L, "There was an error trying to run Pdflatex");
-      lua_pushstring(L, "runlatex");
+      lua_pushliteral(L, "There was an error trying to run Pdflatex");
+      lua_pushliteral(L, "runlatex");
       break;
     case Document::ErrLatex:
-      lua_pushstring(L, "There were Latex errors");
-      lua_pushstring(L, "latex");
+      lua_pushliteral(L, "There were Latex errors");
+      lua_pushliteral(L, "latex");
       break;
     case Document::ErrLatexOutput:
-      lua_pushstring(L, "There was an error reading the Pdflatex output");
-      lua_pushstring(L, "latexoutput");
+      lua_pushliteral(L, "There was an error reading the Pdflatex output");
+      lua_pushliteral(L, "latexoutput");
       break;
     }
   }
@@ -507,10 +511,10 @@ static const struct luaL_Reg document_methods[] = {
 
 static int file_format(lua_State *L)
 {
-  const char *fname = luaL_checkstring(L, 1);
-  FILE *fd = fopen(fname, "rb");
+  String fname = check_filename(L, 1);
+  FILE *fd = fopen(fname.z(), "rb");
   if (!fd)
-    luaL_error(L, "cannot open '%s': %s", fname, strerror(errno));
+    luaL_error(L, "fopen error: %s", strerror(errno));
   FileSource source(fd);
   int format = Document::fileFormat(source);
   fclose(fd);
@@ -564,7 +568,7 @@ static int ipe_splinetobeziers(lua_State *L)
 
 static int ipe_fileExists(lua_State *L)
 {
-  String s = luaL_checkstring(L, 1);
+  String s = check_filename(L, 1);
   lua_pushboolean(L, Platform::fileExists(s));
   return 1;
 }

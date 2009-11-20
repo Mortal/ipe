@@ -129,14 +129,14 @@ function MODEL:layerAction(a, layer)
 end
 
 function MODEL:bookmark(index)
-  print("Bookmark", index)
+  -- print("Bookmark", index)
   self.pno = self:findPageForBookmark(index)
   self.vno = 1
   self:setPage()
 end
 
 function MODEL:absoluteButton(button)
-  print("Button:", button)
+  -- print("Button:", button)
   if button == "stroke" or button == "fill" then
     local old = self.doc:sheets():find("color", self.attributes[button])
     r, g, b = ipeui.getColor(self.ui, "Select " .. button .. " color",
@@ -1669,11 +1669,11 @@ local function sheets_save(d, dd)
   local i = d:get("list")
   if not i then return end
   local s, f = ipeui.fileDialog(dd.model.ui, "save", "Save stylesheet",
-				     "Ipe stylesheets (*.isy)")
+				"Ipe stylesheets (*.isy)")
   if s then
     if s:sub(-4) ~= ".isy" then s = s .. ".isy" end
     local data = dd.list[i]:xml(true)
-    local f, msg = io.open(s, "wb")
+    local f, msg = io.open(ipeui.local8bit(s), "wb")
     if not f then
       dd.model:warning("Cannot save stylesheet", msg)
       return

@@ -33,7 +33,8 @@
 #ifdef WIN32
 #include <windows.h>
 #include <shlobj.h>
-// #include <direct.h>
+#else
+#include <sys/wait.h>
 #endif
 #include <cstdlib>
 #include <sys/types.h>
@@ -285,7 +286,13 @@ int Platform::runPdfLatex(String dir)
 
   if (dir.size() > 2 && dir[1] == ':')
     fprintf(f, "%s\r\n", dir.substr(0, 2).z());
-  fprintf(f, "cd \"%s\"\r\n", dir.z());
+
+  // CMD.EXE input needs to be encoded in "OEM codepage",
+  // which can be different from "Windows codepage"
+  Buffer oemDir(2 * dir.size() + 1);
+  CharToOemA(dir.z(), oemDir.data());
+
+  fprintf(f, "cd \"%s\"\r\n", oemDir.data());
   fprintf(f, "pdflatex text.tex\r\n");
   std::fclose(f);
 

@@ -109,7 +109,13 @@ endif
 
 INSTALL_DIR = install -d
 INSTALL_FILES = install -m 0644
+INSTALL_SCRIPTS = install -m 0755
+ifdef MACOS
+# stripping is faulty on Mac?
+INSTALL_PROGRAMS = install -m 0755
+else
 INSTALL_PROGRAMS = install -s -m 0755
+endif
 
 MAKE_BINDIR = mkdir -p $(BUILDDIR)/bin
 

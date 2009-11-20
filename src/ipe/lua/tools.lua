@@ -987,8 +987,6 @@ end
 function PASTETOOL:mouseButton(button, modifiers, press)
   self.translation = self.model.ui:pos() - self.start
   self.model.ui:finishTool()
-  print("ACTIVE:", self.model.pno, self.model.vno,
-	self.model:page():active(self.model.vno))
   local t = { label="paste objects at cursor",
 	      pno = self.model.pno,
 	      vno = self.model.vno,

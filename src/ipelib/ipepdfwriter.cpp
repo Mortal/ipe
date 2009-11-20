@@ -685,6 +685,13 @@ void PdfWriter::embedBitmap(Bitmap bitmap)
     break;
   }
   iStream << "/BitsPerComponent " << bitmap.bitsPerComponent() << "\n";
+  if (bitmap.colorKey() >= 0) {
+    int r = (bitmap.colorKey() >> 16) & 0xff;
+    int g = (bitmap.colorKey() >> 8) & 0xff;
+    int b = bitmap.colorKey() & 0xff;
+    iStream << "/Mask [" << r << " " << r << " " << g << " " << g
+	    << " " << b << " " << b << "]\n";
+  }
   iStream << "/Length " << bitmap.size() << "\n>> stream\n";
   iStream.putRaw(bitmap.data(), bitmap.size());
   iStream << "\nendstream endobj\n";
@@ -868,21 +875,37 @@ void PdfWriter::createXmlStream(String xmldata, bool preCompressed)
 //! Write a PDF string object to the PDF stream.
 void PdfWriter::writeString(String text)
 {
-  iStream << "(";
-  for (int i = 0; i < text.size(); ++i) {
-    char ch = text[i];
-    switch (ch) {
-    case '(':
-    case ')':
-    case '\\':
-      iStream << "\\";
-      // fall through
-    default:
-      iStream << ch;
-      break;
-    }
+  // Check if it is all ASCII
+  bool isAscii = true;
+  for (int i = 0; isAscii && i < text.size(); ++i) {
+    if (text[i] & 0x80)
+      isAscii = false;
   }
-  iStream << ")";
+  if (isAscii) {
+    iStream << "(";
+    for (int i = 0; i < text.size(); ++i) {
+      char ch = text[i];
+      switch (ch) {
+      case '(':
+      case ')':
+      case '\\':
+	iStream << "\\";
+	// fall through
+      default:
+	iStream << ch;
+	break;
+      }
+    }
+    iStream << ")";
+  } else {
+    char buf[5];
+    iStream << "<FEFF";
+    for (int i = 0; i < text.size(); ) {
+      sprintf(buf, "%04X", text.unicode(i));
+      iStream << buf;
+    }
+    iStream << ">";
+  }
 }
 
 // --------------------------------------------------------------------

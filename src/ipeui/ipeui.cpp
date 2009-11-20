@@ -1309,6 +1309,14 @@ static int ipeui_clipboard(lua_State *L)
   return 1;
 }
 
+static int ipeui_local8bit(lua_State *L)
+{
+  QString data = checkstring(L, 1);
+  QByteArray l8 = data.toLocal8Bit();
+  lua_pushstring(L, l8.data());
+  return 1;
+}
+
 static int ipeui_currentDateTime(lua_State *L)
 {
   QDateTime dt = QDateTime::currentDateTime();
@@ -1347,6 +1355,7 @@ static const struct luaL_Reg ipeui_functions[] = {
   { "currentDateTime", ipeui_currentDateTime },
   { "setClipboard", ipeui_setClipboard },
   { "clipboard", ipeui_clipboard },
+  { "local8bit", ipeui_local8bit },
 #ifdef WIN32
   { "startBrowser", ipeui_startBrowser },
 #endif

@@ -108,6 +108,7 @@ int Bitmap::init(const XmlAttributes &attr)
   iImp->iRender = 0;
   iImp->iWidth = Lex(attr["width"]).getInt();
   iImp->iHeight = Lex(attr["height"]).getInt();
+  iImp->iColorKey = -1;
   int length = Lex(attr["length"]).getInt();
   assert(iImp->iWidth > 0 && iImp->iHeight > 0);
   String cs = attr["ColorSpace"];
@@ -120,6 +121,10 @@ int Bitmap::init(const XmlAttributes &attr)
   } else {
     iImp->iComponents = 3;
     iImp->iColorSpace = EDeviceRGB;
+  }
+  String cc;
+  if (iImp->iColorSpace == EDeviceRGB && attr.has("ColorKey", cc)) {
+    iImp->iColorKey = Lex(cc).getHexNumber();
   }
   String fi = attr["Filter"];
   if (fi == "DCTDecode")
@@ -149,6 +154,7 @@ Bitmap::Bitmap(int width, int height,
   iImp->iRender = 0;
   iImp->iWidth = width;
   iImp->iHeight = height;
+  iImp->iColorKey = -1;
   assert(iImp->iWidth > 0 && iImp->iHeight > 0);
   iImp->iColorSpace = colorSpace;
   switch (colorSpace) {
@@ -208,6 +214,20 @@ Bitmap &Bitmap::operator=(const Bitmap &rhs)
   return *this;
 }
 
+//! Return rgb representation of the transparent color.
+/*! Returns -1 if the bitmap is not color keyed. */
+int Bitmap::colorKey() const
+{
+  return iImp->iColorKey;
+}
+
+//! Set transparent color.
+/*! Use \a key == -1 to disable color key. */
+void Bitmap::setColorKey(int key)
+{
+  iImp->iColorKey = key;
+}
+
 //! Save bitmap in XML stream.
 void Bitmap::saveAsXml(Stream &stream, int id, int pdfObjNum) const
 {
@@ -240,6 +260,12 @@ void Bitmap::saveAsXml(Stream &stream, int id, int pdfObjNum) const
     break;
   }
   stream << " BitsPerComponent=\"" << bitsPerComponent() << "\"";
+
+  if (iImp->iColorKey >= 0) {
+    char buf[10];
+    sprintf(buf, "%x", iImp->iColorKey);
+    stream << " ColorKey=\"" << buf << "\"";
+  }
 
   if (pdfObjNum >= 0) {
     stream << " pdfObject=\"" << pdfObjNum << "\"/>\n";
@@ -275,6 +301,7 @@ bool Bitmap::equal(Bitmap rhs) const
       iImp->iWidth != rhs.iImp->iWidth ||
       iImp->iHeight != rhs.iImp->iHeight ||
       iImp->iComponents != rhs.iImp->iComponents ||
+      iImp->iColorKey != rhs.iImp->iColorKey ||
       iImp->iFilter != rhs.iImp->iFilter ||
       iImp->iChecksum != rhs.iImp->iChecksum ||
       iImp->iData.size() != rhs.iImp->iData.size())
@@ -335,19 +362,26 @@ Buffer Bitmap::pixelData() const
   const char *p = pixels.data();
   uint *q = (uint *) data.data();
   if (components() == 3) {
+    uint colorKey = (iImp->iColorKey | 0xff000000);
+    if (iImp->iColorKey < 0)
+      colorKey = 0;
     for (int y = 0; y < iImp->iHeight; ++y) {
       for (int x = 0; x < iImp->iWidth; ++x) {
 	uchar r = uchar(*p++);
 	uchar g = uchar(*p++);
 	uchar b = uchar(*p++);
-	*q++ = (r << 16) | (g << 8) | b;
+	uint pixel = 0xff000000 | (r << 16) | (g << 8) | b;
+	if (pixel == colorKey)
+	  *q++ = 0;
+	else
+	  *q++ = pixel;
       }
     }
   } else if (components() == 1) {
     for (int y = 0; y < iImp->iHeight; ++y) {
       for (int x = 0; x < iImp->iWidth; ++x) {
 	uchar r = uchar(*p++);
-	*q++ = (r << 16) | (r << 8) | r;
+	*q++ = 0xff000000 | (r << 16) | (r << 8) | r;
       }
     }
   }

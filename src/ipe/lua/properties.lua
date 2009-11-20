@@ -56,7 +56,6 @@ function MODEL:propertiesPopup()
     elseif item == "comment" then
       -- nothing to do
     else
-      print(item, value)
       self:setAttributeOfPrimary(prim, item, value)
     end
   end

@@ -17,11 +17,33 @@ FREETYPE_CFLAGS ?= $(shell pkg-config --cflags freetype2)
 FREETYPE_LIBS ?= $(shell pkg-config --libs freetype2)
 CAIRO_CFLAGS  ?= $(shell pkg-config --cflags cairo)
 CAIRO_LIBS    ?= $(shell pkg-config --libs cairo)
+ifndef MACOS
 LUA_CFLAGS    ?= $(shell pkg-config --cflags lua5.1)
 LUA_LIBS      ?= $(shell pkg-config --libs lua5.1)
 QT_CFLAGS     ?= $(shell pkg-config --cflags QtGui QtCore)
 QT_LIBS	      ?= $(shell pkg-config --libs QtGui QtCore)
-MOC	      ?= moc
+#
+# MOC is the Qt meta-object compiler.  On Debian/Ubuntu, it is
+# installed as "moc-qt4" to resolve the name conflict with Qt3's
+# "moc".  If that is not right for your system (i.e. "moc-qt4" does
+# not exist), change it to "moc".
+#
+MOC	      ?= moc-qt4
+#MOC	      ?= moc
+else
+#
+# Settings for Mac OS 10.6
+#
+CONFIG     += x86_64
+LUA_CFLAGS = $(shell pkg-config --cflags lua)
+LUA_LIBS   = $(shell pkg-config --libs lua)
+QT_CFLAGS  = -I/Library/Frameworks/QtCore.framework/Versions/4/Headers \
+	     -I/Library/Frameworks/QtGui.framework/Versions/4/Headers
+QT_LIBS    = -F/Library/Frameworks -L/Library/Frameworks \
+	     -framework QtCore -framework ApplicationServices \
+	     -framework QtGui -framework AppKit -framework Cocoa -lz -lm
+MOC	   = moc
+endif
 #
 # --------------------------------------------------------------------
 #
@@ -38,7 +60,7 @@ DLL_CFLAGS = -fPIC
 #
 # Installing Ipe:
 #
-IPEVERS = 7.0.8
+IPEVERS = 7.0.9
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.

@@ -269,10 +269,10 @@ void CurveSegment::snapBnd(const Vector &mouse, const Matrix &m,
     snapBezier(mouse, m * bezier(), pos, bound);
     break;
   case EArc: {
-    Arc arc = m * Arc();
+    Arc a = m * arc();
     Vector pos1;
     Angle angle;
-    double d1 = arc.distance(mouse, bound, pos1, angle);
+    double d1 = a.distance(mouse, bound, pos1, angle);
     if (d1 < bound) {
       bound = d1;
       pos = pos1;

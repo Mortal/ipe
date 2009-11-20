@@ -545,6 +545,20 @@ Vector Bezier::point(double t) const
     3 * t * t * t1 * iV[2] + t * t * t * iV[3];
 }
 
+//! Return tangent direction of curve at parameter \a t (from 0.0 to 1.0).
+/*! The returned vector is not normalized. */
+Vector Bezier::tangent(double t) const
+{
+  double tt = 1.0 - t;
+  Vector p = tt * iV[0] + t * iV[1];
+  Vector q = tt * iV[1] + t * iV[2];
+  Vector r = tt * iV[2] + t * iV[3];
+  p = tt * p + t * q;
+  q = tt * q + t * r;
+  r = tt * p + t * q;
+  return r - p;
+}
+
 /*! Returns true if the Bezier curve is nearly identical to the line
   segment iV[0]..iV[3]. */
 bool Bezier::straight(double precision) const
@@ -669,7 +683,10 @@ void Bezier::closedSpline(int n,  const Vector *v, std::vector<Bezier> &result)
 }
 
 //! Return distance to Bezier spline.
-/*! But may just return \a bound if actual distance is larger. */
+/*! But may just return \a bound if actual distance is larger.  The
+  Bezier spline is approximated to a precision of 1.0, and the
+  distance to the approximation is returned.
+ */
 double Bezier::distance(const Vector &v, double bound)
 {
   Rect box;
@@ -680,7 +697,7 @@ double Bezier::distance(const Vector &v, double bound)
   if (box.certainClearance(v, bound))
     return bound;
   std::vector<Vector> approx;
-  approximate(3.0, approx);
+  approximate(1.0, approx);
   Vector cur = iV[0];
   double d = bound;
   double d1;
@@ -1103,7 +1120,7 @@ void Arc::intersect(const Bezier &b, std::vector<Vector> &result) const
 //! Subdivide this arc into two.
 void Arc::subdivide(Arc &l, Arc &r) const
 {
-  if (iAlpha == 0.0 && iBeta == 0.0) {
+  if (iAlpha == 0.0 && iBeta == IpeTwoPi) {
     l = Arc(iM, Angle(0), Angle(IpePi));
     r = Arc(iM, Angle(IpePi), Angle(IpeTwoPi));
   } else {
@@ -1120,7 +1137,7 @@ void Arc::subdivide(Arc &l, Arc &r) const
  */
 bool Arc::straight(const double precision) const
 {
-  if (iAlpha == 0.0 && iBeta == 0.0)
+  if (iAlpha == 0.0 && iBeta == IpeTwoPi)
     return false;
 
   return Angle(iBeta).normalize(iAlpha) - iAlpha < precision;
