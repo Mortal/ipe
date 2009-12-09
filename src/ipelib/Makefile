@@ -6,6 +6,9 @@ OBJDIR = $(BUILDDIR)/obj/ipelib
 include ../common.mak
 
 TARGET = $(call dll_target,ipe)
+MAKE_SYMLINKS = $(call dll_symlinks,ipe)
+SONAME = $(call soname,ipe)
+INSTALL_SYMLINKS = $(call install_symlinks,ipe)
 
 CPPFLAGS += -I../include  
 ifndef WIN32
@@ -48,7 +51,8 @@ sources	= \
 
 $(TARGET): $(objects)
 	$(MAKE_LIBDIR)
-	$(CXX) $(LDFLAGS) $(DLL_LDFLAGS) -o $@ $^ $(LIBS)
+	$(CXX) $(LDFLAGS) $(DLL_LDFLAGS) $(SONAME) -o $@ $^ $(LIBS)
+	$(MAKE_SYMLINKS)
 
 clean:
 	@-rm -f $(objects) $(TARGET) $(DEPEND)
@@ -63,5 +67,6 @@ install: $(TARGET)
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPEHEADERDIR)
 	$(INSTALL_PROGRAMS) $(TARGET) $(INSTALL_ROOT)$(IPELIBDIR)
 	$(INSTALL_FILES) ../include/*.h $(INSTALL_ROOT)$(IPEHEADERDIR)
+	$(INSTALL_SYMLINKS)
 
 # --------------------------------------------------------------------

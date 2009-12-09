@@ -1,5 +1,27 @@
 --------------------------------------------------------------------
 
+Ipe 7.0.10 (2009-12-09) SVN 402
+
+ * Fixed crash in arc drawing (bug #324).
+ 
+ * Allow customization of canvas display: paper color, classic grid,
+   thickness of grid lines (see prefs.lua).
+
+ * Fixed display in path drawing tool on Windows (bug #323).
+
+ * Fixed broken line cap on circular arc (bug #325).
+
+ * Preference to set size of main window at startup
+   (prefs.window_size).
+
+ * SONAME set for all dynamic libraries, and symbolic links created
+   while building and installing.
+
+ * The "change width" box was placed incorrectly if the minipage had
+   been moved (bug #326).
+
+--------------------------------------------------------------------
+
 Ipe 7.0.9 (2009-11-20) SVN 393
 
  * Changed default setting for MOC to moc-qt4.

@@ -58,6 +58,19 @@ end
 -- Size of dialog window for creating/editing text objects
 prefs.editor_size = { 600, 400 }
 
+-- Size of main window at startup
+prefs.window_size = { 800, 600 }
+
+-- Canvas customization:
+prefs.paper_color = { r = 1.0, g = 1.0, b = 1.0 }  -- white
+-- prefs.paper_color = { r = 1.0, g = 1.0, b = 0.5 }  -- classic Ipe 6 yellow
+-- classic grid uses dots instead of lines
+prefs.classic_grid = false
+-- line width of grid lines
+-- if classic_grid is true, then thin_grid_lines is size of grid dots
+prefs.thin_grid_line = 0.1
+prefs.thick_grid_line = 0.3
+
 -- Should the grid be visible when Ipe starts? (true or false)
 prefs.grid_visible = true
 

@@ -150,6 +150,7 @@ ShapeTool::ShapeTool(Canvas *canvas, lua_State *L0, int luatool)
 void ShapeTool::draw(Painter &painter) const
 {
   double z = 1.0 / iCanvas->zoom();
+  painter.setPen(Attribute(Fixed::fromDouble(1.0)));
   painter.setStroke(Attribute(iColor));
   painter.newPath();
   iShape.draw(painter);
