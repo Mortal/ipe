@@ -38,6 +38,10 @@
 <p><code>#include &lt;ipeqtcanvas.h&gt;</code></p>
 
 <p><a href="classipeqt_1_1_canvas-members.html">List of all members.</a></p>
+<h2>Classes</h2>
+<ul>
+<li>struct <a class="el" href="structipeqt_1_1_canvas_1_1_style.html">Style</a>
+</ul>
 <h2>Signals</h2>
 <ul>
 <li>void <a class="el" href="classipeqt_1_1_canvas.html#a0184f864f495a516d5d66e4c2a8feb2b">wheelMoved</a> (int degrees)
@@ -62,6 +66,7 @@
 <li>const <a class="el" href="classipe_1_1_snap.html">Snap</a> &amp; <a class="el" href="classipeqt_1_1_canvas.html#a2798b4e4599069fc23e53374a9d0fd02">snap</a> () const 
 <li><a class="el" href="classipe_1_1_vector.html">Vector</a> <a class="el" href="classipeqt_1_1_canvas.html#a668c65fc8dc4da98925efef4ecbe16cb">devToUser</a> (const <a class="el" href="classipe_1_1_vector.html">Vector</a> &amp;arg) const 
 <li><a class="el" href="classipe_1_1_vector.html">Vector</a> <a class="el" href="classipeqt_1_1_canvas.html#a22fbca5a564caef61b8bf1f167556f59">userToDev</a> (const <a class="el" href="classipe_1_1_vector.html">Vector</a> &amp;arg) const 
+<li>void <a class="el" href="classipeqt_1_1_canvas.html#ae48e81eafc023e3ff1a14faa84612318">setCanvasStyle</a> (const <a class="el" href="structipeqt_1_1_canvas_1_1_style.html">Style</a> &amp;style)
 <li>void <a class="el" href="classipeqt_1_1_canvas.html#ab16dac425aa3a23814ba743e58db8b24">setPretty</a> (bool pretty)
 <li>void <a class="el" href="classipeqt_1_1_canvas.html#a1c741a34a1a2d9910d7cb18f2dfffa40">setPan</a> (const <a class="el" href="classipe_1_1_vector.html">Vector</a> &amp;v)
 <li>void <a class="el" href="classipeqt_1_1_canvas.html#abeb592ce74416c7fbcb7821c42564c8d">setZoom</a> (double zoom)
@@ -100,7 +105,7 @@
 <li>const <a class="el" href="classipe_1_1_page.html">Page</a> * <a class="el" href="classipeqt_1_1_canvas.html#a7cc46f48d5557748c7be238b053e2ccb">iPage</a>
 <li>int <a class="el" href="classipeqt_1_1_canvas.html#a9c2cd1a86aa9c5d8652d6b23a325d2d1">iView</a>
 <li>const <a class="el" href="classipe_1_1_cascade.html">Cascade</a> * <a class="el" href="classipeqt_1_1_canvas.html#a3c72de4bb6e62e35665f17181f537602">iCascade</a>
-<li>bool <a class="el" href="classipeqt_1_1_canvas.html#a06f60d66d13235540255c9aa0f57fab6">iPretty</a>
+<li><a class="el" href="structipeqt_1_1_canvas_1_1_style.html">Style</a> <a class="el" href="classipeqt_1_1_canvas.html#aa0d5b77ed21fa3bc6ca0f44701b8e120">iStyle</a>
 <li><a class="el" href="classipe_1_1_vector.html">Vector</a> <a class="el" href="classipeqt_1_1_canvas.html#a168b342e2e4b843f70920b5a7703ee9a">iPan</a>
 <li>double <a class="el" href="classipeqt_1_1_canvas.html#ac31cd7d4f6ca676a38a7ac82d92b2916">iZoom</a>
 <li><a class="el" href="classipe_1_1_snap.html">Snap</a> <a class="el" href="classipeqt_1_1_canvas.html#a0a6d6282a5566418316aec9241075abd">iSnap</a>
@@ -434,6 +439,27 @@
 <div class="memdoc">
 
 <p>Convert user coordinates to canvas (device) coordinates. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae48e81eafc023e3ff1a14faa84612318"></a><!-- doxytag: member="ipeqt::Canvas::setCanvasStyle" ref="ae48e81eafc023e3ff1a14faa84612318" args="(const Style &amp;style)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Canvas::setCanvasStyle </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structipeqt_1_1_canvas_1_1_style.html">Style</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>style</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Set style of canvas drawing. </p>
+<p>Includes paper color, pretty text, and grid. </p>
 
 </div>
 </div>
@@ -1100,12 +1126,12 @@
 
 </div>
 </div>
-<a class="anchor" id="a06f60d66d13235540255c9aa0f57fab6"></a><!-- doxytag: member="ipeqt::Canvas::iPretty" ref="a06f60d66d13235540255c9aa0f57fab6" args="" -->
+<a class="anchor" id="aa0d5b77ed21fa3bc6ca0f44701b8e120"></a><!-- doxytag: member="ipeqt::Canvas::iStyle" ref="aa0d5b77ed21fa3bc6ca0f44701b8e120" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="classipeqt_1_1_canvas.html#a06f60d66d13235540255c9aa0f57fab6">ipeqt::Canvas::iPretty</a><code> [protected]</code></td>
+          <td class="memname"><a class="el" href="structipeqt_1_1_canvas_1_1_style.html">Style</a> <a class="el" href="classipeqt_1_1_canvas.html#aa0d5b77ed21fa3bc6ca0f44701b8e120">ipeqt::Canvas::iStyle</a><code> [protected]</code></td>
         </tr>
       </table>
 </div>
