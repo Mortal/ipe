@@ -88,6 +88,14 @@ namespace ipeqt {
     Q_OBJECT
 
   public:
+    struct Style {
+      Color paperColor;
+      bool pretty;
+      bool classicGrid;
+      double thinLine;
+      double thickLine;
+    };
+
     Canvas(QWidget* parent, Qt::WFlags f=0);
     ~Canvas();
 
@@ -115,6 +123,7 @@ namespace ipeqt {
     Vector devToUser(const Vector &arg) const;
     Vector userToDev(const Vector &arg) const;
 
+    void setCanvasStyle(const Style &style);
     void setPretty(bool pretty);
     void setPan(const Vector &v);
     void setZoom(double zoom);
@@ -163,7 +172,8 @@ namespace ipeqt {
     int iView;
     const Cascade *iCascade;
 
-    bool iPretty;
+    Style iStyle;
+
     Vector iPan;
     double iZoom;
     Snap iSnap;

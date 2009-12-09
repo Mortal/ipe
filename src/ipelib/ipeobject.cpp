@@ -269,9 +269,8 @@ Reference *Object::asReference()
 // --------------------------------------------------------------------
 
 //! Set the transformation matrix.
-/*! Don't use this on the Object in an PageObject, because it
-  wouldn't invalidate its bounding box.  Call PageObject::Transform
-  instead. */
+/*! Don't use this on an Object in a Page, because it wouldn't
+  invalidate its bounding box.  Call Page::transform instead. */
 void Object::setMatrix(const Matrix &matrix)
 {
   iMatrix = matrix;

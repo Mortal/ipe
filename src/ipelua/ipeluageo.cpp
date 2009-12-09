@@ -550,7 +550,13 @@ static int line_side(lua_State *L)
 {
   Line *l = check_line(L, 1);
   Vector *p = check_vector(L, 2);
-  lua_pushnumber(L, l->side(*p));
+  double s = l->side(*p);
+  if (s > 0.0)
+    lua_pushnumber(L, 1.0);
+  else if (s < 0.0)
+    lua_pushnumber(L, -1.0);
+  else
+    lua_pushnumber(L, 0.0);
   return 1;
 }
 

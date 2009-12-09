@@ -564,6 +564,55 @@ static int appui_constructor(lua_State *L)
   lua_pushvalue(L, 1);
   int model = luaL_ref(L, LUA_REGISTRYINDEX);
   *ui = new AppUi(L, model);
+
+  Canvas::Style style;
+  style.pretty = false;
+  style.paperColor = Color(1000,1000,1000);
+  style.classicGrid = false;
+  style.thinLine = 0.2;
+  style.thickLine = 0.9;
+
+  lua_getglobal(L, "prefs");
+
+  lua_getfield(L, -1, "paper_color");
+  if (!lua_isnil(L, -1))
+    style.paperColor = check_color(L, lua_gettop(L));
+  lua_pop(L, 1); // paper_color
+
+  lua_getfield(L, -1, "classic_grid");
+  style.classicGrid = lua_toboolean(L, -1);
+  lua_pop(L, 1); // classic_grid
+
+  lua_getfield(L, -1, "thin_grid_line");
+  if (lua_isnumber(L, -1))
+    style.thinLine = lua_tonumber(L, -1);
+  lua_pop(L, 1); // thin_grid_line
+
+  lua_getfield(L, -1, "thick_grid_line");
+  if (lua_isnumber(L, -1))
+    style.thickLine = lua_tonumber(L, -1);
+  lua_pop(L, 1); // thick_grid_line
+
+  int width = -1, height = -1;
+  lua_getfield(L, -1, "window_size");
+  if (lua_istable(L, -1)) {
+    lua_rawgeti(L, -1, 1);
+    if (lua_isnumber(L, -1))
+      width = lua_tointeger(L, -1);
+    lua_rawgeti(L, -2, 2);
+    if (lua_isnumber(L, -1))
+      height = lua_tointeger(L, -1);
+    lua_pop(L, 2);
+  }
+  lua_pop(L, 1); // window_size
+
+  lua_pop(L, 1); // prefs
+
+  (*ui)->canvas()->setCanvasStyle(style);
+
+  if (width > 0 && height > 0)
+    (*ui)->resize(width, height);
+
   (*ui)->show();
   return 1;
 }

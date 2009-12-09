@@ -158,7 +158,12 @@ Canvas::Canvas(QWidget* parent, Qt::WFlags f)
   iFonts = 0;
   iAutoSnap = false;
   iFifiVisible = false;
-  iPretty = false;
+
+  iStyle.paperColor = Color(1000,1000,1000);
+  iStyle.pretty = false;
+  iStyle.classicGrid = false;
+  iStyle.thinLine = 0.2;
+  iStyle.thickLine = 0.9;
 
   iSnap.iSnap = 0;
   iSnap.iGridVisible = false;
@@ -204,12 +209,19 @@ void Canvas::setPage(const Page *page, int view, const Cascade *sheet)
   iCascade = sheet;
 }
 
+//! Set style of canvas drawing.
+/*! Includes paper color, pretty text, and grid. */
+void Canvas::setCanvasStyle(const Style &style)
+{
+  iStyle = style;
+}
+
 //! Determine whether pretty display should be used.
 /*! In pretty display, no dashed lines are drawn around text objects,
   and if Latex font data is not available, no text is drawn at all. */
 void Canvas::setPretty(bool pretty)
 {
-  iPretty = pretty;
+  iStyle.pretty = pretty;
 }
 
 //! Set current pan position.
@@ -340,49 +352,46 @@ void Canvas::drawGrid(cairo_t *cc)
 
   cairo_save(cc);
   cairo_set_source_rgb(cc, 0.3, 0.3, 0.3);
-#if 1
-  double thinLine = 0.2 / iZoom;
-  double thickLine = 0.9 / iZoom;
-  int thickStep = 4 * step;
 
-  // draw horizontal lines
-  for (int y = bottom; y < ur.y; y += vstep) {
-    if (screenLR.y <= y && y <= screenUL.y) {
-      cairo_set_line_width(cc, (y % thickStep) ? thinLine : thickLine);
-      cairo_move_to(cc, ll.x, y);
-      cairo_line_to(cc, ur.x, y);
-      cairo_stroke(cc);
+  if (iStyle.classicGrid) {
+    double lw = iStyle.thinLine / iZoom;
+    cairo_set_line_width(cc, lw);
+    for (int y = bottom; y < ur.y; y += vstep) {
+      if (screenLR.y <= y && y <= screenUL.y) {
+	for (int x = left; x < ur.x; x += vstep) {
+	  if (screenUL.x <= x && x <= screenLR.x) {
+	    cairo_move_to(cc, x, y - 0.5 * lw);
+	    cairo_line_to(cc, x, y + 0.5 * lw);
+	    cairo_stroke(cc);
+	  }
+	}
+      }
     }
-  }
+  } else {
+    double thinLine = iStyle.thinLine / iZoom;
+    double thickLine = iStyle.thickLine / iZoom;
+    int thickStep = 4 * step;
 
-  // draw vertical lines
-  for (int x = left; x < ur.x; x += vstep) {
-    if (screenUL.x <= x && x <= screenLR.x) {
-      cairo_set_line_width(cc, (x % thickStep) ? thinLine : thickLine);
-      cairo_move_to(cc, x, ll.y);
-      cairo_line_to(cc, x, ur.y);
-      cairo_stroke(cc);
+    // draw horizontal lines
+    for (int y = bottom; y < ur.y; y += vstep) {
+      if (screenLR.y <= y && y <= screenUL.y) {
+	cairo_set_line_width(cc, (y % thickStep) ? thinLine : thickLine);
+	cairo_move_to(cc, ll.x, y);
+	cairo_line_to(cc, ur.x, y);
+	cairo_stroke(cc);
+      }
     }
-  }
-#else
-  /* find out how big pixels (device unit) are in the x and y directions
-   * choose the smaller of the two as our line width */
-  double xw = 1.0, yw = 1.0;
-  cairo_device_to_user_distance(cc, &xw, &yw);
-  double lw = std::min(fabs(xw),fabs(yw));
-  cairo_set_line_width(cc, lw);
-  for (int y = bottom; y < ur.y; y += vstep) {
-    if (screenLR.y <= y && y <= screenUL.y) {
-      for (int x = left; x < ur.x; x += vstep) {
-        if (screenUL.x <= x && x <= screenLR.x) {
-          cairo_move_to(cc, (double) x, (double) y - 0.5*lw);
-          cairo_line_to(cc, (double) x, (double) y + 0.5*lw);
-          cairo_stroke(cc);
-        }
+
+    // draw vertical lines
+    for (int x = left; x < ur.x; x += vstep) {
+      if (screenUL.x <= x && x <= screenLR.x) {
+	cairo_set_line_width(cc, (x % thickStep) ? thinLine : thickLine);
+	cairo_move_to(cc, x, ll.y);
+	cairo_line_to(cc, x, ur.y);
+	cairo_stroke(cc);
       }
     }
   }
-#endif
 
   cairo_restore(cc);
 }
@@ -392,7 +401,9 @@ void Canvas::drawPaper(cairo_t *cc)
   const Layout *l = iCascade->findLayout();
   cairo_rectangle(cc, -l->iOrigin.x, -l->iOrigin.y,
 		  l->iPaperSize.x, l->iPaperSize.y);
-  cairo_set_source_rgb(cc, 1.0, 1.0, 1.0);
+  cairo_set_source_rgb(cc, iStyle.paperColor.iRed.toDouble(),
+		       iStyle.paperColor.iGreen.toDouble(),
+		       iStyle.paperColor.iBlue.toDouble());
   cairo_fill(cc);
 }
 
@@ -418,7 +429,7 @@ void Canvas::drawObjects(cairo_t *cc)
   if (!iPage)
     return;
 
-  CairoPainter painter(iCascade, iFonts, cc, iZoom, iPretty);
+  CairoPainter painter(iCascade, iFonts, cc, iZoom, iStyle.pretty);
   painter.setDimmed(iDimmed);
   // painter.Transform(CanvasTfm());
   painter.pushMatrix();
@@ -697,7 +708,7 @@ void Canvas::paintEvent(QPaintEvent * ev)
 
     if (iPage) {
       drawPaper(cc);
-      if (!iPretty)
+      if (!iStyle.pretty)
 	drawFrame(cc);
       if (iSnap.iGridVisible)
 	drawGrid(cc);

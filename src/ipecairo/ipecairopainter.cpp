@@ -81,17 +81,20 @@ void CairoPainter::doPop()
 void CairoPainter::doMoveTo(const Vector &u)
 {
   cairo_move_to(iCairo, u.x, u.y);
+  iAfterMoveTo = true;
 }
 
 void CairoPainter::doLineTo(const Vector &u)
 {
   cairo_line_to(iCairo, u.x, u.y);
+  iAfterMoveTo = false;
 }
 
 void CairoPainter::doCurveTo(const Vector &u1, const Vector &u2,
 			     const Vector &u3)
 {
   cairo_curve_to(iCairo, u1.x, u1.y, u2.x, u2.y, u3.x, u3.y);
+  iAfterMoveTo = false;
 }
 
 void CairoPainter::doClosePath()
@@ -115,8 +118,15 @@ void CairoPainter::doDrawArc(const Arc &arc)
     cairo_new_sub_path(iCairo);
     cairo_arc(iCairo, 0.0, 0.0, 1.0, 0.0, IpeTwoPi);
     cairo_close_path(iCairo);
-  } else
+  } else {
+    // this is necessary because of rounding errors:
+    // otherwise cairo may insert a near-zero-length segment that messes
+    // up line cap
+    if (iAfterMoveTo)
+      cairo_new_sub_path(iCairo);
     cairo_arc(iCairo, 0.0, 0.0, 1.0, arc.iAlpha, arc.iBeta);
+  }
+  iAfterMoveTo = false;
   cairo_restore(iCairo);
 }
 

@@ -97,6 +97,7 @@ namespace ipe {
     bool iPretty;
 
     bool iDimmed;
+    bool iAfterMoveTo;
 
     // PDF operator drawing
     std::vector<const PdfObj *> iArgs;

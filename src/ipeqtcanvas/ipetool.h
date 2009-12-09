@@ -98,7 +98,7 @@ namespace ipeqt {
     int iView;
 
     bool iNonDestructive;
-    int iSelectDistance;
+    double iSelectDistance;
     Vector iMouseDown;
     std::vector<SObj> iObjs;
     int iCur;

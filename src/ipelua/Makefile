@@ -6,6 +6,9 @@ OBJDIR = $(BUILDDIR)/obj/ipelua
 include ../common.mak
 
 TARGET = $(call dll_target,ipelua)
+MAKE_SYMLINKS = $(call dll_symlinks,ipelua)
+SONAME = $(call soname,ipelua)
+INSTALL_SYMLINKS = $(call install_symlinks,ipelua)
 
 CPPFLAGS += -I../include $(LUA_CFLAGS) $(QT_CFLAGS)
 LIBS += -L$(buildlib) -lipe $(LUA_LIBS) $(QT_LIBS)
@@ -23,7 +26,8 @@ sources	= \
 
 $(TARGET): $(objects)
 	$(MAKE_LIBDIR)
-	$(CXX) $(LDFLAGS) $(DLL_LDFLAGS) -o $@ $^ $(LIBS)
+	$(CXX) $(LDFLAGS) $(DLL_LDFLAGS) $(SONAME) -o $@ $^ $(LIBS)
+	$(MAKE_SYMLINKS)
 
 clean:
 	@-rm -f $(objects) $(TARGET) $(DEPEND)
@@ -36,5 +40,6 @@ $(DEPEND): Makefile
 install: $(TARGET)
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPELIBDIR)
 	$(INSTALL_PROGRAMS) $(TARGET) $(INSTALL_ROOT)$(IPELIBDIR)
+	$(INSTALL_SYMLINKS)
 
 # --------------------------------------------------------------------

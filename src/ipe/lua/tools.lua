@@ -134,14 +134,14 @@ local function compute_arc(p0, pmid, p1)
   local l2 = ipe.Line(p0, l1:normal())
   local bi1 = ipe.Bisector(p0, p1)
   local center = l2:intersects(bi1)
-  if not center then return { type="segment", p0, p1 } end
+  local side = l1:side(p1)
+  if side == 0.0 or not center then return { type="segment", p0, p1 } end
   local u = p0 - center
-  local alpha = u:angle()
-  local beta = ipe.normalizeAngle((p1 - center):angle(), alpha)
+  local alpha = side * u:angle()
+  local beta = side * ipe.normalizeAngle((p1 - center):angle(), alpha)
   local radius = u:len()
-  local m = { radius, 0, 0, radius, center.x, center.y }
-  if l1:side(p1) < 0 then m[4] = -radius end
-  return ipe.Arc(ipe.Matrix(m), alpha, beta)
+  local m = { radius, 0, 0, side * radius, center.x, center.y }
+  return { type = "arc", p0, p1, arc = ipe.Arc(ipe.Matrix(m), alpha, beta) }
 end
 
 -- compute orientation of tangent to previous segment at its final point
@@ -152,9 +152,13 @@ function LINESTOOL:compute_orientation()
     -- only arc needs special handling
     local arc = compute_arc(self.v[#self.v - 3], self.v[#self.v - 2],
 			    self.v[#self.v - 1])
-    local _, beta = arc:angles()
-    local dir = ipe.Direction(beta + math.pi / 2)
-    return (arc:matrix():linear() * dir):angle()
+    if arc.type == "arc" then
+      local alpha, beta = arc.arc:angles()
+      local dir = ipe.Direction(beta + math.pi / 2)
+      return (arc.arc:matrix():linear() * dir):angle()
+    else
+      return (self.v[#self.v - 1] - self.v[#self.v - 3]):angle()
+    end
   end
 end
 
@@ -181,8 +185,7 @@ function LINESTOOL:compute()
       seg = { type="bezier", self.v[i-1], self.v[i], self.v[i+1], self.v[i+2] }
       i = i + 3
     elseif self.t[i] == ARC then
-      seg = { type="arc", self.v[i-1], self.v[i+1] }
-      seg.arc = compute_arc(self.v[i-1], self.v[i], self.v[i+1])
+      seg = compute_arc(self.v[i-1], self.v[i], self.v[i+1])
       i = i + 2
     end
     self.shape[#self.shape + 1] = seg
@@ -775,7 +778,7 @@ function CHANGEWIDTHTOOL:new(model, prim, obj)
   tool.model = model
   tool.prim = prim
   tool.obj = obj
-  tool.pos = obj:position()
+  tool.pos = obj:matrix() * obj:position()
   tool.wid = obj:get("width")
   model.ui:shapeTool(tool)
   tool.setColor(1.0, 0, 1.0)

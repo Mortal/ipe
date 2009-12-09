@@ -61,6 +61,9 @@ ifdef WIN32
   buildlib	= $(BUILDDIR)/bin
   exe_target	= $(BUILDDIR)/bin/$1.exe
   dll_target    = $(buildlib)/$1.dll
+  soname        = 
+  dll_symlinks  = 
+  install_symlinks = 
   ipelet_target = $(BUILDDIR)/ipelets/$1.dll
 
   ZLIB_CFLAGS   := -I$(MINGLIBS)/zlib/include
@@ -100,7 +103,11 @@ else
     DLL_LDFLAGS	+= -shared 
   endif
   buildlib	= $(BUILDDIR)/lib
-  dll_target    = $(buildlib)/lib$1.so
+  dll_target    = $(buildlib)/lib$1.so.$(IPEVERS)
+  soname        = -Wl,-soname,lib$1.so.$(IPEVERS)
+  dll_symlinks  = ln -sf lib$1.so.$(IPEVERS) $(buildlib)/lib$1.so
+  install_symlinks = ln -sf lib$1.so.$(IPEVERS) \
+		$(INSTALL_ROOT)$(IPELIBDIR)/lib$1.so
   ipelet_target = $(BUILDDIR)/ipelets/$1.so
   exe_target	= $(BUILDDIR)/bin/$1
 endif
