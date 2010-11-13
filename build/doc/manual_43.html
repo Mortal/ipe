@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Dec  9 15:44:23 2009 -->
+     on Emacs 22.2.1, Sun Nov 14 02:26:14 2010 -->
 <head>
 <title>Ipe Manual -- 9.2 The &lt;page&gt; element</title>
 
@@ -43,7 +43,8 @@ div.verse, div.quote, div.quotation {
 </dl>
 
 <h4><a name="id2">Contents</a></h4>
-<ol><li>A possibly empty sequence of <code>&lt;layer&gt;</code> elements,
+<ol><li>An optional <code>&lt;notes&gt;</code> element,
+<li>a possibly empty sequence of <code>&lt;layer&gt;</code> elements,
 <li>a possibly empty sequence of <code>&lt;view&gt;</code> elements,
 <li>a possibly empty sequence of Ipe object elements.
 </ol>
@@ -52,9 +53,13 @@ layer named "alpha", visible and editable.
 <p>If a page contains no view element, a single view where all layers are
 visible is assumed.
 
-<h3><a name="id3">9.2.1 The <tt>&lt;layer&gt;</tt> element</a></h3>
+<h3><a name="id3">9.2.1 The <tt>&lt;notes&gt;</tt> element</a></h3>
+<p>This element has no attributes.  Its contents is plain text,
+containing notes for this page.
 
-<h4><a name="id4">Attributes</a></h4>
+<h3><a name="id4">9.2.2 The <tt>&lt;layer&gt;</tt> element</a></h3>
+
+<h4><a name="id5">Attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) Name of the layer.  It must not contain white
   space.
 <dt><b>edit</b><dd> (optional) The value should be <code>yes</code> or
@@ -64,9 +69,9 @@ visible is assumed.
 </dl>
 <p>The layer element must be empty.
 
-<h3><a name="id5">9.2.2 The <tt>&lt;view&gt;</tt> element</a></h3>
+<h3><a name="id6">9.2.3 The <tt>&lt;view&gt;</tt> element</a></h3>
 
-<h4><a name="id6">Attributes</a></h4>
+<h4><a name="id7">Attributes</a></h4>
 <dl><dt><b>layers</b><dd> (required) The value must be a sequence of layer names
   defined in this page, separated by white space.
 <dt><b>active</b><dd> (required) The layer that is the active layer in this view.
