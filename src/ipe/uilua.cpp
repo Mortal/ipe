@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -498,6 +498,20 @@ static int appui_setWindowTitle(lua_State *L)
   return 0;
 }
 
+static int appui_setNotes(lua_State *L)
+{
+  AppUi **ui = check_appui(L, 1);
+  const char *s = luaL_checkstring(L, 2);
+  (*ui)->setNotes(s);
+  return 0;
+}
+
+static int appui_showTool(lua_State *L)
+{
+  AppUi **ui = check_appui(L, 1);
+  return (*ui)->showTool(L);
+}
+
 static int appui_explain(lua_State *L)
 {
   AppUi **ui = check_appui(L, 1);
@@ -547,7 +561,9 @@ static const struct luaL_Reg appui_methods[] = {
   { "setLayers", appui_setLayers },
   { "setNumbers", appui_setNumbers },
   { "setBookmarks", appui_setBookmarks },
-  { 0, 0},
+  { "setNotes", appui_setNotes },
+  { "showTool", appui_showTool },
+   { 0, 0},
 };
 
 // --------------------------------------------------------------------

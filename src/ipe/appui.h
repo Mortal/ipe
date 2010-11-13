@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QToolButton>
+#include <QTextEdit>
 
 using namespace ipe;
 using namespace ipeqt;
@@ -152,9 +153,11 @@ public:
   void setActionsEnabled(bool mode);
   QAction *findAction(const char *name) const;
   void setNumbers(String vno, String pno);
+  void setNotes(String notes);
 
   // direct Lua methods
   int setBookmarks(lua_State *L);
+  int showTool(lua_State *L);
 
 public slots:
   void action(String name);
@@ -222,11 +225,13 @@ private:
   QDockWidget *iPropertiesTools;
   QDockWidget *iLayerTools;
   QDockWidget *iBookmarkTools;
+  QDockWidget *iNotesTools;
 
   QActionGroup *iModeActionGroup;
 
   QListWidget *iBookmarks;
   LayerBox *iLayerList;
+  QTextEdit *iPageNotes;
 
   int iMouseIn;
   QLabel *iMouse;

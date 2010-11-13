@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -39,6 +39,10 @@
 #include "ipepdfwriter.h"
 #include "ipepswriter.h"
 #include "ipelatex.h"
+
+#include <errno.h>
+
+#define USE_ICONV 1
 
 using namespace ipe;
 
@@ -562,7 +566,7 @@ void Document::findBitmaps(BitmapFinder &bm) const
 //! Save in XML format into an Stream.
 void Document::saveAsXml(Stream &stream, bool usePdfBitmaps) const
 {
-  stream << "<ipe version=\"" << ipe::IPELIB_VERSION << "\"";
+  stream << "<ipe version=\"" << ipe::FILE_FORMAT << "\"";
   if (!iProperties.iCreator.empty())
     stream << " creator=\"" << iProperties.iCreator << "\"";
   stream << ">\n";
@@ -809,12 +813,58 @@ int Document::runLatex(String &texLog)
   if (latexDir.empty())
     return ErrNoDir;
 
-  String texFile = latexDir + "text.tex";
-  String pdfFile = latexDir + "text.pdf";
-  String logFile = latexDir + "text.log";
+  String texFile = latexDir + "ipetemp.tex";
+  String pdfFile = latexDir + "ipetemp.pdf";
+  String logFile = latexDir + "ipetemp.log";
 
   std::remove(logFile.z());
 
+#ifdef USE_ICONV
+  String utf8;
+  StringStream stream(utf8);
+  int err = converter.createLatexSource(stream, properties().iPreamble);
+  if (err < 0)
+    return ErrWritingSource;
+
+  String encoding = cascade()->findEncoding();
+  if (encoding.empty()) {
+    std::FILE *file = std::fopen(texFile.z(), "wb");
+    if (!file)
+      return ErrWritingSource;
+    FileStream fstream(file);
+    fstream.putRaw(utf8.data(), utf8.size());
+    std::fclose(file);
+  } else {
+    iconv_t conv = iconv_open(encoding.z(), "UTF-8");
+    if (conv == iconv_t(-1))
+      return ErrWritingSource;
+
+    std::FILE *file = std::fopen(texFile.z(), "wb");
+    if (!file)
+      return ErrWritingSource;
+
+    char *inbuf = (char *) utf8.data();
+    size_t inbytesleft = utf8.size();
+
+    FileStream fstream(file);
+    while (inbytesleft > 0) {
+      char outbuf[0x100];
+      char *outp = outbuf;
+      size_t outbytesleft = 0x100;
+      size_t result = iconv(conv, &inbuf, &inbytesleft, &outp, &outbytesleft);
+      // E2BIG means output buffer exhausted, we continue in the next round
+      if (result == size_t(-1) && errno != E2BIG) {
+	std::fclose(file);
+	iconv_close(conv);
+	return ErrWritingSource;
+      }
+      if (outp > outbuf)
+	fstream.putRaw(outbuf, outp - outbuf);
+    }
+    iconv_close(conv);
+    std::fclose(file);
+  }
+#else
   std::FILE *file = std::fopen(texFile.z(), "wb");
   if (!file)
     return ErrWritingSource;
@@ -824,6 +874,7 @@ int Document::runLatex(String &texLog)
 
   if (err < 0)
     return ErrWritingSource;
+#endif
 
   int result = Platform::runPdfLatex(latexDir);
 

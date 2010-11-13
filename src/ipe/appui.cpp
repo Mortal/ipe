@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -201,8 +201,9 @@ void PathView::paintEvent(QPaintEvent *ev)
   cairo_fill(cc);
 
   if (iCascade) {
+    cairo_translate(cc, 0, h);
     double zoom = 2.0;
-    cairo_scale(cc, zoom, zoom);
+    cairo_scale(cc, zoom, -zoom);
     Vector v0 = (1.0/zoom) * Vector(0.1 * w, 0.5 * h);
     Vector v1 = (1.0/zoom) * Vector(0.7 * w, 0.5 * h);
     Vector u1 = (1.0/zoom) * Vector(0.88 * w, 0.8 * h);
@@ -560,6 +561,7 @@ void AppUi::buildMenus()
   addItem(EPageMenu, "Delete page", "delete_page");
   iMenu[EPageMenu]->addSeparator();
   addItem(EPageMenu, "Edit title && sections", "edit_title");
+  addItem(EPageMenu, "Edit notes", "edit_notes");
 
   addItem(EHelpMenu, "Ipe &manual", "manual");
   addItem(EHelpMenu, "Show &configuration", "show_configuration");
@@ -670,6 +672,13 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   addDockWidget(Qt::LeftDockWidgetArea, iLayerTools);
   iLayerTools->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
 
+  iNotesTools = new QDockWidget("Notes", this);
+  addDockWidget(Qt::RightDockWidgetArea, iNotesTools);
+  iNotesTools->setAllowedAreas(Qt::LeftDockWidgetArea|
+			       Qt::RightDockWidgetArea);
+  iMenu[EPageMenu]->addAction(iNotesTools->toggleViewAction());
+
+
   iBookmarkTools = new QDockWidget("Bookmarks", this);
   addDockWidget(Qt::RightDockWidgetArea, iBookmarkTools);
   iBookmarkTools->setAllowedAreas(Qt::LeftDockWidgetArea|
@@ -681,6 +690,7 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   iObjectTools->setObjectName(QLatin1String("ObjectTools"));
   iPropertiesTools->setObjectName(QLatin1String("PropertiesTools"));
   iLayerTools->setObjectName(QLatin1String("LayerTools"));
+  iNotesTools->setObjectName(QLatin1String("NotesTools"));
   iBookmarkTools->setObjectName(QLatin1String("BookmarkTools"));
 
   QWidget *wg = new QFrame();
@@ -760,6 +770,12 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   hol->addWidget(iPageNumber);
   lo->addLayout(hol, EUiSymbolSize + 2, 0, 1, -1);
 
+  iPageNotes = new QTextEdit();
+  iPageNotes->setAcceptRichText(false);
+  iPageNotes->setReadOnly(true);
+  iPageNotes->setFocusPolicy(Qt::NoFocus);
+  iNotesTools->setWidget(iPageNotes);
+
   iBookmarks = new QListWidget();
   iBookmarks->setToolTip("Bookmarks of this document");
   iBookmarks->setFocusPolicy(Qt::NoFocus);
@@ -790,8 +806,6 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
 
   iResolution = new QLabel(statusBar());
   statusBar()->addPermanentWidget(iResolution, 0);
-
-  iBookmarkTools->hide();
 
   connect(iCanvas, SIGNAL(wheelMoved(int)),   SLOT(wheelZoom(int)));
   connect(iCanvas, SIGNAL(mouseAction(int)),  SLOT(mouseAction(int)));
@@ -1067,6 +1081,11 @@ void AppUi::setNumbers(String vno, String pno)
   }
 }
 
+void AppUi::setNotes(String notes)
+{
+  iPageNotes->setPlainText(QIpe(notes));
+}
+
 void AppUi::setLayers(const Page *page, int view)
 {
   iLayerList->set(page, view);
@@ -1098,6 +1117,27 @@ void AppUi::bookmarkSelected(QListWidgetItem *item)
   lua_insert(L, -2); // method, model
   lua_pushnumber(L, index + 1);
   lua_call(L, 2, 0);
+}
+
+int AppUi::showTool(lua_State *L)
+{
+  static const char * const option_names[] = {
+    "properties", "bookmarks", "notes", "layers", 0 };
+  int m = luaL_checkoption(L, 2, 0, option_names);
+  bool s = lua_toboolean(L, 3);
+  QWidget *tool = 0;
+  switch (m) {
+  case 0: tool = iPropertiesTools; break;
+  case 1: tool = iBookmarkTools; break;
+  case 2: tool = iNotesTools; break;
+  case 3: tool = iLayerTools; break;
+  default: break;
+  }
+  if (s)
+    tool->show();
+  else
+    tool->hide();
+  return 0;
 }
 
 void AppUi::setZoom(double zoom)
@@ -1259,8 +1299,8 @@ static const char * const aboutText =
 void AppUi::aboutIpe()
 {
   int luaSize = lua_gc(L, LUA_GCCOUNT, 0);
-  char buf[strlen(aboutText) + 100];
-  sprintf(buf, aboutText,
+  std::vector<char> buf(strlen(aboutText) + 100);
+  sprintf(&buf[0], aboutText,
 	  IPELIB_VERSION / 10000,
 	  (IPELIB_VERSION / 100) % 100,
 	  IPELIB_VERSION % 100,
@@ -1273,7 +1313,7 @@ void AppUi::aboutIpe()
   QMessageBox msgBox(this);
   msgBox.setWindowTitle("About Ipe");
   msgBox.setWindowIcon(Prefs::get()->icon("ipe"));
-  msgBox.setInformativeText(buf);
+  msgBox.setInformativeText(&buf[0]);
   msgBox.setIconPixmap(Prefs::get()->pixmap("ipe"));
   msgBox.setStandardButtons(QMessageBox::Ok);
   msgBox.exec();

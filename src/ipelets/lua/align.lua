@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ skip = 0.0
 ----------------------------------------------------------------------
 
 function set_skip(model)
-  local str = ipedialogs.getString(model.ui, "Enter skip in points")
+  local str = ipeui.getString(model.ui, "Enter skip in points")
   if not str or str:match("^%s*$") then return end
   local s = tonumber(str)
   if not s then
@@ -269,7 +269,7 @@ end
 
 function ttb_skip(p, selection)
   local dy = { 0 }
-  local ytarget = p:bbox(selection[1]):bottom() + skip
+  local ytarget = p:bbox(selection[1]):bottom() - skip
   for i = 2,#selection do
     local j = selection[i]
     dy[i] = ytarget - p:bbox(j):top()

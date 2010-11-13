@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -93,10 +93,10 @@ static const char *standardSheet =
   "0.6 0 0 0.6 0 0 e\n"
   "</path></symbol>\n"
   "<symbol name=\"mark/fdisk(sfx)\" transformations=\"translations\">\n"
-  "<group><path fill=\"sym-stroke\" fillrule=\"eofill\">\n"
+  "<group><path fill=\"sym-fill\">\n"
+  "0.5 0 0 0.5 0 0 e\n"
+  "</path><path fill=\"sym-stroke\" fillrule=\"eofill\">\n"
   "0.6 0 0 0.6 0 0 e 0.4 0 0 0.4 0 0 e\n"
-  "</path><path fill=\"sym-fill\">\n"
-  "0.4 0 0 0.4 0 0 e\n"
   "</path></group></symbol>\n"
   "<symbol name=\"mark/box(sx)\" transformations=\"translations\">\n"
   "<path fill=\"sym-stroke\" fillrule=\"eofill\">\n"
@@ -108,10 +108,10 @@ static const char *standardSheet =
   "-0.6 -0.6 m 0.6 -0.6 l 0.6 0.6 l -0.6 0.6 l h"
   "</path></symbol>\n"
   "<symbol name=\"mark/fsquare(sfx)\" transformations=\"translations\">\n"
-  "<group><path fill=\"sym-stroke\" fillrule=\"eofill\">\n"
+  "<group><path fill=\"sym-fill\">\n"
+  "-0.5 -0.5 m 0.5 -0.5 l 0.5 0.5 l -0.5 0.5 l h"
+  "</path><path fill=\"sym-stroke\" fillrule=\"eofill\">\n"
   "-0.6 -0.6 m 0.6 -0.6 l 0.6 0.6 l -0.6 0.6 l h"
-  "-0.4 -0.4 m 0.4 -0.4 l 0.4 0.4 l -0.4 0.4 l h"
-  "</path><path fill=\"sym-fill\">\n"
   "-0.4 -0.4 m 0.4 -0.4 l 0.4 0.4 l -0.4 0.4 l h"
   "</path></group></symbol>\n"
   "<symbol name=\"mark/cross(sx)\" transformations=\"translations\">\n"

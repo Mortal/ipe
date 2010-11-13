@@ -29,6 +29,20 @@ read on!
 --------------------------------------------------------------------
 
 
+Supported platforms
+-------------------
+
+Ipe should compile on most Unix platforms and on Microsoft Windows.
+Mac OS X is not an officially supported platform - while it is based
+on a Unix kernel, the Apple application infrastructure is proprietary
+and entirely different from standard Unix.  As long as Ipe uses Qt and
+Qt is available for Mac OS X, it should be possible to compile Ipe on
+Macs, but you are on your own.
+
+
+--------------------------------------------------------------------
+
+
 Required components
 -------------------
 
@@ -131,6 +145,8 @@ and libraries:
    If not, one of the supplied fontmaps may already be correct.  On
    Debian/Ubuntu, "gsfonts-fontmap.xml" should be correct if you have
    the "gsfonts" package installed.
+
+   On Mac OS X with MacTeX-2009, you can use "mactex2009-fontmap.xml".
 
    Otherwise you can check for the location of the necessary files,
    and create your own fontmap.  If you use relative paths in the

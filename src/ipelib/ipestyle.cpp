@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -440,7 +440,13 @@ void StyleSheet::saveAsXml(Stream &stream, bool saveBitmaps) const
       stream << " value=\"" << it->second.string() << "\"/>\n";
   }
   if (!iPreamble.empty()) {
-    stream << "<preamble>";
+    stream << "<preamble";
+    if (!iEncoding.empty()) {
+      stream << " encoding=\"";
+      stream.putXmlString(iEncoding);
+      stream << "\"";
+    }
+    stream << ">";
     stream.putXmlString(iPreamble);
     stream << "</preamble>\n";
   }
@@ -700,6 +706,16 @@ String Cascade::findPreamble() const
     s = iSheets[i]->preamble() + "\n" + s;
   }
   return s;
+}
+
+//! Return LaTeX encoding (of the whole cascade).
+String Cascade::findEncoding() const
+{
+  for (int i = 0; i < count(); ++i) {
+    if (!iSheets[i]->encoding().isEmpty())
+      return iSheets[i]->encoding();
+  }
+  return String();
 }
 
 TLineCap Cascade::lineCap() const

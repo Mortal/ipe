@@ -26,6 +26,7 @@ iperender \- Export Ipe document as bitmap or SVG
 [ -page \fIpage\fP ] 
 [ -view \fIview\fP ]
 [ -resolution \fIdpi\fP ]
+[ -transparent ] 
 \fIinput-file\fP \fIoutput-file\fP
 
 .SH DESCRIPTION
@@ -47,6 +48,9 @@ export this view from a page with multiple views.
 .TP
 \fB-resolution\fP \fIdpi\fP
 set resolution for exporting to PNG.
+.TP
+\fB-transparent\fP
+make background transparent when exporting to PNG.
 
 .SH ENVIRONMENT VARIABLES
 

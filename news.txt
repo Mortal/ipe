@@ -1,5 +1,63 @@
 --------------------------------------------------------------------
 
+Ipe 7.0.11 (2010-11-13) SVN 444 India edition
+
+ * Fixed definition of filled marks in basic.isy and presentation.isy.
+
+ * Fixed loading of ipelets to occur before analyzing the
+   configuration, to make customization work as documented.
+
+ * "version" attribute in <ipe> tag was incorrectly filled with the
+   Ipelib version.  Now using the file format version as intended.
+
+ * Stylesheet can specify an alternate encoding for the Latex source
+   file.  The Latex source is converted from UTF-8 to this encoding
+   during Latex conversion.
+
+ * Possibility to store notes with each page.
+
+ * Fixed selection status in "Insert image" ipelet.
+
+ * Fixed bug in Ipe6 stylesheet in ipe6upgrade.
+
+ * Fixed bugs in alignment ipelet (thanks Norbert).
+
+ * Added "mactex2009-fontmap.xml" (by Changmook Chun).
+
+ * Use -dylib_install_name option on Mac OS.
+
+ * Include "beamer.isy" to use math fonts as in beamer.
+
+ * Changed temporary latex filename to "ipetemp.tex"
+
+ * Small changes to make Ipe compile with Sun compiler (thanks
+   Kostas).
+
+ * Fixed error reading views with no visible layer.
+
+ * New preference prefs.automatic_use_title.
+
+ * New -transparent flag for Iperender.
+
+ * Possibility to clip to paper in ipeqt::Canvas.
+
+ * config.screen_geometry provides width and height of default screen
+   in Lua.
+
+ * New preference prefs.auto_external_editor.
+
+ * Shortcuts in linetool can be configured (#346).
+
+ * Fixed display of line cap and line join in EPS (bug #331).
+
+ * Ipe should now work with Texlive 2010 (bug #350).
+
+ * Fixed bug in undo clipping (bug #333).
+
+ * Lua code can show and hide dock windows using showTool.
+
+--------------------------------------------------------------------
+
 Ipe 7.0.10 (2009-12-09) SVN 402
 
  * Fixed crash in arc drawing (bug #324).

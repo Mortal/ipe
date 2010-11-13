@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -523,7 +523,7 @@ Attribute Text::getAttribute(Property prop)
   case EPropMinipage:
     return Attribute::Boolean(isMinipage());
   case EPropWidth:
-    return Attribute(Fixed(width()));
+    return Attribute(Fixed::fromDouble(width()));
   default:
     return Object::getAttribute(prop);
   }

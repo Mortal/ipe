@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ function externalEditor(d, field)
 end
 
 function addEditorField(d, field, row, col)
-  if config.platform ~= "win" and prefs.external_editor then
+  if prefs.external_editor then
     d:add("editor", "button",
 	  { label="&Editor",
 	    action=function (d) externalEditor(d, field) end },
@@ -236,16 +236,17 @@ function LINESTOOL:explain()
   end
   s = s .. " | Right: final vtx"
   if self:has_segs(2) then
-    s = s .. " | S: spline mode"
+    s = s .. " | " .. shortcuts_linestool.spline .. ": spline mode"
   end
   if self:has_segs(3) then
-    s = s .. " | Q: quadratic Bezier | A: circle arc"
+    s = s .. " | " .. shortcuts_linestool.quadratic_bezier .. ": quadratic Bezier"
+    s = s .. " | " .. shortcuts_linestool.arc .. ": circle arc"
   end
   if self:has_segs(4) then
-    s = s .. " | C: cubic Bezier"
+    s = s .. " | " .. shortcuts_linestool.cubic_bezier ..": cubic Bezier"
   end
   if #self.v > 2 and self.t[#self.t - 1] == VERTEX then
-    s = s .. " | Y: set axis"
+    s = s .. " | " .. shortcuts_linestool.set_axis ..": set axis"
   end
   self.model.ui:explain(s)
 end
@@ -272,28 +273,29 @@ function LINESTOOL:key(code, modifiers, text)
   elseif text == "\027" then
     self.model.ui:finishTool()
     return true
-  elseif self:has_segs(2) and text == "s" then
+  elseif self:has_segs(2) and text == shortcuts_linestool.spline then
     self.t[#self.t] = SPLINE
     self:compute()
     self.model.ui:update(false)
     self:explain()
-  elseif self:has_segs(3) and text == "q" then
+  elseif self:has_segs(3) and text == shortcuts_linestool.quadratic_bezier then
     self.t[#self.t - 1] = QUAD
     self:compute()
     self.model.ui:update(false)
     self:explain()
-  elseif self:has_segs(3) and text == "a" then
+  elseif self:has_segs(3) and text == shortcuts_linestool.arc then
     self.t[#self.t - 1] = ARC
     self:compute()
     self.model.ui:update(false)
     self:explain()
-  elseif self:has_segs(4) and text == "c" then
+  elseif self:has_segs(4) and text == shortcuts_linestool.cubic_bezier then
     self.t[#self.t - 1] = BEZIER
     self.t[#self.t - 2] = BEZIER
     self:compute()
     self.model.ui:update(false)
     self:explain()
-  elseif #self.v > 2 and self.t[#self.t - 1] == VERTEX and text == "y" then
+  elseif #self.v > 2 and self.t[#self.t - 1] == VERTEX and
+    text == shortcuts_linestool.set_axis then
     -- set axis
     self.model.snap.with_axes = true
     self.model.snap.snapangle = true
@@ -670,6 +672,9 @@ function MODEL:createText(mode)
   addEditorField(d, "text", 3, 2)
   d:setStretch("row", 2, 1)
   d:setStretch("column", 1, 1)
+  if prefs.auto_external_editor then
+    externalEditor(d, "text")
+  end
   local r = d:execute(prefs.editor_size)
   if r then
     local t = d:get("text")
@@ -689,8 +694,8 @@ function MODEL:createParagraph(pos, width, pinned)
   local d = ipeui.Dialog(self.ui, "Create text object")
   d:add("label", "label", { label="Enter latex source" }, 1, 1, 1, 6)
   d:add("text", "text", { syntax="latex" }, 2, 1, 1, 6)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 5)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 6)
+  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 6)
+  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 5)
   addEditorField(d, "text", 3, 4)
   d:add("style", "combo", styles, 3, 1)
   d:add("size", "combo", sizes, 3, 2)
@@ -702,6 +707,9 @@ function MODEL:createParagraph(pos, width, pinned)
   if not size then size = indexOf("normal", sizes) end
   d:set("style", style)
   d:set("size", size)
+  if prefs.auto_external_editor then
+    externalEditor(d, "text")
+  end
   local r = d:execute(prefs.editor_size)
   if r then
     local t = d:get("text")
@@ -929,6 +937,9 @@ function MODEL:action_edit_text(prim, obj)
       d:add("size", "combo", sizes, 3, 2)
       d:set("size", size)
     end
+  end
+  if prefs.auto_external_editor then
+    externalEditor(d, "text")
   end
   local r = d:execute(prefs.editor_size)
   if not r or string.match(d:get("text"), "^%s*$") then return end

@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -99,7 +99,7 @@ function use_symbol(model, num)
     PASTETOOL:new(model, name)
   else -- clone symbol
     local obj = model.doc:sheets():find("symbol", name)
-    self.model:creation("clone symbol", obj)
+    model:creation("clone symbol", obj)
   end
 end
 

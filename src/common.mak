@@ -99,12 +99,13 @@ else
   CXXFLAGS	+= -g -O2
   ifdef MACOS
     DLL_LDFLAGS	+= -dynamiclib 
+    soname      = -Wl,-dylib_install_name,lib$1.so.$(IPEVERS)
   else	
     DLL_LDFLAGS	+= -shared 
+    soname      = -Wl,-soname,lib$1.so.$(IPEVERS)
   endif
   buildlib	= $(BUILDDIR)/lib
   dll_target    = $(buildlib)/lib$1.so.$(IPEVERS)
-  soname        = -Wl,-soname,lib$1.so.$(IPEVERS)
   dll_symlinks  = ln -sf lib$1.so.$(IPEVERS) $(buildlib)/lib$1.so
   install_symlinks = ln -sf lib$1.so.$(IPEVERS) \
 		$(INSTALL_ROOT)$(IPELIBDIR)/lib$1.so

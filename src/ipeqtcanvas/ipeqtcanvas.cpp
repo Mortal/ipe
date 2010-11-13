@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -164,6 +164,7 @@ Canvas::Canvas(QWidget* parent, Qt::WFlags f)
   iStyle.classicGrid = false;
   iStyle.thinLine = 0.2;
   iStyle.thickLine = 0.9;
+  iStyle.paperClip = false;
 
   iSnap.iSnap = 0;
   iSnap.iGridVisible = false;
@@ -428,6 +429,11 @@ void Canvas::drawObjects(cairo_t *cc)
 {
   if (!iPage)
     return;
+
+  const Layout *l = iCascade->findLayout();
+  cairo_rectangle(cc, -l->iOrigin.x, -l->iOrigin.y,
+		  l->iPaperSize.x, l->iPaperSize.y);
+  cairo_clip(cc);
 
   CairoPainter painter(iCascade, iFonts, cc, iZoom, iStyle.pretty);
   painter.setDimmed(iDimmed);

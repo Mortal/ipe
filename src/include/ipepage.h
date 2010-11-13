@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2009  Otfried Cheong
+    Copyright (C) 1993-2010  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -109,6 +109,10 @@ namespace ipe {
     const Text *titleText() const;
     void applyTitleStyle(const Cascade *sheet);
 
+    //! Return notes for this page.
+    String notes() const { return iNotes; }
+    void setNotes(String notes);
+
     //! Return number of objects on the page.
     inline int count() const { return int(iObjects.size()); }
 
@@ -193,6 +197,7 @@ namespace ipe {
     bool iUseTitle[2];
     String iSection[2];
     ObjSeq iObjects;
+    String iNotes;
   };
 
 } // namespace
