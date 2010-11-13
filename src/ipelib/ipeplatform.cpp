@@ -41,7 +41,7 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <unistd.h>
-#include <clocale>
+#include <locale.h>
 
 using namespace ipe;
 
@@ -293,7 +293,7 @@ int Platform::runPdfLatex(String dir)
   CharToOemA(dir.z(), oemDir.data());
 
   fprintf(f, "cd \"%s\"\r\n", oemDir.data());
-  fprintf(f, "pdflatex text.tex\r\n");
+  fprintf(f, "pdflatex ipetemp.tex\r\n");
   std::fclose(f);
 
   s = String("call \"") + dir + String("runlatex.bat\"");
@@ -302,7 +302,7 @@ int Platform::runPdfLatex(String dir)
 #else
   String s("cd ");
   s += dir;
-  s += "; rm -f text.log; pdflatex text.tex > /dev/null";
+  s += "; rm -f ipetemp.log; pdflatex ipetemp.tex > /dev/null";
   int result = std::system(s.z());
   if (result != -1)
     result = WEXITSTATUS(result);

@@ -103,6 +103,13 @@ function MODEL:init(fname)
   self.ui:setActionState("mode_select", true)
   self.ui:setActionState("grid_visible", self.snap.grid_visible)
 
+  if #self:getBookmarks() == 0 then
+    self.ui:showTool("bookmarks", false)
+  end
+  if self:page():notes() == "" then
+    self.ui:showTool("notes", false)
+  end
+
   if prefs.autosave_interval then
     self.timer = ipeui.Timer(self, "autosave")
     self.timer:setInterval(1000 * prefs.autosave_interval) -- millisecs
@@ -198,6 +205,7 @@ function MODEL:setPage()
   self.ui:update()
   self:setCaption()
   self:setBookmarks()
+  self.ui:setNotes(self:page():notes())
   local vno
   if self:page():countViews() > 1 then
     vno = string.format("View %d/%d", self.vno, self:page():countViews())
@@ -209,7 +217,7 @@ function MODEL:setPage()
   self.ui:setNumbers(vno, pno)
 end
 
-function MODEL:setBookmarks()
+function MODEL:getBookmarks()
   local b = {}
   for _,p in self.doc:pages() do
     local t = p:titles()
@@ -220,7 +228,11 @@ function MODEL:setBookmarks()
       if t.subsection ~= "" then b[#b+1] = t.subsection end
     elseif t.title ~= "" then b[#b+1] = "   " .. t.title end
   end
-  self.ui:setBookmarks(b)
+  return b
+end
+
+function MODEL:setBookmarks()
+  self.ui:setBookmarks(self:getBookmarks())
 end
 
 function MODEL:findPageForBookmark(index)

@@ -54,7 +54,7 @@ using ipe::Page;
 // --------------------------------------------------------------------
 
 static void render(TargetFormat fm, const char *dst, const Document *doc,
-		   const Page *page, int view, double zoom)
+		   const Page *page, int view, double zoom, bool transparent)
 {
   ipe::Rect bbox = page->pageBBox(doc->cascade());
   int wid = int(bbox.width() * zoom + 1);
@@ -65,8 +65,13 @@ static void render(TargetFormat fm, const char *dst, const Document *doc,
 
   if (fm == EPNG) {
     data = new unsigned long[wid * ht];
-    for (unsigned long *p = data; p < data + wid * ht; )
-      *p++ = 0xffffffff;
+    if (transparent) {
+      for (unsigned long *p = data; p < data + wid * ht; )
+	*p++ = 0x00000000;
+    } else {
+      for (unsigned long *p = data; p < data + wid * ht; )
+	*p++ = 0xffffffff;
+    }
     surface = cairo_image_surface_create_for_data((uchar *) data,
 						  CAIRO_FORMAT_ARGB32,
 						  wid, ht, wid * 4);
@@ -110,7 +115,8 @@ static void render(TargetFormat fm, const char *dst, const Document *doc,
 // --------------------------------------------------------------------
 
 static int renderPage(TargetFormat fm, const char *src, const char *dst,
-		      int pageNum, int viewNum, double zoom)
+		      int pageNum, int viewNum, double zoom,
+		      bool transparent)
 {
   Document *doc = Document::loadWithErrorReport(src);
 
@@ -131,7 +137,7 @@ static int renderPage(TargetFormat fm, const char *src, const char *dst,
   }
 
   const Page *page = doc->page(pageNum - 1);
-  render(fm, dst, doc, page, viewNum - 1, zoom);
+  render(fm, dst, doc, page, viewNum - 1, zoom, transparent);
   delete doc;
   return 0;
 }
@@ -147,7 +153,8 @@ static void usage()
 	  "Iperender saves a single page of the Ipe document in some formats.\n"
 	  " -page       : page to save (default 1).\n"
 	  " -view       : view to save (default 1).\n"
-	  " -resolution : resolution for png format (default 72.0 ppi).\n");
+	  " -resolution : resolution for png format (default 72.0 ppi).\n"
+	  " -transparent: use transparent background in png format.\n");
   exit(1);
 }
 
@@ -179,6 +186,7 @@ int main(int argc, char *argv[])
   int view = 1;
   double dpi = 72.0;
   int i = 2;
+  bool transparent = false;
 
   if (!strcmp(argv[i], "-page")) {
     page = ipe::Lex(ipe::String(argv[i+1])).getInt();
@@ -195,6 +203,11 @@ int main(int argc, char *argv[])
     i += 2;
   }
 
+  if (!strcmp(argv[i], "-transparent")) {
+    transparent = true;
+    ++i;
+  }
+
   // remaining arguments must be two filenames
   if (argc != i + 2)
     usage();
@@ -202,7 +215,7 @@ int main(int argc, char *argv[])
   const char *src = argv[i];
   const char *dst = argv[i+1];
 
-  return renderPage(fm, src, dst, page, view, dpi / 72.0);
+  return renderPage(fm, src, dst, page, view, dpi / 72.0, transparent);
 }
 
 // --------------------------------------------------------------------

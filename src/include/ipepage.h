@@ -109,6 +109,10 @@ namespace ipe {
     const Text *titleText() const;
     void applyTitleStyle(const Cascade *sheet);
 
+    //! Return notes for this page.
+    String notes() const { return iNotes; }
+    void setNotes(String notes);
+
     //! Return number of objects on the page.
     inline int count() const { return int(iObjects.size()); }
 
@@ -193,6 +197,7 @@ namespace ipe {
     bool iUseTitle[2];
     String iSection[2];
     ObjSeq iObjects;
+    String iNotes;
   };
 
 } // namespace

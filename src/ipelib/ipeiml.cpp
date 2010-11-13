@@ -123,6 +123,7 @@ int ImlParser::parseDocument(Document &doc)
       return ESyntaxError;
     if (!parsePCDATA("preamble", properties.iPreamble))
       return ESyntaxError;
+
     tag = parseToTag();
   }
 
@@ -204,6 +205,18 @@ bool ImlParser::parsePage(Page &page)
     page.setSection(1, false, String());
 
   String tag = parseToTag();
+
+  if (tag == "notes") {
+    XmlAttributes att;
+    if (!parseAttributes(att))
+      return ESyntaxError;
+    if (!parsePCDATA("notes", str))
+      return ESyntaxError;
+    page.setNotes(str);
+
+    tag = parseToTag();
+  }
+
   while (tag == "layer") {
     XmlAttributes att;
     if (!parseAttributes(att))
@@ -228,15 +241,20 @@ bool ImlParser::parsePage(Page &page)
       page.setEffect(page.countViews() - 1, Attribute(true, str));
 
     Lex st(att["layers"]);
+    st.skipWhitespace();
     String last;
-    do {
+    while (!st.eos()) {
       last = st.nextToken();
-      st.skipWhitespace();
       page.setVisible(page.countViews() - 1, last, true);
-    } while (!st.eos());
+      st.skipWhitespace();
+    }
 
-    if (!att.has("active", str))
+    if (!att.has("active", str)) {
+      // if no layer visible must have active attribute
+      if (last.empty())
+	return false;
       page.setActive(page.countViews() - 1, last);
+    }
 
     tag = parseToTag();
   }
@@ -474,6 +492,7 @@ bool ImlParser::parseStyle(StyleSheet &sheet)
     } else if (tag == "preamble") {
       if (!parseAttributes(att))
 	return false;
+      sheet.setEncoding(att["encoding"]);
       String pcdata;
       if (!att.slash() && !parsePCDATA(tag, pcdata))
 	return false;
@@ -637,7 +656,7 @@ bool ImlParser::parseStyle(StyleSheet &sheet)
       String name = att["name"];
       Attribute value = Attribute::makeScalar(att["value"],
 					      Attribute::NORMAL());
-      if (name.isEmpty() || value.isSymbolic())
+      if (name.empty() || value.isSymbolic())
 	return false;
       sheet.add(kind, Attribute(true, name), value);
     }

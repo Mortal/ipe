@@ -33,7 +33,7 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <clocale>
+#include <locale.h>
 
 #include <QApplication>
 #include <QDir>

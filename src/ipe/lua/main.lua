@@ -170,41 +170,6 @@ if config.platform == "unix" then
   table.insert(config.ipeletDirs, 1, config.home .. "/.ipe/ipelets")
 end
 
-if #argv == 1 and argv[1] == "-show-configuration" then
-  show_configuration()
-  return
-end
-
-if #argv == 1 and (argv[1] == "--help" or argv[1] == "-h") then
-  usage()
-  return
-end
-
-local first_file = nil
-local i = 1
-local style_sheets = {}
-
-while i <= #argv do
-  if argv[i] == "-sheet" then
-    if i == #argv then usage() return end
-    style_sheets[#style_sheets + 1] = argv[i+1]
-    i = i + 2
-  else
-    if i ~= #argv then usage() return end
-    first_file = argv[i]
-    i = i + 1
-  end
-end
-
-if #style_sheets > 0 then prefs.styles = style_sheets end
-
-config.styleList = {}
-for _,w in ipairs(prefs.styles) do
-  if w:sub(-4) ~= ".isy" then w = w .. ".isy" end
-  if not w:find("/") then w = config.styles .. "/" .. w end
-  config.styleList[#config.styleList + 1] = w
-end
-
 -- look for ipelets
 ipelets = {}
 for _,w in ipairs(config.ipeletDirs) do
@@ -238,6 +203,41 @@ for _,w in ipairs(config.ipeletDirs) do
       end
     end
   end
+end
+
+if #argv == 1 and argv[1] == "-show-configuration" then
+  show_configuration()
+  return
+end
+
+if #argv == 1 and (argv[1] == "--help" or argv[1] == "-h") then
+  usage()
+  return
+end
+
+local first_file = nil
+local i = 1
+local style_sheets = {}
+
+while i <= #argv do
+  if argv[i] == "-sheet" then
+    if i == #argv then usage() return end
+    style_sheets[#style_sheets + 1] = argv[i+1]
+    i = i + 2
+  else
+    if i ~= #argv then usage() return end
+    first_file = argv[i]
+    i = i + 1
+  end
+end
+
+if #style_sheets > 0 then prefs.styles = style_sheets end
+
+config.styleList = {}
+for _,w in ipairs(prefs.styles) do
+  if w:sub(-4) ~= ".isy" then w = w .. ".isy" end
+  if not w:find("/") then w = config.styles .. "/" .. w end
+  config.styleList[#config.styleList + 1] = w
 end
 
 MODEL:new(first_file)

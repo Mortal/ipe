@@ -48,12 +48,17 @@ prefs.autosave_filename = config.home .. "/%s.autosave"
 -- External editor for editing text objects
 -- must contain '%s' for the temporary filename
 -- set this to nil to hide the "Editor" button on text dialogs
+-- by default this is disabled on Windows as a
+-- DOS window will pop up when calling the editor
 if os.getenv("EDITOR") then
   prefs.external_editor = os.getenv("EDITOR") .. " %s"
-else
+elseif config.platform ~= "win" then
   prefs.external_editor = "gedit %s"
   -- prefs.external_editor = "emacsclient %s"
 end
+
+-- Should the external editor be called automatically?
+prefs.auto_external_editor = nil
 
 -- Size of dialog window for creating/editing text objects
 prefs.editor_size = { 600, 400 }
@@ -88,6 +93,10 @@ prefs.max_zoom = 100
 
 -- Should newly created text be transformable by default?
 prefs.text_transformable = false
+
+-- If set to true, then whenever the user edits the title of a page,
+-- the check box "section: use title" is checked automatically.
+prefs.automatic_use_title = false
 
 -- How to start browser to show Ipe manual
 if config.platform == "apple" then

@@ -79,10 +79,10 @@
 0.6 0 0 0.6 0 0 e
 </path></symbol>
 <symbol name="mark/fdisk(sfx)" transformations="translations">
-<group><path fill="sym-stroke" fillrule="eofill">
+<group><path fill="sym-fill">
+0.5 0 0 0.5 0 0 e
+</path><path fill="sym-stroke" fillrule="eofill">
 0.6 0 0 0.6 0 0 e 0.4 0 0 0.4 0 0 e
-</path><path fill="sym-fill">
-0.4 0 0 0.4 0 0 e
 </path></group></symbol>
 <symbol name="mark/box(sx)" transformations="translations">
 <path fill="sym-stroke" fillrule="eofill">
@@ -92,9 +92,10 @@
 <path fill="sym-stroke">
 -0.6 -0.6 m 0.6 -0.6 l 0.6 0.6 l -0.6 0.6 l h</path></symbol>
 <symbol name="mark/fsquare(sfx)" transformations="translations">
-<group><path fill="sym-stroke" fillrule="eofill">
+<group><path fill="sym-fill">
+-0.5 -0.5 m 0.5 -0.5 l 0.5 0.5 l -0.5 0.5 l h</path>
+<path fill="sym-stroke" fillrule="eofill">
 -0.6 -0.6 m 0.6 -0.6 l 0.6 0.6 l -0.6 0.6 l h
--0.4 -0.4 m 0.4 -0.4 l 0.4 0.4 l -0.4 0.4 l h</path><path fill="sym-fill">
 -0.4 -0.4 m 0.4 -0.4 l 0.4 0.4 l -0.4 0.4 l h</path></group></symbol>
 <symbol name="mark/cross(sx)" transformations="translations">
 <group><path fill="sym-stroke">

@@ -113,6 +113,10 @@ namespace ipe {
     inline String preamble() const { return iPreamble; }
     //! Set LaTeX preamble.
     inline void setPreamble(const String &str) { iPreamble = str; }
+    //! Return Latex encoding.
+    inline String encoding() const { return iEncoding; }
+    //! Set Latex encoding
+    inline void setEncoding(const String &enc) { iEncoding = enc; }
 
     const Layout *layout() const;
     void setLayout(const Layout &margins);
@@ -155,6 +159,7 @@ namespace ipe {
     TilingMap iTilings;
     EffectMap iEffects;
     Map iMap;
+    String iEncoding;
     String iPreamble;
     Layout iLayout;
     TitleStyle iTitleStyle;
@@ -195,6 +200,7 @@ namespace ipe {
     const StyleSheet::TitleStyle *findTitleStyle() const;
     const StyleSheet::PageNumberStyle *findPageNumberStyle() const;
     String findPreamble() const;
+    String findEncoding() const;
 
     TLineCap lineCap() const;
     TLineJoin lineJoin() const;

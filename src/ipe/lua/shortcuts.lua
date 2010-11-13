@@ -122,6 +122,7 @@ shortcuts = {
   paste_page = "Ctrl+Shift+V",
   delete_page = nil,
   edit_title = "Ctrl+P",
+  edit_notes = "Ctrl+N",
   ipelet_1_goodies = nil, -- Mirror horizontal
   ipelet_2_goodies = nil, -- Mirror vertical
   ipelet_3_goodies = nil, -- Mirror at x-axis
@@ -136,6 +137,24 @@ shortcuts = {
   ipelet_12_goodies = nil, -- Mark circle center
   ipelet_13_goodies = nil, -- Make parabolas
   ipelet_14_goodies = nil, -- Regular k-gon
+}
+
+-- These are the shortcuts for the lines/polylines, polygons and splines
+-- functions.
+-- Contrary to the above, global shortcuts, the following rules apply:
+-- + Use small letters ("a") for normal keys
+-- + Use capital letters ("A") for Shift+A
+-- + Any special keys (F1, Delete, ...) are not possible
+-- + Any combination with the Ctrl key is not possible
+-- + If you use a shortcut that is already in the global shortcut list,
+--   it won't work!
+
+shortcuts_linestool = {
+  spline = "s",
+  quadratic_bezier = "q",
+  arc = "a",
+  cubic_bezier = "c",
+  set_axis = "y",
 }
 
 ----------------------------------------------------------------------

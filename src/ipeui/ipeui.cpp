@@ -856,7 +856,7 @@ static int ipeui_getString(lua_State *L)
 				      QLineEdit::Normal,
 				      QString(),
 				      &ok);
-  if (ok && !str.isEmpty()) {
+  if (ok) {
     push_string(L, str);
     return 1;
   } else

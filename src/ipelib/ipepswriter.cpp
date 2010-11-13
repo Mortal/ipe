@@ -79,11 +79,11 @@ void PsPainter::strokePath()
   }
   if (s.iLineCap != sa.iLineCap) {
     sa.iLineCap = s.iLineCap;
-    iStream << s.iLineCap << " J\n";
+    iStream << s.iLineCap - 1 << " J\n";
   }
   if (s.iLineJoin != sa.iLineJoin) {
     sa.iLineJoin = s.iLineJoin;
-    iStream << s.iLineJoin << " j\n";
+    iStream << s.iLineJoin - 1 << " j\n";
   }
   if (s.iStroke != sa.iStroke) {
     sa.iStroke = s.iStroke;

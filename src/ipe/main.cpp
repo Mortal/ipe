@@ -41,11 +41,12 @@ extern "C" {
 
 #include <cstdio>
 #include <cstdlib>
-#include <clocale>
+#include <locale.h>
 
 #include <QApplication>
 #include <QLocale>
 #include <QDir>
+#include <QDesktopWidget>
 
 extern int luaopen_ipeui(lua_State *L);
 extern int luaopen_appui(lua_State *L);
@@ -157,6 +158,14 @@ int main(int argc, char *argv[])
 		  (IPELIB_VERSION / 100) % 100,
 		  IPELIB_VERSION % 100);
   lua_setfield(L, -2, "version");
+
+  QRect r = a.desktop()->screenGeometry();
+  lua_createtable(L, 0, 2);
+  lua_pushinteger(L, r.width());
+  lua_rawseti(L, -2, 1);
+  lua_pushinteger(L, r.height());
+  lua_rawseti(L, -2, 2);
+  lua_setfield(L, -2, "screen_geometry");
 
   lua_setglobal(L, "config");
 

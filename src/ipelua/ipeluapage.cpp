@@ -484,6 +484,21 @@ static int page_setTitles(lua_State *L)
   return 0;
 }
 
+static int page_notes(lua_State *L)
+{
+  Page *p = check_page(L, 1)->page;
+  push_string(L, p->notes());
+  return 1;
+}
+
+static int page_setNotes(lua_State *L)
+{
+  Page *p = check_page(L, 1)->page;
+  String n = luaL_checkstring(L, 2);
+  p->setNotes(n);
+  return 0;
+}
+
 // --------------------------------------------------------------------
 
 static int page_countViews(lua_State *L)
@@ -639,6 +654,8 @@ static const struct luaL_Reg page_methods[] = {
   { "findEdge", page_findedge },
   { "titles", page_titles },
   { "setTitles", page_setTitles },
+  { "notes", page_notes },
+  { "setNotes", page_setNotes },
   { "textBox", page_textBox },
   { 0, 0 }
 };

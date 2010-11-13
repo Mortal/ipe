@@ -523,7 +523,7 @@ Attribute Text::getAttribute(Property prop)
   case EPropMinipage:
     return Attribute::Boolean(isMinipage());
   case EPropWidth:
-    return Attribute(Fixed(width()));
+    return Attribute(Fixed::fromDouble(width()));
   default:
     return Object::getAttribute(prop);
   }

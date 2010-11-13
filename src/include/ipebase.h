@@ -38,6 +38,7 @@
 #include <map>
 #include <list>
 #include <algorithm>
+#include <iconv.h>
 
 // --------------------------------------------------------------------
 
@@ -74,7 +75,7 @@ namespace ipe {
 
   //! Ipelib version.
   /*! \ingroup base */
-  const int IPELIB_VERSION = 70010;
+  const int IPELIB_VERSION = 70011;
 
   //! Oldest readable file format version.
   /*! \ingroup base */

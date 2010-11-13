@@ -292,7 +292,8 @@ bool ImageIpelet::insertBitmap(QString name)
     bitmap.setColorKey(colorKey);
 
   Image *obj = new Image(computeRect(), bitmap);
-  iData->iPage->append(ESecondarySelected, iData->iLayer, obj);
+  iData->iPage->deselectAll();
+  iData->iPage->append(EPrimarySelected, iData->iLayer, obj);
   return true;
 }
 
@@ -426,7 +427,8 @@ bool ImageIpelet::insertJpeg(QString name)
 		iBitsPerComponent, Buffer(a.data(), a.size()),
 		Bitmap::EDCTDecode);
   Image *obj = new Image(computeRect(), bitmap);
-  iData->iPage->append(ESecondarySelected, iData->iLayer, obj);
+  iData->iPage->deselectAll();
+  iData->iPage->append(EPrimarySelected, iData->iLayer, obj);
   return true;
 }
 

@@ -94,6 +94,7 @@ namespace ipeqt {
       bool classicGrid;
       double thinLine;
       double thickLine;
+      bool paperClip;
     };
 
     Canvas(QWidget* parent, Qt::WFlags f=0);

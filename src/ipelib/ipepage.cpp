@@ -117,6 +117,11 @@ void Page::saveAsXml(Stream &stream) const
     stream << "\"";
   }
   stream << ">\n";
+  if (!iNotes.empty()) {
+    stream << "<notes>";
+    stream.putXmlString(iNotes);
+    stream << "</notes>\n";
+  }
   for (int i = 0; i < countLayers(); ++i) {
     stream << "<layer name=\"" << iLayers[i].iName << "\"";
     if (iLayers[i].iFlags & ELocked)
@@ -550,7 +555,7 @@ void Page::setSection(int level, bool useTitle, String name)
   iSection[level] = useTitle ? String() : name;
 }
 
-//! set the title of this page.
+//! Set the title of this page.
 /*! An empty title is not displayed. */
 void Page::setTitle(String title)
 {
@@ -562,6 +567,12 @@ void Page::setTitle(String title)
 String Page::title() const
 {
   return iTitle;
+}
+
+//! Set the notes of this page.
+void Page::setNotes(String notes)
+{
+  iNotes = notes;
 }
 
 //! Return Text object representing the title text.

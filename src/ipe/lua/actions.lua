@@ -1125,6 +1125,10 @@ function MODEL:action_edit_title()
   if not d:get("tsubsection") then
     final.subsection = d:get("subsection")
   end
+  if prefs.automatic_use_title and ti.title ~= final.title then
+    final.section = true
+    final.tsection = true
+  end
   local t = { label="change title and sections of page " .. self.pno,
 	      pno = self.pno,
 	      vno = self.vno,
@@ -1136,6 +1140,37 @@ function MODEL:action_edit_title()
 	   end
   t.redo = function (t, doc)
 	     doc[t.pno]:setTitles(t.final)
+	   end
+  self:register(t)
+end
+
+function MODEL:action_edit_notes()
+  local d = ipeui.Dialog(self.ui, "Ipe: Edit page notes")
+  d:add("label1", "label", { label="<b>Page notes</b>"}, 1, 1, 1, 4)
+  d:add("notes", "text", {}, 2, 1, 1, 4)
+  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 3)
+  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 4)
+  d:setStretch("row", 2, 1)
+  d:setStretch("column", 2, 1)
+  -- setup original values
+  local n = self:page():notes()
+  d:set("notes", n)
+  if not d:execute() then return end
+  local final = d:get("notes")
+  if string.match(final, "^%s*$") then
+    final = ""
+  end
+  local t = { label="change notes on page " .. self.pno,
+	      pno = self.pno,
+	      vno = self.vno,
+	      original = n,
+	      final = final,
+	    }
+  t.undo = function (t, doc)
+	     doc[t.pno]:setNotes(t.original)
+	   end
+  t.redo = function (t, doc)
+	     doc[t.pno]:setNotes(t.final)
 	   end
   self:register(t)
 end
@@ -1840,9 +1875,10 @@ function MODEL:saction_add_clipping()
 	      original = obj:clone(),
 	      path = p[sec]:clone(),
 	      shape = shape,
+	      layer = p:layerOf(sec)
 	    }
   t.undo = function (t, doc)
-	     doc[t.pno]:insert(t.secondary, t.path)
+	     doc[t.pno]:insert(t.secondary, t.path, nil, t.layer)
 	     doc[t.pno]:replace(t.primary, t.original)
 	   end
   t.redo = function (t, doc)

@@ -99,7 +99,7 @@ function use_symbol(model, num)
     PASTETOOL:new(model, name)
   else -- clone symbol
     local obj = model.doc:sheets():find("symbol", name)
-    self.model:creation("clone symbol", obj)
+    model:creation("clone symbol", obj)
   end
 end
 
