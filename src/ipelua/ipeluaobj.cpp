@@ -624,6 +624,8 @@ static SubPath *get_curve(lua_State *L, int index)
     lua_rawgeti(L, -1, i+1);
     if (lua_isnil(L, -1)) {
       lua_pop(L, 1);
+      if (c->countSegments() == 0)
+	luaL_error(L, "element %d has no segments", index);
       return c.take();
     }
     if (!lua_istable(L, -1))

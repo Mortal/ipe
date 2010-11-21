@@ -672,6 +672,7 @@ function MODEL:createText(mode)
   addEditorField(d, "text", 3, 2)
   d:setStretch("row", 2, 1)
   d:setStretch("column", 1, 1)
+  d:set("ignore-cancel", true)
   if prefs.auto_external_editor then
     externalEditor(d, "text")
   end
@@ -701,6 +702,7 @@ function MODEL:createParagraph(pos, width, pinned)
   d:add("size", "combo", sizes, 3, 2)
   d:setStretch("row", 2, 1)
   d:setStretch("column", 3, 1)
+  d:set("ignore-cancel", true)
   local style = indexOf(self.attributes.textstyle, styles)
   if not style then style = indexOf("normal", styles) end
   local size = indexOf(self.attributes.textsize, sizes)
@@ -911,47 +913,19 @@ end
 
 ----------------------------------------------------------------------
 
-function MODEL:action_edit_text(prim, obj)
-  local mp = obj:get("minipage")
-  local styles = self.doc:sheets():allNames("textstyle")
-  local sizes = self.doc:sheets():allNames("textsize")
-  local d = ipeui.Dialog(self.ui, "Edit text object")
-  d:add("label", "label", { label="Edit latex source" }, 1, 1, 1, 6)
-  d:add("text", "text", { syntax="latex" }, 2, 1, 1, 6)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 6)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 5)
-  addEditorField(d, "text", 3, 4)
-  d:setStretch("row", 2, 1)
-  d:setStretch("column", 3, 1)
-  d:set("text", obj:text())
-  local style = nil
-  local size = nil
-  if mp then
-    style = indexOf(obj:get("textstyle"), styles)
-    if style then
-      d:add("style", "combo", styles, 3, 1)
-      d:set("style", style)
-    end
-    size = indexOf(obj:get("textsize"), sizes)
-    if size then
-      d:add("size", "combo", sizes, 3, 2)
-      d:set("size", size)
-    end
-  end
-  if prefs.auto_external_editor then
-    externalEditor(d, "text")
-  end
-  local r = d:execute(prefs.editor_size)
-  if not r or string.match(d:get("text"), "^%s*$") then return end
-  local final = obj:clone()
+function apply_text_edit(d, data, run_latex)
+  -- refuse to do anything with empty text
+  if string.match(d:get("text"), "^%s*$") then return end
+  local model = data.model
+  local final = data.obj:clone()
   final:setText(d:get("text"))
-  if style then final:set("textstyle", styles[d:get("style")]) end
-  if size then final:set("textsize", sizes[d:get("size")]) end
+  if data.style then final:set("textstyle", data.styles[d:get("style")]) end
+  if data.size then final:set("textsize", data.sizes[d:get("size")]) end
   local t = { label="edit text",
-	      pno=self.pno,
-	      vno=self.vno,
-	      original=obj:clone(),
-	      primary=prim,
+	      pno=model.pno,
+	      vno=model.vno,
+	      original=data.obj:clone(),
+	      primary=data.prim,
 	      final=final,
 	    }
   t.undo = function (t, doc)
@@ -960,7 +934,54 @@ function MODEL:action_edit_text(prim, obj)
   t.redo = function (t, doc)
 	     doc[t.pno]:replace(t.primary, t.final)
 	   end
-  self:register(t)
+  model:register(t)
+  -- need to update data.obj for the next run!
+  data.obj = final
+  if run_latex then model:runLatex() end
+end
+
+function MODEL:action_edit_text(prim, obj)
+  local mp = obj:get("minipage")
+  local d = ipeui.Dialog(self.ui, "Edit text object")
+  local data = { model=self,
+		 styles = self.doc:sheets():allNames("textstyle"),
+		 sizes = self.doc:sheets():allNames("textsize"),
+		 prim=prim,
+		 obj=obj,
+	       }
+  d:add("label", "label", { label="Edit latex source" }, 1, 1, 1, 7)
+  d:add("text", "text", { syntax="latex" }, 2, 1, 1, 7)
+  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 7)
+  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 6)
+  d:add("apply", "button",
+	{ label="&Apply",
+	  action=function (d) apply_text_edit(d, data, true) end },
+	3, 5)
+  addEditorField(d, "text", 3, 4)
+  d:setStretch("row", 2, 1)
+  d:setStretch("column", 3, 1)
+  d:set("text", obj:text())
+  d:set("ignore-cancel", true)
+  local style = nil
+  local size = nil
+  if mp then
+    data.style = indexOf(obj:get("textstyle"), data.styles)
+    if data.style then
+      d:add("style", "combo", data.styles, 3, 1)
+      d:set("style", data.style)
+    end
+    data.size = indexOf(obj:get("textsize"), data.sizes)
+    if data.size then
+      d:add("size", "combo", data.sizes, 3, 2)
+      d:set("size", data.size)
+    end
+  end
+  if prefs.auto_external_editor then
+    externalEditor(d, "text")
+  end
+  local r = d:execute(prefs.editor_size)
+  if not r or string.match(d:get("text"), "^%s*$") then return end
+  apply_text_edit(d, data, false)
 end
 
 function MODEL:action_edit()

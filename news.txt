@@ -1,5 +1,24 @@
 --------------------------------------------------------------------
 
+Ipe 7.0.12 (2010-11-21) SVN 452
+
+ * Fixed several small bugs in 7.0.11 release.
+ 
+ * Made use of iconv configurable.
+
+ * Edit toolbar, for tablet users.  Includes a sticky shift key.
+
+ * Implemented multiple shortcuts for an action (request #345).
+
+ * Worked around Qt crash in arc edit (bug #338).
+
+ * Ignoring Escape button in text creation/editing windows.
+
+ * Text edit window now has an "Apply" button.  It will update the
+   text object and run Latex, without closing the editing window.
+
+--------------------------------------------------------------------
+
 Ipe 7.0.11 (2010-11-13) SVN 444 India edition
 
  * Fixed definition of filled marks in basic.isy and presentation.isy.

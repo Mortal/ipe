@@ -94,7 +94,10 @@ AppUi::AppUi(Qt::WFlags f)
   iCanvas = new Canvas(this);
   setCentralWidget(iCanvas);
 
-  iCanvas->setPretty(true);
+  Canvas::Style style = iCanvas->canvasStyle();
+  style.pretty = true;
+  style.paperClip = true;
+  iCanvas->setCanvasStyle(style);
 
   iSnap.iSnap = 0; // Snap::ESnapGrid;
   iSnap.iGridVisible = false;

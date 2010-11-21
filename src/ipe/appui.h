@@ -170,6 +170,7 @@ public slots:
   void mouseAction(int button);
   void positionChanged();
   void toolChanged(bool hasTool);
+  void toolbarModifiersChanged();
   void aboutIpe();
 
   void wheelZoom(int degrees);
@@ -189,6 +190,7 @@ private:
   void addItem(QMenu *m, const QString &title, const char *name);
   void addItem(int m, const QString &title, const char *name);
   void addSnap(const char *name);
+  void addEdit(const char *name);
   void buildMenus();
   void callSelector(String name, String value);
   void callSelector(const char *name, Color color);
@@ -220,6 +222,7 @@ private:
   QToolButton *iPageNumber;
 
   QToolBar *iSnapTools;
+  QToolBar *iEditTools;
   QToolBar *iObjectTools;
 
   QDockWidget *iPropertiesTools;
@@ -228,6 +231,8 @@ private:
   QDockWidget *iNotesTools;
 
   QActionGroup *iModeActionGroup;
+
+  QAction *iShiftKey;
 
   QListWidget *iBookmarks;
   LayerBox *iLayerList;

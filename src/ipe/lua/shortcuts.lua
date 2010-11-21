@@ -28,6 +28,8 @@
 
 --]]
 
+-- Multiple shortcuts for an action are possible, see 'delete'.
+
 shortcuts = {
   open = "Ctrl+O",
   quit = "Ctrl+Q",
@@ -41,7 +43,7 @@ shortcuts = {
   paste = nil,
   paste_at_cursor = "Ctrl+V",
   cut = "Ctrl+X",
-  delete = "Delete",
+  delete = { "Delete", "Backspace" },
   group = "Ctrl+G",
   ungroup = "Ctrl+U",
   front = "Ctrl+F",

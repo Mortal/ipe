@@ -55,6 +55,8 @@ if os.getenv("EDITOR") then
 elseif config.platform ~= "win" then
   prefs.external_editor = "gedit %s"
   -- prefs.external_editor = "emacsclient %s"
+else
+  prefs.external_editor = nil
 end
 
 -- Should the external editor be called automatically?
@@ -64,7 +66,7 @@ prefs.auto_external_editor = nil
 prefs.editor_size = { 600, 400 }
 
 -- Size of main window at startup
-prefs.window_size = { 800, 600 }
+prefs.window_size = { 960, 600 }
 
 -- Canvas customization:
 prefs.paper_color = { r = 1.0, g = 1.0, b = 1.0 }  -- white
@@ -105,6 +107,13 @@ else
   -- 'sensible-browser' and 'gnome-open' both work on Linux
   -- prefs.browser = "sensible-browser %s &"
   prefs.browser = "gnome-open %s"
+end
+
+-- How to start onscreen keyboard
+if config.platform == "unix" then
+  prefs.keyboard = "onboard &"
+else
+  prefs.keyboard = nil
 end
 
 -- Auto-exporting when document is being saved

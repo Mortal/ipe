@@ -75,7 +75,7 @@ local function recomputeMatrix(seg, cpno)
     q = seg.arc:matrix():inverse() * seg[cpno]
   end
   local center = ipe.Bisector(p, q):intersects(cl)
-  if center then
+  if center and center:sqLen() < 1e10 then
     local radius = (p - center):len()
     alpha = (p - center):angle()
     beta = (q - center):angle()

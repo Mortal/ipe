@@ -159,6 +159,8 @@ Canvas::Canvas(QWidget* parent, Qt::WFlags f)
   iAutoSnap = false;
   iFifiVisible = false;
 
+  iAdditionalModifiers = 0;
+
   iStyle.paperColor = Color(1000,1000,1000);
   iStyle.pretty = false;
   iStyle.classicGrid = false;
@@ -217,14 +219,6 @@ void Canvas::setCanvasStyle(const Style &style)
   iStyle = style;
 }
 
-//! Determine whether pretty display should be used.
-/*! In pretty display, no dashed lines are drawn around text objects,
-  and if Latex font data is not available, no text is drawn at all. */
-void Canvas::setPretty(bool pretty)
-{
-  iStyle.pretty = pretty;
-}
-
 //! Set current pan position.
 /*! The pan position is the user coordinate that is displayed at
   the very center of the canvas. */
@@ -251,6 +245,15 @@ void Canvas::setSnap(const Snap &s)
 void Canvas::setDimmed(bool dimmed)
 {
   iDimmed = dimmed;
+}
+
+//! Set additional modifiers.
+/*! These modifier bits are passed to the Tool when a key is pressed
+    or a drawing action is performed in addition to the actual
+    keyboard modifiers. */
+void Canvas::setAdditionalModifiers(int mod)
+{
+  iAdditionalModifiers = mod;
 }
 
 //! Enable automatic angular snapping with this origin.
@@ -430,10 +433,12 @@ void Canvas::drawObjects(cairo_t *cc)
   if (!iPage)
     return;
 
-  const Layout *l = iCascade->findLayout();
-  cairo_rectangle(cc, -l->iOrigin.x, -l->iOrigin.y,
-		  l->iPaperSize.x, l->iPaperSize.y);
-  cairo_clip(cc);
+  if (iStyle.paperClip) {
+    const Layout *l = iCascade->findLayout();
+    cairo_rectangle(cc, -l->iOrigin.x, -l->iOrigin.y,
+		    l->iPaperSize.x, l->iPaperSize.y);
+    cairo_clip(cc);
+  }
 
   CairoPainter painter(iCascade, iFonts, cc, iZoom, iStyle.pretty);
   painter.setDimmed(iDimmed);
@@ -608,7 +613,7 @@ Vector Canvas::simpleSnapPos() const
 void Canvas::keyPressEvent(QKeyEvent *ev)
 {
   String s = IpeQ(ev->text());
-  if (iTool && iTool->key(ev->key(), ev->modifiers(), s))
+  if (iTool && iTool->key(ev->key(), ev->modifiers()|iAdditionalModifiers, s))
     ev->accept();
   else
     ev->ignore();
@@ -619,9 +624,10 @@ void Canvas::mousePressEvent(QMouseEvent *ev)
   iGlobalPos = Vector(ev->globalPos().x(), ev->globalPos().y());
   computeFifi(ev->x(), ev->y());
   if (iTool)
-    iTool->mouseButton(ev->button() | ev->modifiers(), true);
+    iTool->mouseButton(ev->button() | ev->modifiers() | iAdditionalModifiers,
+		       true);
   else
-    emit mouseAction(ev->button() | ev->modifiers());
+    emit mouseAction(ev->button() | ev->modifiers() | iAdditionalModifiers);
 }
 
 void Canvas::mouseReleaseEvent(QMouseEvent *ev)
@@ -653,9 +659,9 @@ void Canvas::tabletEvent(QTabletEvent *ev)
     iGlobalPos = globalPos;
     computeFifi(hiPos.x(), hiPos.y());
     if (iTool)
-      iTool->mouseButton(Qt::LeftButton, true);
+      iTool->mouseButton(Qt::LeftButton | iAdditionalModifiers, true);
     else
-      emit mouseAction(Qt::LeftButton);
+      emit mouseAction(Qt::LeftButton | iAdditionalModifiers);
     break;
   case QEvent::TabletMove:
     if (ev->pressure() > 0.01) {
@@ -718,9 +724,9 @@ void Canvas::paintEvent(QPaintEvent * ev)
 	drawFrame(cc);
       if (iSnap.iGridVisible)
 	drawGrid(cc);
+      drawObjects(cc);
       if (iSnap.iWithAxes)
 	drawAxes(cc);
-      drawObjects(cc);
     }
     cairo_surface_flush(iSurface);
     cairo_destroy(cc);

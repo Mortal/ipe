@@ -332,6 +332,23 @@ void AppUi::addItem(QMenu *m, const QString &title, const char *name)
     a->setShortcut(QKeySequence(s));
     QString tt = title + " [" + s + "]";
     a->setToolTip(tt);
+  } else if (lua_istable(L, -1)) {
+    int no = lua_objlen(L, -1);
+    QList<QKeySequence> kl;
+    QString prim;
+    for (int i = 1; i <= no; ++i) {
+      lua_rawgeti(L, -1, i);
+      if (lua_isstring(L, -1)) {
+	QString s = lua_tostring(L, -1);
+	kl.append(QKeySequence(s));
+	if (prim.isEmpty())
+	  prim = s;
+      }
+      lua_pop(L, 1); // pop string
+    }
+    a->setShortcuts(kl);
+    QString tt = title + " [" + prim + "]";
+    a->setToolTip(tt);
   }
   a->setIcon(Prefs::get()->icon(name));
   lua_pop(L, 2);
@@ -361,6 +378,14 @@ void AppUi::addSnap(const char *name)
   assert(a);
   a->setCheckable(true);
   iSnapTools->addAction(a);
+}
+
+void AppUi::addEdit(const char *name)
+{
+  QAction *a = findAction(name);
+  assert(a);
+  // a->setCheckable(true);
+  iEditTools->addAction(a);
 }
 
 void AppUi::buildMenus()
@@ -564,6 +589,7 @@ void AppUi::buildMenus()
   addItem(EPageMenu, "Edit notes", "edit_notes");
 
   addItem(EHelpMenu, "Ipe &manual", "manual");
+  addItem(EHelpMenu, "Onscreen keyboard", "keyboard");
   addItem(EHelpMenu, "Show &configuration", "show_configuration");
   addItem(EHelpMenu, "About the &ipelets", "about_ipelets");
   addItem(EHelpMenu, "&About Ipe", "about");
@@ -622,6 +648,7 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   setCentralWidget(iCanvas);
 
   iSnapTools = addToolBar("Snap");
+  iEditTools = addToolBar("Edit");
   addToolBarBreak();
   iObjectTools = addToolBar("Objects");
 
@@ -659,6 +686,23 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   addSnap("snapangle");
   iSnapTools->addWidget(iSelector[EUiAngleSize]);
   addSnap("snapauto");
+
+  addEdit("copy");
+  addEdit("cut");
+  addEdit("paste");
+  addEdit("delete");
+  addEdit("undo");
+  addEdit("redo");
+  addEdit("zoom_in");
+  addEdit("zoom_out");
+  addEdit("fit_objects");
+  addEdit("fit_page");
+  addEdit("keyboard");
+  iShiftKey = new QAction("shift_key", this);
+  iShiftKey->setCheckable(true);
+  iShiftKey->setIcon(Prefs::get()->icon("shift_key"));
+  iEditTools->addAction(iShiftKey);
+  connect(iShiftKey, SIGNAL(triggered()), SLOT(toolbarModifiersChanged()));
 
   findAction("fullscreen")->setCheckable(true);
   findAction("grid_visible")->setCheckable(true);
@@ -928,6 +972,16 @@ void AppUi::positionChanged()
 void AppUi::toolChanged(bool hasTool)
 {
   setActionsEnabled(!hasTool);
+}
+
+void AppUi::toolbarModifiersChanged()
+{
+  if (iCanvas) {
+    int mod = 0;
+    if (iShiftKey->isChecked())
+      mod |= Qt::ShiftModifier;
+    iCanvas->setAdditionalModifiers(mod);
+  }
 }
 
 // --------------------------------------------------------------------
@@ -1277,7 +1331,7 @@ void AppUi::layerAction(String name, String layer)
 
 static const char * const aboutText =
 "<qt><h2>Ipe %d.%d.%d</h2>"
-"<p>Copyright (c) 1993-2009 Otfried Cheong</p>"
+"<p>Copyright (c) 1993-2010 Otfried Cheong</p>"
 "<p>The extensible drawing editor Ipe creates figures "
 "in Postscript and PDF format, "
 "using LaTeX to format the text in the figures.</p>"

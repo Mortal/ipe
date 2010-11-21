@@ -123,11 +123,13 @@ namespace ipeui {
     void addCombo(lua_State *L, SElement &m);
     void addCheckbox(lua_State *L, SElement &m);
     void addInput(lua_State *L, SElement &m);
+    virtual void keyPressEvent(QKeyEvent *e);
 
   private:
     lua_State *L;
     std::vector<SElement> iElements;
     int iLuaDialog;
+    bool iIgnoreEscape;
   };
 
 } // namespace
