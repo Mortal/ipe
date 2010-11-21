@@ -42,8 +42,6 @@
 
 #include <errno.h>
 
-#define USE_ICONV 1
-
 using namespace ipe;
 
 // --------------------------------------------------------------------
@@ -819,7 +817,7 @@ int Document::runLatex(String &texLog)
 
   std::remove(logFile.z());
 
-#ifdef USE_ICONV
+#ifdef IPE_USE_ICONV
   String utf8;
   StringStream stream(utf8);
   int err = converter.createLatexSource(stream, properties().iPreamble);

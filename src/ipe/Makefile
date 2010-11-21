@@ -63,6 +63,7 @@ install: $(TARGET)
 	$(INSTALL_FILES) lua/*.lua $(INSTALL_ROOT)$(IPELUADIR)
 	$(INSTALL_FILES) ../../styles/basic.isy $(INSTALL_ROOT)$(IPESTYLES)
 	$(INSTALL_FILES) ../../styles/colors.isy $(INSTALL_ROOT)$(IPESTYLES)
+	$(INSTALL_FILES) ../../styles/beamer.isy $(INSTALL_ROOT)$(IPESTYLES)
 	$(INSTALL_FILES) ../../styles/presentation.isy \
 			 $(INSTALL_ROOT)$(IPESTYLES)
 	$(INSTALL_FILES) icons/*.png $(INSTALL_ROOT)$(IPEICONDIR)

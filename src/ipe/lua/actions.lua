@@ -532,6 +532,16 @@ function MODEL:action_about_ipelets()
   ipeui.messageBox(self.ui, "information", "About the ipelets", s)
 end
 
+function MODEL:action_keyboard()
+  local s = prefs.keyboard
+  if s then
+    os.execute(s)
+  else
+    self:warning("No onscreen keyboard defined.",
+		 "Edit preferences to define an onscreen keyboard.")
+  end
+end
+
 ----------------------------------------------------------------------
 
 function MODEL:action_set_origin_snap()

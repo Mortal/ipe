@@ -159,13 +159,6 @@ static int appui_simpleSnapPos(lua_State *L)
   return 1;
 }
 
-static int appui_setPretty(lua_State *L)
-{
-  Canvas *canvas = check_canvas(L, 1);
-  canvas->setPretty(lua_toboolean(L, 2));
-  return 0;
-}
-
 static int appui_setFifiVisible(lua_State *L)
 {
   Canvas *canvas = check_canvas(L, 1);
@@ -536,7 +529,6 @@ static const struct luaL_Reg appui_methods[] = {
   { "globalPos", appui_globalPos},
   { "unsnappedPos", appui_unsnappedPos},
   { "simpleSnapPos", appui_simpleSnapPos },
-  { "setPretty", appui_setPretty},
   { "setFifiVisible", appui_setFifiVisible},
   { "setSnap", appui_setSnap},
   { "setAutoOrigin", appui_setAutoOrigin },
@@ -587,6 +579,7 @@ static int appui_constructor(lua_State *L)
   style.classicGrid = false;
   style.thinLine = 0.2;
   style.thickLine = 0.9;
+  style.paperClip = false;
 
   lua_getglobal(L, "prefs");
 

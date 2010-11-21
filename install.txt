@@ -107,7 +107,10 @@ and libraries:
    only (e.g. "d" for "duplicate") do not work.  Ipe does not compile
    with Qt 4.3 or earlier.
 
-   On MacOS 10.6, install Qt 4.6 cocoa binaries.
+   On MacOS 10.6, install Qt 4.6 cocoa binaries.  You will need the
+   64-bit Qt Cocoa binaries, to be compatible with MacPorts (which is
+   64-bit by default), and you only need the "Qt Framework only"
+   libraries. 
 
  * The 14 standard Postscript fonts
 

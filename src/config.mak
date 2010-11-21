@@ -17,6 +17,21 @@ FREETYPE_CFLAGS ?= $(shell pkg-config --cflags freetype2)
 FREETYPE_LIBS ?= $(shell pkg-config --libs freetype2)
 CAIRO_CFLAGS  ?= $(shell pkg-config --cflags cairo)
 CAIRO_LIBS    ?= $(shell pkg-config --libs cairo)
+#
+# Do you wish to enable the use of alternative text encodings
+# for Latex conversion?  (Useful for Japanese, Korean, Russian, etc.)
+# If so, uncomment the following line:
+#
+#IPE_USE_ICONV = -DIPE_USE_ICONV
+#
+# If you enabled this feature, Ipe will need the functions
+# iconv_open, iconv, and iconv_close.
+# On Linux, these are simply in libc, and you need to do nothing extra.
+# On other systems, install libiconv and uncomment the following lines:
+#
+#ICONV_CFLAGS =
+#ICONV_LIBS   = -liconv
+#
 ifndef MACOS
 LUA_CFLAGS    ?= $(shell pkg-config --cflags lua5.1)
 LUA_LIBS      ?= $(shell pkg-config --libs lua5.1)
@@ -60,7 +75,7 @@ DLL_CFLAGS = -fPIC
 #
 # Installing Ipe:
 #
-IPEVERS = 7.0.11
+IPEVERS = 7.0.12
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.

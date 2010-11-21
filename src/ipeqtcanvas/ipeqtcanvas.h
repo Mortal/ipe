@@ -88,6 +88,9 @@ namespace ipeqt {
     Q_OBJECT
 
   public:
+    /*! In pretty display, no dashed lines are drawn around text
+      objects, and if Latex font data is not available, no text is
+      drawn at all. */
     struct Style {
       Color paperColor;
       bool pretty;
@@ -121,11 +124,16 @@ namespace ipeqt {
     //! Return current snapping information.
     inline const Snap &snap() const { return iSnap; }
 
+    //! Return current additional modifiers.
+    inline int additionalModifiers() const { return iAdditionalModifiers; }
+    void setAdditionalModifiers(int mod);
+
     Vector devToUser(const Vector &arg) const;
     Vector userToDev(const Vector &arg) const;
 
     void setCanvasStyle(const Style &style);
-    void setPretty(bool pretty);
+    //! Return canvas style
+    Style canvasStyle() const { return iStyle; }
     void setPan(const Vector &v);
     void setZoom(double zoom);
     void setSnap(const Snap &s);
@@ -181,6 +189,7 @@ namespace ipeqt {
     bool iDimmed;
     bool iAutoSnap;
     Vector iAutoOrigin;
+    int iAdditionalModifiers;
 
     bool iRepaintObjects;
     int iWidth, iHeight;

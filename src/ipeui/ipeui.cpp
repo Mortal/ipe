@@ -203,6 +203,7 @@ Dialog::Dialog(lua_State *L0, QWidget *parent) :QDialog(parent)
 {
   L = L0;
   iLuaDialog = LUA_NOREF;
+  iIgnoreEscape = false;
   QGridLayout *lo = new QGridLayout;
   setLayout(lo);
   QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+Return"), this);
@@ -215,6 +216,13 @@ Dialog::~Dialog()
   for (uint i = 0; i < iElements.size(); ++i)
     luaL_unref(L, LUA_REGISTRYINDEX, iElements[i].lua_method);
   luaL_unref(L, LUA_REGISTRYINDEX, iLuaDialog);
+}
+
+void Dialog::keyPressEvent(QKeyEvent *e)
+{
+  if (iIgnoreEscape && e->key() == Qt::Key_Escape)
+    return;
+  QDialog::keyPressEvent(e);
 }
 
 void Dialog::callLua()
@@ -471,6 +479,12 @@ static void xmlIndent(QString &text)
 
 int Dialog::set(lua_State *L)
 {
+  QString s = checkstring(L, 2);
+  if (s == "ignore-cancel") {
+    iIgnoreEscape = lua_toboolean(L, 3);
+    return 0;
+  }
+
   int idx = findElement(L, 2);
 
   QLabel *l = qobject_cast<QLabel *>(iElements[idx].widget);
