@@ -51,6 +51,7 @@ PdfPainter::PdfPainter(const Cascade *style, Stream &stream)
   State state;
   state.iStroke = Color(0,0,0);
   state.iFill = Color(0,0,0);
+  state.iPen = Fixed(1);
   state.iDashStyle = "[]0";
   state.iLineCap = style->lineCap();
   state.iLineJoin = style->lineJoin();
@@ -333,9 +334,9 @@ void PdfPainter::doDrawSymbol(Attribute symbol)
 //! Create a PDF writer operating on this (open and empty) file.
 PdfWriter::PdfWriter(TellStream &stream, const Document *doc,
 		     const FontPool *pool,
-		     bool lastView, int fromPage, int toPage,
+		     bool markedView, int fromPage, int toPage,
 		     int compression)
-  : iStream(stream), iDoc(doc), iLastView(lastView),
+  : iStream(stream), iDoc(doc), iMarkedView(markedView),
     iFromPage(fromPage), iToPage(toPage)
 {
   iCompressLevel = compression;
@@ -767,6 +768,11 @@ void PdfWriter::paintView(Stream &stream, int pno, int view)
   const Page *page = iDoc->page(pno);
   PdfPainter painter(iDoc->cascade(), stream);
 
+  const Symbol *background =
+    iDoc->cascade()->findSymbol(Attribute::BACKGROUND());
+  if (background && page->findLayer("BACKGROUND") < 0)
+    painter.drawSymbol(Attribute::BACKGROUND());
+
   // page numbers
   if (iPageNumberFont >= 0) {
     const StyleSheet::PageNumberStyle *pns =
@@ -776,15 +782,10 @@ void PdfWriter::paintView(Stream &stream, int pno, int view)
     stream << "BT /F" << iPageNumberFont << " " << pns->iFontSize
 	   << " Tf " << pns->iPos << " Td\n"
 	   << "[(" << (pno + 1);
-    if (page->countViews() > 0 && !iLastView)
+    if (page->countMarkedViews() > 1)
       stream << "-" << (view + 1);
     stream << ")] TJ ET Q\n";
   }
-
-  const Symbol *background =
-    iDoc->cascade()->findSymbol(Attribute::BACKGROUND());
-  if (background && page->findLayer("BACKGROUND") < 0)
-    painter.drawSymbol(Attribute::BACKGROUND());
 
   const Text *title = page->titleText();
   if (title)
@@ -855,12 +856,23 @@ void PdfWriter::createPageView(int pno, int view)
 void PdfWriter::createPages()
 {
   for (int page = iFromPage; page <= iToPage; ++page) {
+    if (iMarkedView && !iDoc->page(page)->marked())
+      continue;
     int nViews = iDoc->page(page)->countViews();
-    if (iLastView)
-      createPageView(page, nViews - 1);
-    else
+    if (iMarkedView) {
+      bool shown = false;
+      for (int view = 0; view < nViews; ++view) {
+	if (iDoc->page(page)->markedView(view)) {
+	  createPageView(page, view);
+	  shown = true;
+	}
+      }
+      if (!shown)
+	createPageView(page, nViews - 1);
+    } else {
       for (int view = 0; view < nViews; ++view)
 	createPageView(page, view);
+    }
   }
 }
 
@@ -939,7 +951,8 @@ void PdfWriter::createBookmarks()
       sections.back().iSubSeqPages.push_back(seqPg);
       // ipeDebug("subsection on page %d, seq %d", pg, seqPg);
     }
-    seqPg += iLastView ? 1 : iDoc->page(pg)->countViews();
+    seqPg += iMarkedView ? iDoc->page(pg)->countMarkedViews() :
+      iDoc->page(pg)->countViews();
   }
   if (sections.empty())
     return;
@@ -1022,13 +1035,16 @@ void PdfWriter::createTrailer()
     iStream << "/PageLabels << /Nums [ ";
     int count = 0;
     for (int page = 0; page < iDoc->countPages(); ++page) {
-      int nviews = iLastView ? 1 : iDoc->page(page)->countViews();
-      if (nviews > 1) {
-	iStream << count << " <</S /D /P (" << (page + 1) << "-)>>";
-      } else { // one view only!
-	iStream << count << " <</P (" << (page + 1) << ")>>";
+      if (!iMarkedView || iDoc->page(page)->marked()) {
+	int nviews = iMarkedView ? iDoc->page(page)->countMarkedViews() :
+	  iDoc->page(page)->countViews();
+	if (nviews > 1) {
+	  iStream << count << " <</S /D /P (" << (page + 1) << "-)>>";
+	} else { // one view only!
+	  iStream << count << " <</P (" << (page + 1) << ")>>";
+	}
+	count += nviews;
       }
-      count += nviews;
     }
     iStream << "] >>\n";
   }
@@ -1064,7 +1080,7 @@ void PdfWriter::createTrailer()
   iStream << "/ModDate (" << props.iModified << ")\n";
   iStream << ">> endobj\n";
   // create Xref
-  int xrefpos = iStream.tell();
+  long xrefpos = iStream.tell();
   iStream << "xref\n0 " << iObjNum << "\n";
   for (int obj = 0; obj < iObjNum; ++obj) {
     std::map<int, long>::const_iterator it = iXref.find(obj);

@@ -38,7 +38,6 @@
 #include <map>
 #include <list>
 #include <algorithm>
-#include <iconv.h>
 
 // --------------------------------------------------------------------
 
@@ -75,7 +74,7 @@ namespace ipe {
 
   //! Ipelib version.
   /*! \ingroup base */
-  const int IPELIB_VERSION = 70012;
+  const int IPELIB_VERSION = 70100;
 
   //! Oldest readable file format version.
   /*! \ingroup base */
@@ -278,7 +277,7 @@ namespace ipe {
 
   class TellStream : public Stream {
   public:
-    virtual int tell() const = 0;
+    virtual long tell() const = 0;
   };
 
   class StringStream : public TellStream {
@@ -288,7 +287,7 @@ namespace ipe {
     virtual void putString(String s);
     virtual void putCString(const char *s);
     virtual void putRaw(const char *data, int size);
-    virtual int tell() const;
+    virtual long tell() const;
   private:
     String &iString;
   };
@@ -300,7 +299,7 @@ namespace ipe {
     virtual void putString(String s);
     virtual void putCString(const char *s);
     virtual void putRaw(const char *data, int size);
-    virtual int tell() const;
+    virtual long tell() const;
   private:
     std::FILE *iFile;
   };

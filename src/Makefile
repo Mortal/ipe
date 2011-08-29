@@ -6,18 +6,20 @@ GOAL ?= all
 
 subdirs = \
 	ipelib \
-	ipelets/image \
 	ipelets/lua \
 	ipetoipe \
 	ipe6upgrade \
 	ipeextract \
+	ipescript \
 	ipecairo \
 	iperender \
-	ipeqtcanvas \
+	ipecanvas \
 	ipeview \
 	ipelua \
 	ipeui \
 	ipe
+
+#	ipelets/image \
 
 .PHONY: all $(subdirs)
 
@@ -27,13 +29,14 @@ ipetoipe: ipelib
 ipelets/kgon: ipelib
 ipelets/image: ipelib
 ipelets/qvoronoi: ipelib
-ipe6update: ipelib
+ipe6upgrade: ipelib
 ipeextract: ipelib
 ipecairo: ipelib
 iperender: ipelib ipecairo
 ipeqtcanvas: ipelib ipecairo
 ipeview: ipeqtcanvas
 ipelua: ipelib
+ipescript: ipelib ipelua
 ipe: ipeqtcanvas ipelua
 
 $(subdirs):

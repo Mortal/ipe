@@ -31,6 +31,7 @@
 -- Multiple shortcuts for an action are possible, see 'delete'.
 
 shortcuts = {
+  new_window = nil,
   open = "Ctrl+O",
   quit = "Ctrl+Q",
   save = "Ctrl+S",
@@ -43,7 +44,7 @@ shortcuts = {
   paste = nil,
   paste_at_cursor = "Ctrl+V",
   cut = "Ctrl+X",
-  delete = { "Delete", "Backspace" },
+  delete = { "delete", "backspace" },
   group = "Ctrl+G",
   ungroup = "Ctrl+U",
   front = "Ctrl+F",
@@ -66,6 +67,7 @@ shortcuts = {
   mode_rotate = "R",
   mode_stretch = "E",
   mode_pan = nil,
+  mode_shredder = nil,
   mode_label = "L",
   mode_math = "Shift+4",
   mode_paragraph = "G",
@@ -100,10 +102,12 @@ shortcuts = {
   zoom_in = "Ctrl+PgUp",
   zoom_out = "Ctrl+PgDown",
   fit_page = "\\",
+  fit_width = "-",
   fit_objects = "=",
   fit_selection = "@",
-  pan_here = "x",
+  pan_here = "X",
   new_layer = "Ctrl+Shift+N",
+  rename_active_layer = "Ctrl+Shift+R",
   select_in_active_layer = "Ctrl+Shift+A",
   move_to_active_layer = "Ctrl+Shift+M",
   next_view = "PgDown",
@@ -125,6 +129,9 @@ shortcuts = {
   delete_page = nil,
   edit_title = "Ctrl+P",
   edit_notes = "Ctrl+N",
+  page_sorter = nil,
+  jump_view = "V",
+  jump_page = "J",
   ipelet_1_goodies = nil, -- Mirror horizontal
   ipelet_2_goodies = nil, -- Mirror vertical
   ipelet_3_goodies = nil, -- Mirror at x-axis
@@ -139,6 +146,7 @@ shortcuts = {
   ipelet_12_goodies = nil, -- Mark circle center
   ipelet_13_goodies = nil, -- Make parabolas
   ipelet_14_goodies = nil, -- Regular k-gon
+  ipelet_2_symbols = "Alt+Y", -- Use current symbol
 }
 
 -- These are the shortcuts for the lines/polylines, polygons and splines

@@ -39,6 +39,7 @@ This ipelet is part of Ipe.
 ]]
 
 V = ipe.Vector
+current_symbol = nil
 
 ----------------------------------------------------------------------
 
@@ -85,16 +86,21 @@ end
 
 ----------------------------------------------------------------------
 
-function use_symbol(model, num)
+function select_symbol(model)
   local s = model.doc:sheets():allNames("symbol")
-  local d = ipeui.Dialog(model.ui, "Use symbol")
+  local d = ipeui.Dialog(model.ui:win(), "Use symbol")
   d:add("label", "label", { label = "Select symbol" }, 1, 1, 1, 3)
   d:add("select", "combo", s, 2, 1, 1, 3)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 3)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 2)
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("column", 1, 1)
   if not d:execute() then return end
-  local name = s[d:get("select")]
+  return s[d:get("select")]
+end
+
+function use_symbol(model, num)
+  local name = select_symbol(model)
+  if not name then return end
   if num == 1 then
     PASTETOOL:new(model, name)
   else -- clone symbol
@@ -103,13 +109,27 @@ function use_symbol(model, num)
   end
 end
 
+function use_current_symbol(model, num)
+  if not current_symbol then
+    model.ui:explain("current symbol has not been set")
+  else
+    PASTETOOL:new(model, current_symbol)
+  end
+end
+
+function select_current_symbol(model, num)
+  local name = select_symbol(model)
+  if not name then return end
+  current_symbol = name
+end
+
 ----------------------------------------------------------------------
 
 function create_symbol(model, num)
   local p = model:page()
   local prim = p:primarySelection()
   if not prim then model.ui:explain("no selection") return end
-  local str = ipeui.getString(model.ui, "Enter name of new symbol")
+  local str = model:getString("Enter name of new symbol")
   if not str or str:match("^%s*$") then return end
   local name = str:match("^%s*%S+%s*$")
   local old = model.doc:sheets():find("symbol", name)
@@ -157,9 +177,11 @@ end
 
 methods = {
   { label = "use symbol", run = use_symbol },
+  { label = "use current symbol", run = use_current_symbol },
   { label = "create symbol (in new style sheet)", run = create_symbol },
   { label = "create symbol (in top style sheet)", run = create_symbol },
   { label = "clone symbol", run = use_symbol },
+  { label = "select current symbol", run = select_current_symbol }
 }
 
 ----------------------------------------------------------------------

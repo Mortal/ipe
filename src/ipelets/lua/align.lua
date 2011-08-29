@@ -45,7 +45,7 @@ skip = 0.0
 ----------------------------------------------------------------------
 
 function set_skip(model)
-  local str = ipeui.getString(model.ui, "Enter skip in points")
+  local str = model:getString("Enter skip in points")
   if not str or str:match("^%s*$") then return end
   local s = tonumber(str)
   if not s then

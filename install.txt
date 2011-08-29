@@ -2,29 +2,96 @@
             Building and installing Ipe on Unix
 --------------------------------------------------------------------
 
-Quickstart
-----------
+Quickstart for Linux
+--------------------
 
-If you have a recent Ubuntu or Debian system, the following steps
-should compile and install Ipe into /usr/local:
-(Note that Ubuntu 8.04 Hardy is NOT recent, and you'll need to compile
-recent versions of Cairo and Qt to get Ipe to work on Hardy.)
+If you have a recent Ubuntu (at least 09.04) or Debian system, the
+following steps will install the necessary libraries and tools:
 
-    sudo apt-get install zlib1g-dev libqt4-dev
+    sudo apt-get install checkinstall zlib1g-dev libqt4-dev
     sudo apt-get install libfreetype6-dev libcairo2-dev 
     sudo apt-get install liblua5.1-0-dev gsfonts
+
+On Fedora, use the following steps instead:
+
+   sudo yum -y install zlib-devel qt-devel freetype-devel cairo-devel
+   sudo yum -y install lua-devel ghostscript-fonts urw-fonts
+
+Now you can compile and install Ipe into /usr/local:
+(Note that 7.x.y has to be replaced by the current Ipe version!)
+
     cd src
-    make IPEPREFIX=/usr/local
-    sudo make install IPEPREFIX=/usr/local
+    make IPEPREFIX=/usr/local IPE_USE_ICONV=-DIPE_USE_ICONV
+    sudo checkinstall --pkgname=ipe --pkgversion=7.x.y --backup=no \
+    	 --fstrans=no --default make install IPEPREFIX=/usr/local
     sudo cp ../fontmaps/gsfonts-fontmap.xml \
     	    /usr/local/share/ipe/7.x.y/fontmap.xml
     sudo ldconfig
 
-Where 7.x.y has to be replaced by the current Ipe version.
-The last line (ldconfig) may not be necessary, but can't hurt either.
+The line with "checkinstall" makes sure that Ipe is installed as
+package "ipe".  If you no longer need Ipe, or to remove it before
+compiling the next release, you can completely remove it from your
+system by saying
 
-If you do not have such a system or this doesn't work for you, please
-read on!
+    sudo rm /usr/local/share/ipe/7.x.y/fontmap.xml
+    sudo apt-get remove ipe
+
+
+Quickstart for MacOS 10.6
+-------------------------
+
+If you have macports, you can compile and install Ipe by simply saying 
+
+    sudo port install ipe
+
+This will take a long time (run it over night!), and may not compile
+the latest version if the macports recipe has not yet been updated.
+
+With a little manual work, you can compile Ipe without using macports,
+as follows:
+
+ * Install Qt
+
+   Run the binary installer for the Qt SDK for Mac from 
+   "qt.nokia.com/downloads". 
+   Ipe only needs the Qt libraries, so to save time and storage you
+   could install the "Qt libraries for Mac" only. Either 4.7.3 or
+   4.6.4 (Cocoa) will work, or presumably any later version.
+
+ * Install Lua
+
+   Download the prebuild binaries from 
+      http://luabinaries.sourceforge.net/download.html
+   You need the "lib" package only.  Copy the header files ("lua.h"
+   and other ".h" files into "/usr/local/include".  Copy
+   "liblua5.1.dylib" and "liblua5.1.so" into "/usr/local/lib".  
+   DO NOT install "liblua5.1.a" on your system.
+
+ * Now you can either manually compile and install Ipe, or you can
+   build a MacOS application bundle (which you can then install on
+   several machines).
+
+   (1) Simple compile and install:
+
+         cd src
+       	 make IPEPREFIX=/usr/local
+       	 sudo make install IPEPREFIX=/usr/local
+ 	 sudo cp ../fontmaps/mactex2011-fontmap.xml \
+    	         /usr/local/share/ipe/7.x.y/fontmap.xml
+
+       (where 7.x.y has to be replaced by the current Ipe version)  
+
+   (2) To build an application bundle, just run the script
+       "mac_make_bundle.sh":
+
+         cd src
+    	 bash mac_make_bundle.sh
+
+       The bundle will contain Qt and Lua, so you do not need to
+       install those manually to install Ipe on another Mac.
+
+If something doesn't work for you, please read below to check the
+details!
 
 --------------------------------------------------------------------
 
@@ -35,9 +102,8 @@ Supported platforms
 Ipe should compile on most Unix platforms and on Microsoft Windows.
 Mac OS X is not an officially supported platform - while it is based
 on a Unix kernel, the Apple application infrastructure is proprietary
-and entirely different from standard Unix.  As long as Ipe uses Qt and
-Qt is available for Mac OS X, it should be possible to compile Ipe on
-Macs, but you are on your own.
+and quite different from standard Unix.  I do not own an Apple
+computer, and cannot help you with building or installing Ipe on Mac OS.
 
 
 --------------------------------------------------------------------
@@ -56,11 +122,15 @@ and libraries:
    installed as 'gmake'.  Otherwise, install it yourself from
    www.gnu.org. Other "make" implementations will not work!
 
+   MacOS 10.6 already has this.
+
  * The compression library 'zlib'
 
    Very likely you already have it on your system (check for the
    include file "zlib.h").  If not, obtain it from "www.gzip.org/zlib"
    and install it.
+
+   MacOS 10.6 already has this.
 
  * The font library 'Freetype 2'
 
@@ -68,7 +138,7 @@ and libraries:
    will need the development package (on Debian/Ubuntu, this is
    "libfreetype6-dev").  
 
-   On Mac OS 10.6, install via MacPorts.
+   MacOS 10.6 already has this.
 
    The original sources are at "www.freetype.org".  You need version
    2.1.8 or newer.
@@ -79,13 +149,13 @@ and libraries:
    may already have it.  You will need the development package,
    e.g. on Debian/Ubuntu "libcairo2-dev".  
 
-   On Mac OS 10.6, install via MacPorts.
+   MacOS 10.6 already has this.
 
    You can also install from sources at "www.cairographics.org".  If
    you compile Cairo yourself, note that you only need the image and
    svg surfaces (backends).  You also need freetype support, but no
    fontconfig (Cairo 1.8 does not support freetype without fontconfig,
-   but 1.10 will).  Since Ipe does not need any platform-dependent
+   but 1.10 does).  Since Ipe does not need any platform-dependent
    backends, Cairo should compile fine on any platform.  
 
  * The Lua language
@@ -93,24 +163,29 @@ and libraries:
    Lua is an embeddable scripting language. On Debian/Ubuntu, install
    "liblua5.1-0-dev".  Or compile from source at "www.lua.org" - the
    sources are ANSI C and compile very easily.  Ipe requires Lua 5.1.
+   Make sure that you build a DYNAMIC library.  Ipe will not work if
+   Lua is linked statically (linking statically would include three
+   copies of the Lua interpreter, resulting in random crashes).
 
-   On Mac OS 10.6, install via MacPorts.
+   On Mac OS 10.6, you can use the prebuild binaries from 
 
- * The Qt toolkit (version 4.4 or higher)
+   http://luabinaries.sourceforge.net/download.html
 
-   On Linux, you most likely already have it, otherwise you can find
-   the sources at "qt.nokia.com".  You only need the QtCore and
-   QtGui libraries.  On Debian/Ubuntu, you would need "libqt4-dev".
+   See the Quickstart above for installation.  If you compile Lua
+   yourself, note that "make macosx" compiles a static library - but
+   you really MUST compile a shared library, so you need to modify the
+   Makefile. 
 
-   If possible, use Qt 4.5 or higher.  Ipe compiles with Qt 4.4, but
-   there is at least one problem: shortcuts consisting of a letter
-   only (e.g. "d" for "duplicate") do not work.  Ipe does not compile
-   with Qt 4.3 or earlier.
+ * The Qt toolkit (version 4.5 or higher)
 
-   On MacOS 10.6, install Qt 4.6 cocoa binaries.  You will need the
-   64-bit Qt Cocoa binaries, to be compatible with MacPorts (which is
-   64-bit by default), and you only need the "Qt Framework only"
-   libraries. 
+   On Linux, you most likely already have it. On Debian/Ubuntu, you
+   would need the package "libqt4-dev".
+
+   On MacOS 10.6, run the binary installer from 
+   "qt.nokia.com/downloads" (see Quickstart instructions above).
+
+   You can also find the sources at "qt.nokia.com".  You only need the
+   QtCore and QtGui libraries.
 
  * The 14 standard Postscript fonts
 
@@ -149,7 +224,8 @@ and libraries:
    Debian/Ubuntu, "gsfonts-fontmap.xml" should be correct if you have
    the "gsfonts" package installed.
 
-   On Mac OS X with MacTeX-2009, you can use "mactex2009-fontmap.xml".
+   On Mac OS X with MacTeX-2011, you can use "mactex2011-fontmap.xml".
+   (You may have to update the year in the file.)
 
    Otherwise you can check for the location of the necessary files,
    and create your own fontmap.  If you use relative paths in the
@@ -175,7 +251,7 @@ just give the definitions on the make command line, see below).
 
 You first have to indicate the location of the required components
 listed above.  On Linux, you probably have a correctly working
-pkg-config script, and the default settings should work.
+'pkg-config' script, and the default settings should work.
 
 Second, you have to define the Ipe directory structure.  Normally, you
 would only need to define IPEPREFIX properly, depending on where you
@@ -234,29 +310,5 @@ location:
 
     sudo ln -f -s IPELIBDIR/lib* /usr/lib
     sudo ldconfig
-
-
-
-Setting up the Lua "ipe" module
--------------------------------
-
-Ipe comes with a module that allows you to open Ipe documents and
-modify their contents from the Lua language.  If you wish to write or
-use Lua scripts that do this, you should setup Lua so that the Lua
-line
-
-require "ipe" 
-
-will load the Ipelib bindings into Lua.   This is done by placing a
-DLL called "ipe.so" onto the Lua C search path.  The following command
-will print out this search path:
-
-lua -e "print(package.cpath)"
-
-Place a symbolic link to the library "libipelua.so" that you built
-earlier on this path, but with the name "ipe.so".  For instance, if
-Ipe was installed into /usr/local, the link could be:
-
-ln -s /usr/local/lib/libipelua.so /usr/local/lib/lua/5.1/ipe.so
 
 --------------------------------------------------------------------

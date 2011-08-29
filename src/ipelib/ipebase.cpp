@@ -671,7 +671,7 @@ void StringStream::putRaw(const char *data, int size)
     iString += data[i];
 }
 
-int StringStream::tell() const
+long StringStream::tell() const
 {
   return iString.size();
 }
@@ -712,7 +712,7 @@ void FileStream::putRaw(const char *data, int size)
     std::fputc(data[i], iFile);
 }
 
-int FileStream::tell() const
+long FileStream::tell() const
 {
   return std::ftell(iFile);
 }

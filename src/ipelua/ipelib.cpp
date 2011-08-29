@@ -32,7 +32,6 @@
 #include "ipedoc.h"
 
 #include <cerrno>
-#include <QString>
 
 using namespace ipe;
 using namespace ipelua;
@@ -43,7 +42,7 @@ static const char * const format_name[] =
   { "xml", "pdf", "eps", "ipe5", "unknown" };
 
 void ipelua::make_metatable(lua_State *L, const char *name,
-		    const struct luaL_Reg *methods)
+			    const struct luaL_Reg *methods)
 {
   luaL_newmetatable(L, name);
   lua_pushstring(L, "__index");
@@ -67,8 +66,8 @@ bool ipelua::is_type(lua_State *L, int ud, const char *tname)
 
 String ipelua::check_filename(lua_State *L, int index)
 {
-  QString s = QString::fromUtf8(luaL_checkstring(L, index));
-  return String(s.toLocal8Bit().constData());
+  // TODO: local encoding!
+  return String(luaL_checkstring(L, index));
 }
 
 // --------------------------------------------------------------------
@@ -191,7 +190,7 @@ static int document_pages(lua_State *L)
   return 3;
 }
 
-// "export", "nozip", "lastview", "nocolor"
+// "export", "nozip", "markedview", "nocolor"
 static uint check_flags(lua_State *L, int index)
 {
   if (lua_isnoneornil(L, index))
@@ -206,9 +205,9 @@ static uint check_flags(lua_State *L, int index)
   if (lua_toboolean(L, -1))
     flags |= Document::ENoZip;
   lua_pop(L, 1);
-  lua_getfield(L, index, "lastview");
+  lua_getfield(L, index, "markedview");
   if (lua_toboolean(L, -1))
-    flags |= Document::ELastView;
+    flags |= Document::EMarkedView;
   lua_pop(L, 1);
   lua_getfield(L, index, "nocolor");
   if (lua_toboolean(L, -1))
@@ -360,6 +359,11 @@ static int document_runLatex(lua_State *L)
       lua_pushliteral(L, "There was an error reading the Pdflatex output");
       lua_pushliteral(L, "latexoutput");
       break;
+    case Document::ErrNoIconv:
+      lua_pushliteral(L, "This document needs charset conversion to run "
+		      "Pdflatex, but Ipe is compiled without this feature");
+      lua_pushliteral(L, "noiconv");
+      break;
     }
   }
   push_string(L, log);
@@ -395,16 +399,14 @@ static int document_insert(lua_State *L)
   int no = check_pageno(L, 2, *d, 1);
   SPage *p = check_page(L, 3);
   (*d)->insert(no, new Page(*p->page));
-  p->owned = false;
   return 0;
 }
 
 static int document_append(lua_State *L)
 {
   Document **d = check_document(L, 1);
-  SPage *p = check_page(L, 3);
+  SPage *p = check_page(L, 2);
   (*d)->push_back(new Page(*p->page));
-  p->owned = false;
   return 0;
 }
 

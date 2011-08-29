@@ -38,7 +38,7 @@
 
 #include <cairo-ft.h>
 
-#ifdef WIN32
+#ifdef WIN32XX
 extern "C" cairo_font_face_t *
 _cairo_font_face_twin_create(cairo_font_slant_t slant,
 			     cairo_font_weight_t weight);
@@ -264,7 +264,7 @@ cairo_font_face_t *Engine::screenFont()
 {
   if (!iScreenFontLoaded) {
     iScreenFontLoaded = true;
-#ifdef WIN32
+#ifdef WIN32XX
     iScreenFont = _cairo_font_face_twin_create(CAIRO_FONT_SLANT_NORMAL,
 					       CAIRO_FONT_WEIGHT_BOLD);
 #else

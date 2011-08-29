@@ -29,7 +29,7 @@
 --]]
 
 -- main entry point to all actions
--- (except layeraction, mouseaction, selector)
+-- (except mouseaction, selector)
 
 -- protects call, then distributes to action_xxx method or
 -- saction_xxx methods (the latter are only called if a selection exists)
@@ -38,16 +38,20 @@ function MODEL:action(a)
 			     debug.traceback)
   if not result then
     ipeui.messageBox(nil, "critical",
-			  "<qt><h2>Lua error</h2>"..
-			    "<p>Data may have been corrupted. " ..
-			    "<b>Save your file!</b></p></qt>",
-			  err)
+		     "Lua error\n\n"..
+		       "Data may have been corrupted. \n" ..
+		       "Save your file!",
+		     err)
   end
 end
 
 function MODEL:paction(a)
   if a:sub(1,5) == "mode_" then
     self.mode = a:sub(6)
+    if prefs.tablet_mode then
+      self.ui:setSelectionVisible(self.mode ~= "ink")
+      self.ui:setCursor()
+    end
   elseif a:sub(1,4) == "snap" then
     self.snap[a] = self.ui:actionState(a)
     self.ui:setSnap(self.snap)
@@ -139,58 +143,97 @@ function MODEL:absoluteButton(button)
   -- print("Button:", button)
   if button == "stroke" or button == "fill" then
     local old = self.doc:sheets():find("color", self.attributes[button])
-    r, g, b = ipeui.getColor(self.ui, "Select " .. button .. " color",
+    r, g, b = ipeui.getColor(self.ui:win(), "Select " .. button .. " color",
 			     old.r, old.g, old.b)
     if r then
       self:set_absolute(button, { r = r, g = g, b = b });
     end
   elseif button == "pen" then
     local old = self.doc:sheets():find(button, self.attributes[button])
-    local d = ipeui.getDouble(self.ui, "Select pen", "Pen width:",
-			      old, 0, 1000, 3)
+    local d = self:getDouble("Select pen", "Pen width:", old, 0, 1000)
     if d then
       self:set_absolute(button, d)
     end
   elseif button == "textsize" then
     local old = self.doc:sheets():find(button, self.attributes[button])
-    local d = ipeui.getDouble(self.ui, "Select text size",
-			      "Text size in points:",
-			      10, 2, 1000, 3)
+    local d = self:getDouble("Select text size", "Text size in points:",
+			     10, 2, 1000)
     if d then
       self:set_absolute(button, d)
     end
   elseif button == "symbolsize" then
     local old = self.doc:sheets():find(button, self.attributes[button])
-    local d = ipeui.getDouble(self.ui, "Select symbol size",
-			      "Symbol size:", old, 0, 1000, 3)
+    local d = self:getDouble("Select symbol size", "Symbol size:",
+			     old, 0, 1000)
     if d then
       self:set_absolute(button, d)
     end
   elseif button == "view" then
-    local d = ipeui.getInt(self.ui, "Select view", "View number:",
-			   self.vno, 1, self:page():countViews(), 1)
-    if d then
-      self.vno = d
-      self:setPage()
-    end
+    self:action_jump_view()
   elseif button == "page" then
-    local d = ipeui.getInt(self.ui, "Select page", "Page number:",
-			   self.pno, 1, #self.doc, 1)
-    if d then
-      self.pno = d
-      self.vno = 1
-      self:setPage()
-    end
+    self:action_jump_page()
+  elseif button == "viewmarked" then
+    self:action_mark_view(self.ui:actionState(button))
+  elseif button == "pagemarked" then
+    self:action_mark_page(self.ui:actionState(button))
   else
     print("Unknown button: ", button)
   end
+end
+
+function MODEL:action_jump_view()
+  local d = self.ui:selectPage(self.doc, self.pno, self.vno)
+  if d then
+    self.vno = d
+    self:setPage()
+  end
+end
+
+function MODEL:action_jump_page()
+  local d = self.ui:selectPage(self.doc, nil, self.pno)
+  if d then
+    self.pno = d
+    self.vno = 1
+    self:setPage()
+  end
+end
+
+function MODEL:action_mark_view(m)
+  local t = { label="set view mark to " .. tostring(m),
+	      pno=self.pno,
+	      vno=self.vno,
+	      original=self:page():markedView(self.vno),
+	      final=m,
+	    }
+  t.undo = function (t, doc)
+	     doc[t.pno]:setMarkedView(t.vno, t.original)
+	   end
+  t.redo = function (t, doc)
+	     doc[t.pno]:setMarkedView(t.vno, t.final)
+	   end
+  self:register(t)
+end
+
+function MODEL:action_mark_page(m)
+  local t = { label="set page mark to " .. tostring(m),
+	      pno=self.pno,
+	      original=self:page():marked(),
+	      final=m,
+	    }
+  t.undo = function (t, doc)
+	     doc[t.pno]:setMarked(t.original)
+	   end
+  t.redo = function (t, doc)
+	     doc[t.pno]:setMarked(t.final)
+	   end
+  self:register(t)
 end
 
 ----------------------------------------------------------------------
 
 function MODEL:showPathStylePopup(v)
   local a = self.attributes
-  local m = ipeui.Menu()
+  local m = ipeui.Menu(self.ui:win())
   local sheet = self.doc:sheets()
   m:add("pathmode", "Stroke && Fill",
 	{ "stroked", "strokedfilled", "filled"},
@@ -233,7 +276,7 @@ end
 
 function MODEL:showLayerBoxPopup(v, layer)
   local p = self:page()
-  local m = ipeui.Menu()
+  local m = ipeui.Menu(self.ui:win())
   local canDelete = true
   local canLock = true
   -- layers active in some view cannot be deleted or locked
@@ -289,6 +332,7 @@ function MODEL:layeraction_select(layer, arg)
 	     doc[t.pno]:setVisible(t.vno, t.layer, t.visible)
 	   end
   self:register(t)
+  self:deselectNotInView()
 end
 
 function MODEL:layeraction_lock(layer, arg)
@@ -353,7 +397,7 @@ end
 
 function MODEL:layeraction_rename(layer)
   local p = self:page()
-  local name = ipeui.getString(self.ui, "Enter new layer name")
+  local name = self:getString("Enter new layer name")
   if not name then return end
   name = string.gsub(name, "%s+", "_")
   if indexOf(name, p:layers()) then
@@ -451,7 +495,7 @@ end
 
 function MODEL:action_open()
   if not self:checkModified() then return end
-  local s, f = ipeui.fileDialog(self.ui, "open", "Open file",
+  local s, f = ipeui.fileDialog(self.ui:win(), "open", "Open file",
 	  "Ipe files (*.ipe *.pdf *.eps *.xml);;All files (*.*)")
   if s then
     self:loadDocument(s)
@@ -473,7 +517,7 @@ function MODEL:action_save_as()
   if self.file_name then dir = self.file_name:match("^(.+)/[^/]+") end
   if not dir then dir = prefs.save_as_directory end
   local s, f =
-    ipeui.fileDialog(self.ui, "save", "Save file as",
+    ipeui.fileDialog(self.ui:win(), "save", "Save file as",
 		     "XML (*.ipe *.xml);;PDF (*.pdf);;EPS (*.eps)",
 		     dir, self.dialog_filter)
   local fmap = { XML=".ipe", PDF=".pdf", EPS=".eps" }
@@ -483,7 +527,7 @@ function MODEL:action_save_as()
       s = s .. fmap[f:sub(1,3)]
     end
     if ipe.fileExists(s) then
-      local b = ipeui.messageBox(self.ui, "question",
+      local b = ipeui.messageBox(self.ui:win(), "question",
 				 "File already exists!",
 				 "Do you wish to overwrite?<br>" .. s,
 				 "okcancel")
@@ -508,28 +552,26 @@ function MODEL:action_manual()
 end
 
 function MODEL:action_show_configuration()
-  local s = "<qt><ul>"
-  s = s .. "<li>Lua code: " .. package.path
-  s = s .. "<li>Style directory: " .. config.styles
-  s = s .. "<li>Styles for new documents: " ..
+  local s = ""
+  s = s .. " * Lua code: " .. package.path
+  s = s .. "\n * Style directory: " .. config.styles
+  s = s .. "\n * Styles for new documents: " ..
     table.concat(prefs.styles, ", ")
-  s = s .. "<li>Autosave file: " .. prefs.autosave_filename
-  s = s .. "<li>Documentation: " .. config.docdir
-  s = s .. "<li>Ipelets: " .. table.concat(config.ipeletDirs, ", ")
-  s = s .. "<li>Latex directory: " .. config.latexdir
-  s = s .. "<li>Fontmap: " .. config.fontmap
-  s = s .. "<li>Icons: " .. config.icons
-  s = s .. "</ul></qt>"
-  ipeui.messageBox(self.ui, "information", "Ipe configuration", s)
+  s = s .. "\n * Autosave file: " .. prefs.autosave_filename
+  s = s .. "\n * Documentation: " .. config.docdir
+  s = s .. "\n * Ipelets:\n   - " .. table.concat(config.ipeletDirs, "\n   - ")
+  s = s .. "\n * Latex directory: " .. config.latexdir
+  s = s .. "\n * Fontmap: " .. config.fontmap
+  s = s .. "\n * Icons: " .. config.icons
+  ipeui.messageBox(self.ui:win(), "information", "Ipe configuration", s)
 end
 
 function MODEL:action_about_ipelets()
-  local s = "<qt><ul>"
+  local s = ""
   for _,v in ipairs(ipelets) do
-    s = s .. "<li>" .. v.label .. "<br />" .. v.about .. "</li>"
+    s = s .. " * " .. v.label .. "\n   " .. v.about .. "\n"
   end
-  s = s .. "</ul></qt>"
-  ipeui.messageBox(self.ui, "information", "About the ipelets", s)
+  ipeui.messageBox(self.ui:win(), "information", "About the ipelets", s)
 end
 
 function MODEL:action_keyboard()
@@ -686,14 +728,14 @@ function MODEL:action_grid_visible()
 end
 
 function MODEL:action_zoom_in()
-  local nzoom = 1.3 * self.ui:zoom()
+  local nzoom = prefs.zoom_factor * self.ui:zoom()
   if nzoom > prefs.max_zoom then nzoom = prefs.max_zoom end
   self.ui:setZoom(nzoom)
   self.ui:update()
 end
 
 function MODEL:action_zoom_out()
-  local nzoom = self.ui:zoom() / 1.3
+  local nzoom = self.ui:zoom() / prefs.zoom_factor
   if nzoom < prefs.min_zoom then nzoom = prefs.min_zoom end
   self.ui:setZoom(nzoom)
   self.ui:update()
@@ -705,9 +747,9 @@ function MODEL:wheel_zoom(delta)
   local offset = zoom * (self.ui:pan() - origin)
   local nzoom
   if delta > 0 then
-      nzoom = 1.3 * zoom
+      nzoom = prefs.wheel_zoom_factor * zoom
   else
-    nzoom = zoom / 1.3
+    nzoom = zoom / prefs.wheel_zoom_factor
   end
   if nzoom > prefs.max_zoom then nzoom = prefs.max_zoom end
   if nzoom < prefs.min_zoom then nzoom = prefs.min_zoom end
@@ -805,27 +847,36 @@ end
 function MODEL:action_fit_page()
   local layout = self.doc:sheets():find("layout")
   local box = ipe.Rect()
-  box:add(-layout.origin)
-  box:add(-layout.origin + layout.papersize)
+  box:add(-layout.origin - V(2,2))
+  box:add(-layout.origin + layout.papersize + V(2,2))
+  self:fitBox(box);
+end
+
+function MODEL:action_fit_width()
+  local layout = self.doc:sheets():find("layout")
+  local box = ipe.Rect()
+  local y0 = self.ui:pan().y
+  box:add(V(-layout.origin.x - 2, y0 - 2))
+  box:add(V(-layout.origin.x + layout.papersize.x + 2, y0 + 2))
   self:fitBox(box);
 end
 
 function MODEL:action_fit_objects()
   local box = ipe.Rect()
+  local m = ipe.Matrix()
   local p = self:page()
   for i,obj,_,layer in p:objects() do
-    if p:visible(self.vno, i) then
-      box:add(p:bbox(i))
-    end
+    if p:visible(self.vno, i) then obj:addToBBox(box, m, false) end
   end
   self:fitBox(box);
 end
 
 function MODEL:saction_fit_selection()
   local box = ipe.Rect()
+  local m = ipe.Matrix()
   local p = self:page()
   for i,obj,sel,_ in p:objects() do
-    if sel then box:add(p:bbox(i)) end
+    if sel then obj:addToBBox(box, m, false) end
   end
   self:fitBox(box);
 end
@@ -928,14 +979,12 @@ function MODEL:action_edit_effects()
   local effect = p:effect(self.vno)
   local list = self.doc:sheets():allNames("effect")
   table.insert(list, 1, "normal")
-  local d = ipeui.Dialog(self.ui, "Edit view effect")
+  local d = ipeui.Dialog(self.ui:win(), "Edit view effect")
   local label = "Choose effect for view " .. self.vno
-  d:add("label", "label", { label=label }, 1, 1, 1, 3)
-  d:add("combo", "combo", list, 2, 1, 1, 3)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 3)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 2)
-  d:setStretch("row", 2, 1);
-  d:setStretch("column", 1, 1);
+  d:add("label", "label", { label=label }, 1, 1)
+  d:add("combo", "combo", list, 2, 1)
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:set("combo", indexOf(effect, list))
   if not d:execute() then return end
   local final = list[d:get("combo")]
@@ -1092,10 +1141,10 @@ local function update_dialog(d, sec)
 end
 
 function MODEL:action_edit_title()
-  local d = ipeui.Dialog(self.ui, "Ipe: Edit page title and sections")
-  d:add("label1", "label", { label="<b>Page title</b>"}, 1, 1, 1, 4)
+  local d = ipeui.Dialog(self.ui:win(), "Ipe: Edit page title and sections")
+  d:add("label1", "label", { label="Page title"}, 1, 1, 1, 4)
   d:add("title", "text", {}, 2, 1, 1, 4)
-  d:add("label2", "label", { label="<b>Sections</b>"}, 3, 1, 1, 4)
+  d:add("label2", "label", { label="Sections"}, 3, 1, 1, 4)
   d:add("label3", "label", { label="Section:" }, 4, 1)
   d:add("tsection", "checkbox",
 	{ label="Use &title",
@@ -1108,8 +1157,8 @@ function MODEL:action_edit_title()
 	  action=function (d) update_dialog(d, "subsection") end
 	} , 6, 2)
   d:add("subsection", "input", {}, 7, 2, 1, 3)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 8, 3)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 8, 4)
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("row", 2, 1)
   d:setStretch("column", 2, 1)
   -- setup original values
@@ -1155,13 +1204,12 @@ function MODEL:action_edit_title()
 end
 
 function MODEL:action_edit_notes()
-  local d = ipeui.Dialog(self.ui, "Ipe: Edit page notes")
-  d:add("label1", "label", { label="<b>Page notes</b>"}, 1, 1, 1, 4)
-  d:add("notes", "text", {}, 2, 1, 1, 4)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 3)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 4)
+  local d = ipeui.Dialog(self.ui:win(), "Ipe: Edit page notes")
+  d:add("label1", "label", { label="Page notes"}, 1, 1)
+  d:add("notes", "text", {}, 2, 1)
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("row", 2, 1)
-  d:setStretch("column", 2, 1)
   -- setup original values
   local n = self:page():notes()
   d:set("notes", n)
@@ -1185,6 +1233,56 @@ function MODEL:action_edit_notes()
   self:register(t)
 end
 
+-- rearrange pages of document
+-- new order is given by arr
+-- 0 entries in arr are taken from newpages
+-- returns list of pages that remained unused
+function arrange_pages(doc, arr, newpages)
+  -- take all pages from document
+  local pg = {}
+  while #doc > 0 do
+    pg[#pg+1] = doc:remove(1)
+  end
+  -- insert pages again in new order
+  for i = 1,#arr do
+    local no = arr[i]
+    if no > 0 then
+      doc:append(pg[no])  -- clones the page
+      pg[no] = nil        -- mark as used
+    else
+      doc:append(table.remove(newpages, 1))
+    end
+  end
+  -- return unused pages
+  local unused = {}
+  for i = 1,#pg do
+    if pg[i] then unused[#unused+1] = pg[i] end
+  end
+  return unused
+end
+
+function MODEL:action_page_sorter()
+  local arr = self.ui:pageSorter(self.doc)
+  if not arr then return end -- canceled
+  -- compute reverse 'permutation'
+  local rev = {}
+  for i = 1,#self.doc do rev[i] = 0 end
+  for i = 1,#arr do rev[arr[i]] = i end
+  local t = { label="rearrangement of pages",
+	      pno = 1,
+	      vno = 1,
+	      arr = arr,
+	      rev = rev,
+	    }
+  t.undo = function (t, doc)
+	     arrange_pages(doc, t.rev, t.deleted)
+	   end
+  t.redo = function (t, doc)
+	     t.deleted = arrange_pages(doc, t.arr, {})
+	   end
+  self:register(t)
+end
+
 ----------------------------------------------------------------------
 
 function MODEL:action_new_layer()
@@ -1199,6 +1297,12 @@ function MODEL:action_new_layer()
 	     doc[t.pno]:removeLayer(t.layer)
 	   end
   self:register(t)
+end
+
+function MODEL:action_rename_active_layer()
+  local p = self:page()
+  local active = p:active(self.vno)
+  self:layeraction_rename(active)
 end
 
 ----------------------------------------------------------------------
@@ -1223,13 +1327,12 @@ end
 function MODEL:saction_edit_as_xml()
   local prim = self:page():primarySelection()
   local xml = self:page()[prim]:xml()
-  local d = ipeui.Dialog(self.ui, "Edit as XML")
-  d:add("xml", "text", { syntax="xml" }, 1, 1, 1, 4)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 2, 4)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 2, 3)
-  addEditorField(d, "xml", 2, 2)
+  local d = ipeui.Dialog(self.ui:win(), "Edit as XML")
+  d:add("xml", "text", { syntax="xml" }, 1, 1)
+  addEditorField(d, "xml")
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("row", 1, 1);
-  d:setStretch("column", 1, 1);
   d:set("xml", xml)
   if not d:execute() then return end
   local obj = ipe.Object(d:get("xml"))
@@ -1593,12 +1696,13 @@ function MODEL:action_update_style_sheets()
   local dir = string.gsub(self.file_name, "[^/]+$", "")
   local sheets = self.doc:sheets():clone()
   local log = sheets:update(dir)
+  -- TODO!
   local qlog = "<qt><ol>"
   for w in string.gmatch(log, "[^\n]+") do
     qlog = qlog .. "<li>" .. w .. "</li>"
   end
   qlog = qlog .. "</ol></qt>"
-  ipeui.messageBox(self.ui, "information",
+  ipeui.messageBox(self.ui:win(), "information",
 		   "Result of updating stylesheets:", qlog)
 
   local t = { label="update style sheets",
@@ -1626,7 +1730,7 @@ end
 local function sheets_add(d, dd)
   local i = d:get("list")
   if not i then i = 1 end
-  local s, f = ipeui.fileDialog(dd.model.ui, "open", "Add stylesheet",
+  local s, f = ipeui.fileDialog(dd.model.ui:win(), "open", "Add stylesheet",
 				"Ipe stylesheets (*.isy)",
 				config.styles)
   if not s then return end
@@ -1659,7 +1763,7 @@ local function sheets_edit(d, dd)
     ipeui.WaitDialog(string.format(prefs.external_editor, fname))
     sheet, msg = ipe.Sheet(fname)
     if not sheet then
-      local r = ipeui.messageBox(dd.model.ui, "question",
+      local r = ipeui.messageBox(dd.model.ui:win(), "question",
 				 "Cannot load stylesheet - try again?",
 				 msg, "okcancel")
       if r <= 0 then
@@ -1713,7 +1817,7 @@ end
 local function sheets_save(d, dd)
   local i = d:get("list")
   if not i then return end
-  local s, f = ipeui.fileDialog(dd.model.ui, "save", "Save stylesheet",
+  local s, f = ipeui.fileDialog(dd.model.ui:win(), "save", "Save stylesheet",
 				"Ipe stylesheets (*.isy)")
   if s then
     if s:sub(-4) ~= ".isy" then s = s .. ".isy" end
@@ -1740,8 +1844,8 @@ function MODEL:action_style_sheets()
   for i = 1,sheets:count() do
     dd.list[i] = sheets:sheet(i):clone()
   end
-  local d = ipeui.Dialog(self.ui, "Ipe style sheets")
-  d:add("label1", "label", { label="<b>Style sheets</b>"}, 1, 1, 1, 4)
+  local d = ipeui.Dialog(self.ui:win(), "Ipe style sheets")
+  d:add("label1", "label", { label="Style sheets"}, 1, 1, 1, 4)
   d:add("list", "list", sheets_namelist(dd.list), 2, 1, 7, 3)
   d:add("add", "button",
 	{ label="&Add", action=function (d) sheets_add(d, dd) end }, 2, 4)
@@ -1755,10 +1859,9 @@ function MODEL:action_style_sheets()
 	{ label="&Down", action=function (d) sheets_down(d, dd) end }, 6, 4)
   d:add("save", "button",
 	{ label="&Save", action=function (d) sheets_save(d, dd) end }, 7, 4)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 9, 3)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 9, 4)
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("column", 2, 1)
-  d:setStretch("row", 8, 1)
   if not d:execute() or not dd.modified then return end
   local t = { label="modify style sheets",
 	      final = ipe.Sheets(),
@@ -1781,7 +1884,7 @@ end
 
 function MODEL:action_document_properties()
   local p = self.doc:properties()
-  local d = ipeui.Dialog(self.ui, "Ipe document properties")
+  local d = ipeui.Dialog(self.ui:win(), "Ipe document properties")
   d:add("label1", "label", { label="Title"}, 1, 1)
   d:add("title", "input", {}, 1, 2, 1, 6)
   d:add("label2", "label", { label="Author"}, 2, 1)
@@ -1801,8 +1904,8 @@ function MODEL:action_document_properties()
   d:add("modified", "label",  { label="" }, 9, 2)
   d:add("label9", "label", { label="Creator" }, 10, 1)
   d:add("creator", "label",  { label="" }, 10, 2)
-  d:add("ok", "button", { label="&Ok", action="accept"}, 11, 7)
-  d:add("cancel", "button", { label="&Cancel", action="reject"}, 11, 6)
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("column", 5, 1)
   d:setStretch("row", 6, 1)
   for n in pairs(p) do d:set(n, p[n]) end

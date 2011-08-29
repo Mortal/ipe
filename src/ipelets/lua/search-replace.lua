@@ -41,17 +41,16 @@ function run(model)
 The pattern will be substituted by the replacement text in all
 selected text objects.<br/>
       The substitution does not occur inside groups.</qt>]]
-  local d = ipeui.Dialog(model.ui, "Search & replace")
+  local d = ipeui.Dialog(model.ui:win(), "Search & replace")
   d:add("label1", "label", {label=s}, 1, 1, 1, 4)
   d:add("label2", "label", {label="Pattern"}, 2, 1)
   d:add("pattern", "input", {}, 2, 2, 1, 3)
   d:add("label3", "label", {label="Replace by"}, 3, 1)
   d:add("replace", "input", {}, 3, 2, 1, 3)
   d:add("regex", "checkbox", {label="Use Lua patterns"}, 4, 1, 1, 4)
-  d:add("ok", "button", {label="&Ok", action="accept"}, 6, 4)
-  d:add("cancel", "button", {label="&Cancel", action="reject"}, 6, 3)
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("column", 2, 1)
-  d:setStretch("row", 5, 1)
   if not d:execute() then return end
   local s1 = d:get("pattern")
   local s2 = d:get("replace")

@@ -29,6 +29,7 @@
 */
 
 #include "ipebase.h"
+#include "ipeattributes.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -77,6 +78,11 @@ static void debugHandlerImpl(const char *msg)
   }
 }
 
+static void cleanup_repository()
+{
+  Repository::cleanup();
+}
+
 //! Initialize Ipelib.
 /*! This method must be called before Ipelib is used.
 
@@ -96,6 +102,7 @@ void Platform::initLib(int version)
   if (getenv("IPEDEBUG") != 0)
     showDebug = true;
   debugHandler = debugHandlerImpl;
+  atexit(cleanup_repository);
   if (version == IPELIB_VERSION)
     return;
   fprintf(stderr,
@@ -195,7 +202,9 @@ String Platform::latexDirectory()
 #ifdef __MINGW32__
   String latexDir;
   const char *p = getenv("IPELATEXDIR");
-  if (p) {
+  if (getenv("IPEWINE"))
+    latexDir = "z:\\tmp\\ipelatex";
+  else if (p) {
     latexDir = p;
   } else {
     TCHAR szPath[MAX_PATH];
@@ -279,26 +288,36 @@ String Platform::readFile(String fname)
 int Platform::runPdfLatex(String dir)
 {
 #ifdef WIN32
-  String s = dir + "runlatex.bat";
-  std::FILE *f = std::fopen(s.z(), "wb");
-  if (!f)
-    return -1;
+  const char *wine = getenv("IPEWINE");
+  if (wine) {
+    int secs = Lex(wine).getInt();
+    std::system("/bin/sh -c \"cd /tmp/ipelatex; rm -f ipetemp.log;"
+		"pdflatex ipetemp.tex\"");
+    fprintf(stderr, "Waiting %d seconds for pdflatex\n", secs);
+    Sleep(secs * 1000);
+    return 0;
+  } else {
+    String s = dir + "runlatex.bat";
+    std::FILE *f = std::fopen(s.z(), "wb");
+    if (!f)
+      return -1;
 
-  if (dir.size() > 2 && dir[1] == ':')
-    fprintf(f, "%s\r\n", dir.substr(0, 2).z());
+    if (dir.size() > 2 && dir[1] == ':')
+      fprintf(f, "%s\r\n", dir.substr(0, 2).z());
 
-  // CMD.EXE input needs to be encoded in "OEM codepage",
-  // which can be different from "Windows codepage"
-  Buffer oemDir(2 * dir.size() + 1);
-  CharToOemA(dir.z(), oemDir.data());
+    // CMD.EXE input needs to be encoded in "OEM codepage",
+    // which can be different from "Windows codepage"
+    Buffer oemDir(2 * dir.size() + 1);
+    CharToOemA(dir.z(), oemDir.data());
 
-  fprintf(f, "cd \"%s\"\r\n", oemDir.data());
-  fprintf(f, "pdflatex ipetemp.tex\r\n");
-  std::fclose(f);
+    fprintf(f, "cd \"%s\"\r\n", oemDir.data());
+    fprintf(f, "pdflatex ipetemp.tex\r\n");
+    std::fclose(f);
 
-  s = String("call \"") + dir + String("runlatex.bat\"");
-  std::system(s.z());
-  return 0;
+    s = String("call \"") + dir + String("runlatex.bat\"");
+    std::system(s.z());
+    return 0;
+  }
 #else
   String s("cd ");
   s += dir;

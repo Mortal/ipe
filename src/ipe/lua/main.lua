@@ -36,11 +36,16 @@ require "tools"
 require "editpath"
 require "properties"
 require "shortcuts"
+require "mouse"
 
 ----------------------------------------------------------------------
 
 -- short names
 V = ipe.Vector
+
+-- store the model for the first window
+-- Used only by MacOS file_open_event
+local first_model = nil
 
 ----------------------------------------------------------------------
 
@@ -139,6 +144,72 @@ function transformShape(matrix, shape)
 end
 
 ----------------------------------------------------------------------
+-- This function is called to launch a file
+
+function file_open_event(fname)
+  if first_model and first_model.pristine then
+    first_model.loadDocument(fname)
+  else
+    MODEL:new(fname)
+  end
+end
+
+----------------------------------------------------------------------
+
+local win32_conversions = {
+  PgDown=0x22, PgUp=0x21, Home=0x24, End=0x23,
+  Left=0x25, Up=0x26, Right=0x27, Down=0x28,
+  insert=0x2d, delete=0x2e,
+  ["/"]= 0xbf, ["\\"]= 0xdc, ["-"]= 0xbd, ["="]= 0xbb,
+  ["@"]= 0x40032, -- actually Shift+2
+}
+
+function win32_shortcut_convert(s)
+  local k = 0
+  local done = false
+  while not done do
+    if s:sub(1,5) == "Ctrl+" then
+      s = s:sub(6)
+      k = k + 0x20000
+    elseif s:sub(1,6) == "Shift+" then
+      s = s:sub(7)
+      k = k + 0x40000
+    elseif s:sub(1,4) == "Alt+" then
+      s = s:sub(5)
+      k = k + 0x10000
+    else
+      done = true
+    end
+  end
+  if s:sub(1,1) == "F" and tonumber(s:sub(2)) then
+    return k + 0x6f + tonumber(s:sub(2))
+  elseif win32_conversions[s] then
+    return k + win32_conversions[s]
+  else
+    return k + string.byte(s:sub(1,1))
+  end
+end
+
+function win32_shortcuts(ui)
+  if config.toolkit ~= "win32" then return end
+  local accel = {}
+  for i in pairs(shortcuts) do
+    local id = ui:actionId(i)
+    local s = shortcuts[i]
+    if type(s) == "table" then
+      for j,s1 in ipairs(s) do
+	accel[#accel+1] = win32_shortcut_convert(s1)
+	accel[#accel+1] = id
+      end
+    elseif s then
+      accel[#accel+1] = win32_shortcut_convert(s)
+      accel[#accel+1] = id
+    end
+  end
+  return accel
+end
+
+----------------------------------------------------------------------
 
 local function show_configuration()
   local s = config.version
@@ -159,6 +230,22 @@ local function usage()
   io.stderr:write("Usage: ipe { -sheet <filename.isy> } [ <filename> ]\n")
   io.stderr:write("or:    ipe -show-configuration\n")
   io.stderr:write("or:    ipe --help\n")
+end
+
+-- check locale
+test1 = string.format("%g", 1.5)
+test2 = string.format("%s", tonumber("1.5"))
+if test1 ~= "1.5" or test2 ~= "1.5" then
+   m = "<qt>Formatting the number <code>1.5</code> results in '"
+      .. test1 .. "'. "
+      .. "Reading '1.5' results in <code>" .. test2 .. "</code><br />"
+      .. "Therefore Ipe will not work correctly when loading or saving files. "
+      .. "<em>Please report this problem.</em><br />"
+      .. "As a workaround, you can start Ipe from the commandline like this: "
+      .. "<pre>export LANG=C\nexport LC_NUMERIC=C\nipe</pre></qt>"
+   ipeui.messageBox(nil, "critical",
+		    "Ipe is running with an incorrect locale", m)
+   return
 end
 
 config.ipeletDirs = {}
@@ -205,6 +292,15 @@ for _,w in ipairs(config.ipeletDirs) do
   end
 end
 
+-- Windows provides the command line as one long string
+if config.toolkit == "win32" then
+  local t = {}
+  for w in string.gmatch(argv, "%S+") do
+    t[#t+1] = w
+  end
+  argv = t
+end
+
 if #argv == 1 and argv[1] == "-show-configuration" then
   show_configuration()
   return
@@ -240,8 +336,8 @@ for _,w in ipairs(prefs.styles) do
   config.styleList[#config.styleList + 1] = w
 end
 
-MODEL:new(first_file)
+first_model = MODEL:new(first_file)
 
-ipeui.mainLoop()
+mainloop(win32_shortcuts(first_model.ui))
 
 ----------------------------------------------------------------------

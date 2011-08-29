@@ -42,12 +42,9 @@ function externalEditor(d, field)
   d:set(field, text)
 end
 
-function addEditorField(d, field, row, col)
+function addEditorField(d, field)
   if prefs.external_editor then
-    d:add("editor", "button",
-	  { label="&Editor",
-	    action=function (d) externalEditor(d, field) end },
-	  row, col)
+    d:addButton("editor", "&Editor", function (d) externalEditor(d, field) end)
   end
 end
 
@@ -219,7 +216,7 @@ function LINESTOOL:mouseButton(button, modifiers, press)
   self:explain()
 end
 
-function LINESTOOL:mouseMove(button, modifiers)
+function LINESTOOL:mouseMove()
   self.v[#self.v] = self.model.ui:pos()
   self:compute()
   self.model.ui:update(false) -- update tool
@@ -248,7 +245,7 @@ function LINESTOOL:explain()
   if #self.v > 2 and self.t[#self.t - 1] == VERTEX then
     s = s .. " | " .. shortcuts_linestool.set_axis ..": set axis"
   end
-  self.model.ui:explain(s)
+  self.model.ui:explain(s, 0)
 end
 
 function LINESTOOL:key(code, modifiers, text)
@@ -346,7 +343,7 @@ function BOXTOOL:mouseButton(button, modifiers, press)
   self.model:creation("create box", obj)
 end
 
-function BOXTOOL:mouseMove(button, modifiers)
+function BOXTOOL:mouseMove()
   self:compute()
   self.setShape( { self.shape } )
   self.model.ui:update(false) -- update tool
@@ -389,7 +386,7 @@ end
 
 function SPLINEGONTOOL:explain()
   local s = "Left: Add vertex | Right: Add final vertex | Del: Delete vertex"
-  self.model.ui:explain(s)
+  self.model.ui:explain(s, 0)
 end
 
 function SPLINEGONTOOL:mouseButton(button, modifiers, press)
@@ -408,7 +405,7 @@ function SPLINEGONTOOL:mouseButton(button, modifiers, press)
   self:explain()
 end
 
-function SPLINEGONTOOL:mouseMove(button, modifiers)
+function SPLINEGONTOOL:mouseMove()
   self.v[#self.v] = self.model.ui:pos()
   self:compute()
   self.model.ui:update(false) -- update tool
@@ -494,7 +491,7 @@ function CIRCLETOOL:mouseButton(button, modifiers, press)
   end
 end
 
-function CIRCLETOOL:mouseMove(button, modifiers)
+function CIRCLETOOL:mouseMove()
   self.v[self.cur] = self.model.ui:pos()
   self:compute()
   self.setShape({ self.shape })
@@ -583,7 +580,7 @@ function ARCTOOL:mouseButton(button, modifiers, press)
   end
 end
 
-function ARCTOOL:mouseMove(button, modifiers)
+function ARCTOOL:mouseMove()
   self.v[self.cur] = self.model.ui:pos()
   self:compute()
   self.setShape({ self.shape })
@@ -611,7 +608,10 @@ function INKTOOL:new(model)
   local v = model.ui:pos()
   tool.v = { v }
   model.ui:shapeTool(tool)
-  tool.setColor(1.0, 0, 0)
+  local s = model.doc:sheets():find("color", model.attributes.stroke)
+  tool.setColor(s.r, s.g, s.b)
+  local w = model.doc:sheets():find("pen", model.attributes.pen)
+  model.ui:setCursor(w, s.r, s.g, s.b)
   return tool
 end
 
@@ -626,12 +626,22 @@ end
 function INKTOOL:mouseButton(button, modifiers, press)
   self.model.ui:finishTool()
   if self.shape then
-    local obj = ipe.Path(self.model.attributes, { self.shape })
-    self.model:creation("create ink path", obj)
+     local obj = ipe.Path(self.model.attributes, { self.shape })
+     -- round linecaps are prettier for handwriting
+     obj:set("linecap", "round")
+     self.model:creation("create ink path", obj)
+  else
+     -- mouse was pressed and released without movement
+     local shape = { type="curve", closed=false,
+		     { type="segment", self.v[1], self.v[1] } }
+     local obj = ipe.Path(self.model.attributes, { shape })
+     -- must make round linecap, otherwise it will be invisible
+     obj:set("linecap", "round")
+     self.model:creation("create ink dot", obj)
   end
 end
 
-function INKTOOL:mouseMove(button, modifiers)
+function INKTOOL:mouseMove()
   self.v[#self.v + 1] = self.model.ui:pos()
   self:compute()
   self.model.ui:update(false) -- update tool
@@ -643,6 +653,40 @@ function INKTOOL:key(code, modifiers, text)
     return true
   else
     return false
+  end
+end
+
+----------------------------------------------------------------------
+
+function MODEL:shredObject()
+  local bound = prefs.close_distance
+  local pos = self.ui:unsnappedPos()
+  local p = self:page()
+
+  local closest
+  for i,obj,sel,layer in p:objects() do
+     if p:visible(self.vno, i) and not p:isLocked(layer) then
+	local d = p:distance(i, pos, bound)
+	if d < bound then closest = i; bound = d end
+     end
+  end
+
+  if closest then
+    local t = { label="shred object",
+		pno = self.pno,
+		vno = self.vno,
+		num = closest,
+		original=self:page():clone(),
+		undo=revertOriginal,
+	      }
+    t.redo = function (t, doc)
+	       local p = doc[t.pno]
+	       p:remove(t.num)
+	       p:ensurePrimarySelection()
+	     end
+    self:register(t)
+  else
+    self.ui:explain("No object found to shred")
   end
 end
 
@@ -664,14 +708,13 @@ function MODEL:createText(mode)
   else
     prompt = "Enter Latex source"
   end
-  local d = ipeui.Dialog(self.ui, "Create text object")
-  d:add("label", "label", { label=prompt }, 1, 1, 1, 4)
-  d:add("text", "text", { syntax="latex" }, 2, 1, 1, 4)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 4)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 3)
-  addEditorField(d, "text", 3, 2)
+  local d = ipeui.Dialog(self.ui:win(), "Create text object")
+  d:add("label", "label", { label=prompt }, 1, 1)
+  d:add("text", "text", { syntax="latex" }, 2, 1)
+  addEditorField(d, "text")
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("row", 2, 1)
-  d:setStretch("column", 1, 1)
   d:set("ignore-cancel", true)
   if prefs.auto_external_editor then
     externalEditor(d, "text")
@@ -692,16 +735,16 @@ end
 function MODEL:createParagraph(pos, width, pinned)
   local styles = self.doc:sheets():allNames("textstyle")
   local sizes = self.doc:sheets():allNames("textsize")
-  local d = ipeui.Dialog(self.ui, "Create text object")
-  d:add("label", "label", { label="Enter latex source" }, 1, 1, 1, 6)
-  d:add("text", "text", { syntax="latex" }, 2, 1, 1, 6)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 6)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 5)
-  addEditorField(d, "text", 3, 4)
-  d:add("style", "combo", styles, 3, 1)
-  d:add("size", "combo", sizes, 3, 2)
+  local d = ipeui.Dialog(self.ui:win(), "Create text object")
+  d:add("label", "label", { label="Enter latex source" }, 1, 1)
+  d:add("style", "combo", styles, 1, 3)
+  d:add("size", "combo", sizes, 1, 4)
+  d:add("text", "text", { syntax="latex" }, 2, 1, 1, 4)
+  addEditorField(d, "text")
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("row", 2, 1)
-  d:setStretch("column", 3, 1)
+  d:setStretch("column", 2, 1)
   d:set("ignore-cancel", true)
   local style = indexOf(self.attributes.textstyle, styles)
   if not style then style = indexOf("normal", styles) end
@@ -762,7 +805,7 @@ function PARAGRAPHTOOL:mouseButton(button, modifiers, press)
   self.model:createParagraph(pos, wid)
 end
 
-function PARAGRAPHTOOL:mouseMove(button, modifiers)
+function PARAGRAPHTOOL:mouseMove()
   self:compute()
   self.setShape( { self.shape } )
   self.model.ui:update(false) -- update tool
@@ -813,7 +856,7 @@ function CHANGEWIDTHTOOL:mouseButton(button, modifiers, press)
   end
 end
 
-function CHANGEWIDTHTOOL:mouseMove(button, modifiers)
+function CHANGEWIDTHTOOL:mouseMove()
   if self.v then
     self:compute()
     self.setShape( { self.shape } )
@@ -858,6 +901,8 @@ function MODEL:startModeTool(modifiers)
     self:startTransform(self.mode, modifiers.shift)
   elseif self.mode == "pan" then
     self.ui:panTool(self:page(), self.vno)
+  elseif self.mode == "shredder" then
+    self:shredObject()
   elseif self.mode == "rectangles" then
     BOXTOOL:new(self, modifiers.shift)
   elseif self.mode == "splinegons" then
@@ -882,31 +927,46 @@ function MODEL:startModeTool(modifiers)
   end
 end
 
-function MODEL:mouseAction(button, modifiers)
-  -- print("Mouse action", button, modifiers.alt, modifiers.control)
-  if button == 1 then
-    -- left mouse button
-    if modifiers.alt then
-      self:startTransform("translate", modifiers.shift)
-    elseif modifiers.control then
-      self.ui:selectTool(self:page(), self.vno,
-			 prefs.select_distance, modifiers.shift)
-    else
-      self:startModeTool(modifiers)
+local mouse_mappings = {
+  select = function (m, mo)
+	     m.ui:selectTool(m:page(), m.vno, prefs.select_distance, mo.shift)
+	   end,
+  translate = function (m, mo) m:startTransform("translate", mo.shift) end,
+  rotate = function (m, mo) m:startTransform("rotate", modifiers.shift) end,
+  stretch = function (m, mo) m:startTransform("stretch", mo.shift) end,
+  scale = function (m, mo) m:startTransform("stretch", true) end,
+  pan = function (m, mo) m.ui:panTool(m:page(), m.vno) end,
+  menu = function (m, mo) m:propertiesPopup() end,
+  shredder = function (m, mo) m:shredObject() end,
+}
+
+function MODEL:mouseButtonAction(button, modifiers)
+  -- print("Mouse button", button, modifiers.alt, modifiers.control)
+  if button == 1 and not modifiers.alt and
+    not modifiers.control and not modifiers.meta then
+    self:startModeTool(modifiers)
+  else
+    local s = ""
+    if button == 1 then s = "left"
+    elseif button == 2 then s = "right"
+    elseif button == 4 then s = "middle"
+    elseif button == 8 then s = "button8"
+    elseif button == 16 then s = "button9"
+    elseif button == 0 then
+      -- This is a hack because of the Qt limitation.
+      -- It really means any other button.
+      s = "button10"
     end
-  elseif button == 4 then
-    -- middle mouse button
-    self.ui:panTool(self:page(), self.vno)
-  elseif button == 2 then
-    -- right mouse button
-    if modifiers.alt then
-      self:startTransform("rotate", modifiers.shift)
-    elseif modifiers.control then
-      self:startTransform("stretch", modifiers.shift)
-    elseif modifiers.shift then
-      self.ui:panTool(self:page(), self.vno)
+    if modifiers.shift then s = s .. "_shift" end
+    if modifiers.control then s = s .. "_control" end
+    if modifiers.alt then s = s .. "_alt" end
+    if modifiers.meta then s = s .. "_meta" end
+    local r = mouse[s]
+    if type(r) == "string" then r = mouse_mappings[r] end
+    if r then
+      r(self, modifiers)
     else
-      self:propertiesPopup()
+      print("No mouse action defined for " .. s)
     end
   end
 end
@@ -942,24 +1002,22 @@ end
 
 function MODEL:action_edit_text(prim, obj)
   local mp = obj:get("minipage")
-  local d = ipeui.Dialog(self.ui, "Edit text object")
+  local d = ipeui.Dialog(self.ui:win(), "Edit text object")
   local data = { model=self,
 		 styles = self.doc:sheets():allNames("textstyle"),
 		 sizes = self.doc:sheets():allNames("textsize"),
 		 prim=prim,
 		 obj=obj,
 	       }
-  d:add("label", "label", { label="Edit latex source" }, 1, 1, 1, 7)
-  d:add("text", "text", { syntax="latex" }, 2, 1, 1, 7)
-  d:add("ok", "button", { label="&Ok", action="accept" }, 3, 7)
-  d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 6)
-  d:add("apply", "button",
-	{ label="&Apply",
-	  action=function (d) apply_text_edit(d, data, true) end },
-	3, 5)
-  addEditorField(d, "text", 3, 4)
+  d:add("label", "label", { label="Edit latex source" }, 1, 1)
+  d:add("text", "text", { syntax="latex" }, 2, 1, 1, 4)
+  d:addButton("apply", "&Apply",
+	      function (d) apply_text_edit(d, data, true) end)
+  addEditorField(d, "text")
+  d:addButton("cancel", "&Cancel", "reject")
+  d:addButton("ok", "&Ok", "accept")
   d:setStretch("row", 2, 1)
-  d:setStretch("column", 3, 1)
+  d:setStretch("column", 2, 1)
   d:set("text", obj:text())
   d:set("ignore-cancel", true)
   local style = nil
@@ -967,12 +1025,12 @@ function MODEL:action_edit_text(prim, obj)
   if mp then
     data.style = indexOf(obj:get("textstyle"), data.styles)
     if data.style then
-      d:add("style", "combo", data.styles, 3, 1)
+      d:add("style", "combo", data.styles, 1, 3)
       d:set("style", data.style)
     end
     data.size = indexOf(obj:get("textsize"), data.sizes)
     if data.size then
-      d:add("size", "combo", data.sizes, 3, 2)
+      d:add("size", "combo", data.sizes, 1, 4)
       d:set("size", data.size)
     end
   end
@@ -1012,15 +1070,26 @@ function PASTETOOL:new(model, elements, pos)
   tool.start = model.ui:pos()
   if pos then tool.start = pos end
   local obj = ipe.Group(elements)
+  tool.pinned = obj:get("pinned")
   model.ui:pasteTool(obj, tool)
   tool.setColor(1.0, 0, 0)
-  tool.translation = model.ui:pos() - tool.start
+  tool:computeTranslation()
   tool.setMatrix(ipe.Translation(tool.translation))
   return tool
 end
 
-function PASTETOOL:mouseButton(button, modifiers, press)
+function PASTETOOL:computeTranslation()
   self.translation = self.model.ui:pos() - self.start
+  if self.pinned == "horizontal" or self.pinned == "fixed" then
+    self.translation = V(0, self.translation.y)
+  end
+  if self.pinned == "vertical" or self.pinned == "fixed" then
+    self.translation = V(self.translation.x, 0)
+  end
+end
+
+function PASTETOOL:mouseButton(button, modifiers, press)
+  self:computeTranslation()
   self.model.ui:finishTool()
   local t = { label="paste objects at cursor",
 	      pno = self.model.pno,
@@ -1045,8 +1114,8 @@ function PASTETOOL:mouseButton(button, modifiers, press)
   self.model:register(t)
 end
 
-function PASTETOOL:mouseMove(button, modifiers)
-  self.translation = self.model.ui:pos() - self.start
+function PASTETOOL:mouseMove()
+  self:computeTranslation()
   self.setMatrix(ipe.Translation(self.translation))
   self.model.ui:update(false) -- update tool
 end

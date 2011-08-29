@@ -28,14 +28,8 @@
 
 */
 
-extern "C" {
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-#include "lfs.h"
-}
-
 #include "appui.h"
+#include "ipecanvas.h"
 #include "tools.h"
 
 #include "ipelua.h"
@@ -43,24 +37,33 @@ extern "C" {
 #include <cstdio>
 #include <cstdlib>
 
+#ifdef IPEUI_QT
+#include "ipeselector_qt.h"
+#include "controls_qt.h"
+
 #include <QApplication>
 #include <QStatusBar>
+#include <QPainter>
+
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
+#endif
 
 using namespace ipe;
-using namespace ipeqt;
 using namespace ipelua;
 
 // --------------------------------------------------------------------
 
-static Canvas *check_canvas(lua_State *L, int i)
+static CanvasBase *check_canvas(lua_State *L, int i)
 {
-  AppUi **ui = (AppUi **) luaL_checkudata(L, i, "Ipe.appui");
+  AppUiBase **ui = (AppUiBase **) luaL_checkudata(L, i, "Ipe.appui");
   return (*ui)->canvas();
 }
 
-inline AppUi **check_appui(lua_State *L, int i)
+inline AppUiBase **check_appui(lua_State *L, int i)
 {
-  return (AppUi **) luaL_checkudata(L, i, "Ipe.appui");
+  return (AppUiBase **) luaL_checkudata(L, i, "Ipe.appui");
 }
 
 static int appui_tostring(lua_State *L)
@@ -84,17 +87,18 @@ static int appui_destructor(lua_State *L)
 
 static int appui_setPage(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   Page *page = check_page(L, 2)->page;
-  int view = check_viewno(L, 3, page);
-  Cascade *sheets = check_cascade(L, 4)->cascade;
-  (*ui)->canvas()->setPage(page, view, sheets);
+  int pno = luaL_checkinteger(L, 3) - 1;
+  int view = check_viewno(L, 4, page);
+  Cascade *sheets = check_cascade(L, 5)->cascade;
+  (*ui)->canvas()->setPage(page, pno, view, sheets);
   return 0;
 }
 
 static int appui_setFontPool(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Document **d = check_document(L, 2);
   const FontPool *fonts = (*d)->fontPool();
   canvas->setFontPool(fonts);
@@ -103,7 +107,7 @@ static int appui_setFontPool(lua_State *L)
 
 static int appui_pan(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Vector p = canvas->pan();
   push_vector(L, p);
   return 1;
@@ -111,7 +115,7 @@ static int appui_pan(lua_State *L)
 
 static int appui_setPan(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Vector *v = check_vector(L, 2);
   canvas->setPan(*v);
   return 0;
@@ -119,50 +123,57 @@ static int appui_setPan(lua_State *L)
 
 static int appui_zoom(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   lua_pushnumber(L, canvas->zoom());
   return 1;
 }
 
 static int appui_setZoom(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   (*ui)->setZoom(luaL_checknumber(L, 2));
   return 0;
 }
 
 static int appui_pos(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   push_vector(L, canvas->pos());
   return 1;
 }
 
 static int appui_globalPos(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   push_vector(L, canvas->globalPos());
   return 1;
 }
 
 static int appui_unsnappedPos(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   push_vector(L, canvas->unsnappedPos());
   return 1;
 }
 
 static int appui_simpleSnapPos(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   push_vector(L, canvas->simpleSnapPos());
   return 1;
 }
 
 static int appui_setFifiVisible(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   canvas->setFifiVisible(lua_toboolean(L, 2));
+  return 0;
+}
+
+static int appui_setSelectionVisible(lua_State *L)
+{
+  CanvasBase *canvas = check_canvas(L, 1);
+  canvas->setSelectionVisible(lua_toboolean(L, 2));
   return 0;
 }
 
@@ -176,7 +187,7 @@ static void snapFlag(lua_State *L, int &flags, const char *mode, uint bits)
 
 static int appui_setSnap(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   luaL_checktype(L, 2, LUA_TTABLE);
   Snap snap = canvas->snap();
   snapFlag(L, snap.iSnap, "snapvtx", Snap::ESnapVtx);
@@ -219,7 +230,7 @@ static int appui_setSnap(lua_State *L)
 
 static int appui_setAutoOrigin(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Vector *v = check_vector(L, 2);
   canvas->setAutoOrigin(*v);
   return 0;
@@ -227,7 +238,7 @@ static int appui_setAutoOrigin(lua_State *L)
 
 static int appui_update(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   bool all = true;
   if (lua_gettop(L) == 2)
     all = lua_toboolean(L, 2);
@@ -240,23 +251,64 @@ static int appui_update(lua_State *L)
 
 static int appui_finishTool(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   canvas->finishTool();
   return 0;
 }
 
 static int appui_canvasSize(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
-  push_vector(L, Vector(canvas->width(), canvas->height()));
+  CanvasBase *canvas = (CanvasBase *) check_canvas(L, 1);
+  push_vector(L, Vector(canvas->canvasWidth(), canvas->canvasHeight()));
   return 1;
+}
+
+static void check_rgb(lua_State *L, int i, int &r, int &g, int &b)
+{
+  r = int(1000 * luaL_checknumber(L, i) + 0.5);
+  g = int(1000 * luaL_checknumber(L, i+1) + 0.5);
+  b = int(1000 * luaL_checknumber(L, i+2) + 0.5);
+  luaL_argcheck(L, (0 <= r && r <= 1000 &&
+		    0 <= g && g <= 1000 &&
+		    0 <= b && b <= 1000), 2,
+		"color components must be between 0.0 and 1.0");
+}
+
+static int appui_setCursor(lua_State *L)
+{
+  CanvasBase *canvas = check_canvas(L, 1);
+  if (lua_isnumber(L, 2)) {
+    double s = lua_tonumber(L, 2);
+    int r, g, b;
+    check_rgb(L, 3, r, g, b);
+    Color color(r, g, b);
+    canvas->setCursor(CanvasBase::EDotCursor, s, &color);
+  } else if (lua_isstring(L, 2)) {
+    static const char * const cursor_names[] =
+      { "standard", "hand", "cross", 0 };
+    CanvasBase::TCursor t =
+      CanvasBase::TCursor(luaL_checkoption(L, 2, 0, cursor_names));
+    canvas->setCursor(t);
+  } else
+    canvas->setCursor(CanvasBase::EStandardCursor);
+  return 0;
+}
+
+static int appui_setNumbering(lua_State *L)
+{
+  CanvasBase *canvas = check_canvas(L, 1);
+  bool t = lua_toboolean(L, 2);
+  CanvasBase::Style s = canvas->canvasStyle();
+  s.numberPages = t;
+  canvas->setCanvasStyle(s);
+  return 0;
 }
 
 // --------------------------------------------------------------------
 
 static int appui_pantool(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Page *page = check_page(L, 2)->page;
   int view = check_viewno(L, 3, page);
   PanTool *tool = new PanTool(canvas, page, view);
@@ -266,7 +318,7 @@ static int appui_pantool(lua_State *L)
 
 static int appui_selecttool(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Page *page = check_page(L, 2)->page;
   int view = check_viewno(L, 3, page);
   double selectDistance = luaL_checknumber(L, 4);
@@ -281,7 +333,7 @@ static int appui_transformtool(lua_State *L)
 {
   static const char * const option_names[] = {
     "translate", "scale", "stretch", "rotate", 0 };
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Page *page = check_page(L, 2)->page;
   int view = check_viewno(L, 3, page);
   int type = luaL_checkoption(L, 4, 0, option_names);
@@ -304,13 +356,8 @@ static int appui_transformtool(lua_State *L)
 static int luatool_setcolor(lua_State *L)
 {
   LuaTool *tool = (LuaTool *) lua_touserdata(L, lua_upvalueindex(1));
-  int r = int(1000 * luaL_checknumber(L, 1) + 0.5);
-  int g = int(1000 * luaL_checknumber(L, 2) + 0.5);
-  int b = int(1000 * luaL_checknumber(L, 3) + 0.5);
-  luaL_argcheck(L, (0 <= r && r <= 1000 &&
-		    0 <= g && g <= 1000 &&
-		    0 <= b && b <= 1000), 2,
-		"color components must be between 0.0 and 1.0");
+  int r, g, b;
+  check_rgb(L, 1, r, g, b);
   tool->setColor(Color(r, g, b));
   return 0;
 }
@@ -358,7 +405,7 @@ static int pastetool_setmatrix(lua_State *L)
 
 static int appui_shapetool(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   lua_pushvalue(L, 2);
   int luatool = luaL_ref(L, LUA_REGISTRYINDEX);
   ShapeTool *tool = new ShapeTool(canvas, L, luatool);
@@ -379,7 +426,7 @@ static int appui_shapetool(lua_State *L)
 
 static int appui_pastetool(lua_State *L)
 {
-  Canvas *canvas = check_canvas(L, 1);
+  CanvasBase *canvas = check_canvas(L, 1);
   Object *obj = check_object(L, 2)->obj;
   lua_pushvalue(L, 3);
   int luatool = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -398,39 +445,48 @@ static int appui_pastetool(lua_State *L)
 
 // --------------------------------------------------------------------
 
+static int appui_win(lua_State *L)
+{
+  AppUiBase **ui = check_appui(L, 1);
+  push_winid(L, (*ui)->windowId());
+  return 1;
+}
+
 static int appui_close(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
-  lua_pushnumber(L, (*ui)->close());
+  AppUiBase **ui = check_appui(L, 1);
+  (*ui)->closeWindow();
+  return 0;
+}
+
+static int appui_actionId(lua_State *L)
+{
+  AppUiBase **ui = check_appui(L, 1);
+  const char *action = luaL_checkstring(L, 2);
+  lua_pushinteger(L, (*ui)->actionId(action));
   return 1;
 }
 
 static int appui_actionState(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   const char *name = luaL_checkstring(L, 2);
-  QAction *a = (*ui)->findAction(name);
-  if (a) {
-    lua_pushboolean(L, a->isChecked());
-    return 1;
-  } else
-    return 0;
+  lua_pushboolean(L, (*ui)->actionState(name));
+  return 1;
 }
 
 static int appui_setActionState(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   const char *name = luaL_checkstring(L, 2);
   bool val = lua_toboolean(L, 3);
-  QAction *a = (*ui)->findAction(name);
-  if (a)
-    a->setChecked(val);
+  (*ui)->setActionState(name, val);
   return 0;
 }
 
 static int appui_setupSymbolicNames(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   Cascade *sheets = check_cascade(L, 2)->cascade;
   (*ui)->setupSymbolicNames(sheets);
   return 0;
@@ -438,7 +494,7 @@ static int appui_setupSymbolicNames(lua_State *L)
 
 static int appui_setAttributes(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   Cascade *sheets = check_cascade(L, 2)->cascade;
   AllAttributes all;
   check_allattributes(L, 3, all);
@@ -448,7 +504,7 @@ static int appui_setAttributes(lua_State *L)
 
 static int appui_setGridAngleSize(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   Attribute gs = check_number_attribute(L, 2);
   Attribute as = check_number_attribute(L, 3);
   (*ui)->setGridAngleSize(gs, as);
@@ -457,7 +513,7 @@ static int appui_setGridAngleSize(lua_State *L)
 
 static int appui_setLayers(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   Page *page = check_page(L, 2)->page;
   int view = check_viewno(L, 3, page);
   (*ui)->setLayers(page, view);
@@ -466,34 +522,47 @@ static int appui_setLayers(lua_State *L)
 
 static int appui_setNumbers(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   String vno;
   String pno;
   if (!lua_isnil(L, 2))
     vno = luaL_checkstring(L, 2);
-  if (!lua_isnil(L, 3))
-    pno = luaL_checkstring(L, 3);
-  (*ui)->setNumbers(vno, pno);
+  bool vm = lua_toboolean(L, 3);
+  if (!lua_isnil(L, 4))
+    pno = luaL_checkstring(L, 4);
+  bool pm = lua_toboolean(L, 5);
+  (*ui)->setNumbers(vno, vm, pno, pm);
   return 0;
 }
 
 static int appui_setBookmarks(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
-  return (*ui)->setBookmarks(L);
+  AppUiBase **ui = check_appui(L, 1);
+  luaL_argcheck(L, lua_istable(L, 2), 2, "argument is not a table");
+  int no = lua_objlen(L, 2);
+  String bm[no];
+  for (int i = 1; i <= no; ++i) {
+    lua_rawgeti(L, 2, i);
+    luaL_argcheck(L, lua_isstring(L, -1), 2, "item is not a string");
+    bm[i-1] = String(lua_tostring(L, -1));
+    lua_pop(L, 1);
+  }
+  (*ui)->setBookmarks(no, bm);
+  return 0;
 }
 
 static int appui_setWindowTitle(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
-  const char *s = luaL_checkstring(L, 2);
-  (*ui)->setWindowTitle(QString::fromUtf8(s));
+  AppUiBase **ui = check_appui(L, 1);
+  bool mod = lua_toboolean(L, 2);
+  const char *s = luaL_checkstring(L, 3);
+  (*ui)->setWindowCaption(mod, s);
   return 0;
 }
 
 static int appui_setNotes(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   const char *s = luaL_checkstring(L, 2);
   (*ui)->setNotes(s);
   return 0;
@@ -501,16 +570,133 @@ static int appui_setNotes(lua_State *L)
 
 static int appui_showTool(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
-  return (*ui)->showTool(L);
+  static const char * const option_names[] = {
+    "properties", "bookmarks", "notes", "layers", 0 };
+
+  AppUiBase **ui = check_appui(L, 1);
+  int m = luaL_checkoption(L, 2, 0, option_names);
+  bool s = lua_toboolean(L, 3);
+  (*ui)->setToolVisible(m, s);
+  return 0;
 }
 
 static int appui_explain(lua_State *L)
 {
-  AppUi **ui = check_appui(L, 1);
+  AppUiBase **ui = check_appui(L, 1);
   const char *s = luaL_checkstring(L, 2);
-  (*ui)->statusBar()->showMessage(QString::fromUtf8(s), 4000);
+  int t = 4000;
+  if (lua_isnumber(L, 3))
+    t = lua_tointeger(L, 3);
+  (*ui)->explain(s, t);
   return 0;
+}
+
+// --------------------------------------------------------------------
+
+#if IPEUI_QT
+static void get_page_sorter_size(lua_State *L, int &width, int &height,
+				 int &thumbWidth)
+{
+  thumbWidth = 300;
+  width = 600;
+  height = 480;
+
+  lua_getglobal(L, "prefs");
+  lua_getfield(L, -1, "page_sorter_size");
+  if (lua_istable(L, -1)) {
+    lua_rawgeti(L, -1, 1);
+    if (lua_isnumber(L, -1))
+      width = lua_tointeger(L, -1);
+    lua_rawgeti(L, -2, 2);
+    if (lua_isnumber(L, -1))
+      height = lua_tointeger(L, -1);
+    lua_pop(L, 2);
+  }
+  lua_pop(L, 1); // page_sorter_size
+
+  lua_getfield(L, -1, "thumbnail_width");
+  if (lua_isnumber(L, -1))
+    thumbWidth = lua_tointeger(L, -1);
+  lua_pop(L, 1); // thumbnail_width, prefs
+}
+#endif
+
+static int appui_selectPage(lua_State *L)
+{
+#if IPEUI_QT
+  AppUiBase **ui = check_appui(L, 1);
+  (void) ui;  // not actually used now
+  Document **doc = check_document(L, 2);
+  int page = -1;
+  if (lua_isnumber(L, 3)) {
+    page = lua_tointeger(L, 3);
+    luaL_argcheck(L, 1 <= page && page <= (*doc)->countPages(),
+		  3, "invalid page number");
+  }
+
+  int startIndex = 1;
+  if (lua_isnumber(L, 4)) {
+    startIndex = lua_tointeger(L, 4);
+    int maxIndex = (page < 0) ? (*doc)->countPages() :
+      (*doc)->page(page-1)->countViews();
+    luaL_argcheck(L, 1 <= startIndex && startIndex <= maxIndex,
+		  4, "invalid start index");
+  }
+
+  int width, height, thumbWidth;
+  get_page_sorter_size(L, width, height, thumbWidth);
+
+  int sel = PageSelector::selectPageOrView(*doc, page - 1, startIndex - 1,
+					   thumbWidth, width, height);
+  if (sel >= 0) {
+    lua_pushinteger(L, sel + 1);
+    return 1;
+  } else
+#endif
+    return 0;
+}
+
+static int appui_pageSorter(lua_State *L)
+{
+#ifdef IPEUI_QT
+  AppUiBase **ui = check_appui(L, 1);
+  (void) ui;  // not actually used now
+  Document **doc = check_document(L, 2);
+
+  int width, height, thumbWidth;
+  get_page_sorter_size(L, width, height, thumbWidth);
+
+  QDialog *d = new QDialog();
+  d->setWindowTitle("Ipe Page Sorter");
+
+  QLayout *lo = new QVBoxLayout;
+  PageSorter *p = new PageSorter(*doc, thumbWidth);
+  QDialogButtonBox *buttonBox =
+    new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+  lo->addWidget(p);
+  lo->addWidget(buttonBox);
+  d->setLayout(lo);
+
+  d->connect(buttonBox, SIGNAL(accepted()), SLOT(accept()));
+  d->connect(buttonBox, SIGNAL(rejected()), SLOT(reject()));
+
+  d->resize(width, height);
+
+  if (d->exec() == QDialog::Rejected) {
+    delete d;
+    return 0;
+  }
+
+  lua_createtable(L, p->count(), 0);
+  for (int i = 1; i <= p->count(); ++i) {
+    lua_pushinteger(L, p->pageAt(i-1) + 1);
+    lua_rawseti(L, -2, i);
+  }
+  delete d;
+  return 1;
+#else
+  return 0;
+#endif
 }
 
 // --------------------------------------------------------------------
@@ -530,11 +716,14 @@ static const struct luaL_Reg appui_methods[] = {
   { "unsnappedPos", appui_unsnappedPos},
   { "simpleSnapPos", appui_simpleSnapPos },
   { "setFifiVisible", appui_setFifiVisible},
+  { "setSelectionVisible", appui_setSelectionVisible},
   { "setSnap", appui_setSnap},
   { "setAutoOrigin", appui_setAutoOrigin },
   { "update", appui_update},
   { "finishTool", appui_finishTool},
   { "canvasSize", appui_canvasSize },
+  { "setCursor", appui_setCursor },
+  { "setNumbering", appui_setNumbering },
   // --------------------------------------------------------------------
   { "panTool", appui_pantool },
   { "selectTool", appui_selecttool },
@@ -542,9 +731,11 @@ static const struct luaL_Reg appui_methods[] = {
   { "shapeTool", appui_shapetool },
   { "pasteTool", appui_pastetool },
   // --------------------------------------------------------------------
+  { "win", appui_win},
   { "close", appui_close},
   { "setActionState", appui_setActionState },
   { "actionState", appui_actionState },
+  { "actionId", appui_actionId },
   { "explain", appui_explain },
   { "setWindowTitle", appui_setWindowTitle },
   { "setupSymbolicNames", appui_setupSymbolicNames },
@@ -555,7 +746,9 @@ static const struct luaL_Reg appui_methods[] = {
   { "setBookmarks", appui_setBookmarks },
   { "setNotes", appui_setNotes },
   { "showTool", appui_showTool },
-   { 0, 0},
+  { "selectPage", appui_selectPage },
+  { "pageSorter", appui_pageSorter },
+  { 0, 0},
 };
 
 // --------------------------------------------------------------------
@@ -564,43 +757,60 @@ static int appui_constructor(lua_State *L)
 {
   luaL_checktype(L, 1, LUA_TTABLE); // this is the model
 
-  AppUi **ui = (AppUi **) lua_newuserdata(L, sizeof(AppUi *));
+  AppUiBase **ui = (AppUiBase **) lua_newuserdata(L, sizeof(AppUiBase *));
   *ui = 0;
   luaL_getmetatable(L, "Ipe.appui");
   lua_setmetatable(L, -2);
 
   lua_pushvalue(L, 1);
   int model = luaL_ref(L, LUA_REGISTRYINDEX);
-  *ui = new AppUi(L, model);
+  *ui = createAppUi(L, model);
 
-  Canvas::Style style;
+  CanvasBase::Style style;
   style.pretty = false;
   style.paperColor = Color(1000,1000,1000);
   style.classicGrid = false;
   style.thinLine = 0.2;
   style.thickLine = 0.9;
+  style.thinStep = 1;
+  style.thickStep = 4;
   style.paperClip = false;
+  style.numberPages = false;
 
   lua_getglobal(L, "prefs");
 
-  lua_getfield(L, -1, "paper_color");
-  if (!lua_isnil(L, -1))
-    style.paperColor = check_color(L, lua_gettop(L));
-  lua_pop(L, 1); // paper_color
+  lua_getfield(L, -1, "canvas_style");
+  if (!lua_isnil(L, -1)) {
+    lua_getfield(L, -1, "paper_color");
+    if (!lua_isnil(L, -1))
+      style.paperColor = check_color(L, lua_gettop(L));
+    lua_pop(L, 1); // paper_color
 
-  lua_getfield(L, -1, "classic_grid");
-  style.classicGrid = lua_toboolean(L, -1);
-  lua_pop(L, 1); // classic_grid
+    lua_getfield(L, -1, "classic_grid");
+    style.classicGrid = lua_toboolean(L, -1);
+    lua_pop(L, 1); // classic_grid
 
-  lua_getfield(L, -1, "thin_grid_line");
-  if (lua_isnumber(L, -1))
-    style.thinLine = lua_tonumber(L, -1);
-  lua_pop(L, 1); // thin_grid_line
+    lua_getfield(L, -1, "thin_grid_line");
+    if (lua_isnumber(L, -1))
+      style.thinLine = lua_tonumber(L, -1);
+    lua_pop(L, 1); // thin_grid_line
 
-  lua_getfield(L, -1, "thick_grid_line");
-  if (lua_isnumber(L, -1))
-    style.thickLine = lua_tonumber(L, -1);
-  lua_pop(L, 1); // thick_grid_line
+    lua_getfield(L, -1, "thick_grid_line");
+    if (lua_isnumber(L, -1))
+      style.thickLine = lua_tonumber(L, -1);
+    lua_pop(L, 1); // thick_grid_line
+
+    lua_getfield(L, -1, "thin_step");
+    if (lua_isnumber(L, -1))
+      style.thinStep = lua_tointeger(L, -1);
+    lua_pop(L, 1); // thin_step
+
+    lua_getfield(L, -1, "thick_step");
+    if (lua_isnumber(L, -1))
+      style.thickStep = lua_tointeger(L, -1);
+    lua_pop(L, 1); // thick_step
+  }
+  lua_pop(L, 1); // canvas_style
 
   int width = -1, height = -1;
   lua_getfield(L, -1, "window_size");
@@ -619,10 +829,8 @@ static int appui_constructor(lua_State *L)
 
   (*ui)->canvas()->setCanvasStyle(style);
 
-  if (width > 0 && height > 0)
-    (*ui)->resize(width, height);
+  (*ui)->showWindow(width, height);
 
-  (*ui)->show();
   return 1;
 }
 

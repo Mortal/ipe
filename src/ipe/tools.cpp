@@ -36,17 +36,18 @@ extern "C" {
 #include <lauxlib.h>
 }
 
-#include "ipeqtcanvas.h"
+#include "ipecanvas.h"
 
 #include "ipepainter.h"
 
 #include "ipelua.h"
 
+using namespace ipe;
 using namespace ipelua;
 
 // --------------------------------------------------------------------
 
-IpeTransformTool::IpeTransformTool(Canvas *canvas, Page *page, int view,
+IpeTransformTool::IpeTransformTool(CanvasBase *canvas, Page *page, int view,
 				   TType type, bool withShift,
 				   lua_State *L0, int method)
   : TransformTool(canvas, page, view, type, withShift)
@@ -72,14 +73,14 @@ void IpeTransformTool::report()
 
 static void push_modifiers(lua_State *L, int button)
 {
-  lua_createtable(L, 0, 3);
-  lua_pushboolean(L, (button & Qt::ShiftModifier));
+  lua_createtable(L, 0, 4);
+  lua_pushboolean(L, (button & CanvasBase::EShift));
   lua_setfield(L, -2, "shift");
-  lua_pushboolean(L, (button & Qt::ControlModifier));
+  lua_pushboolean(L, (button & CanvasBase::EControl));
   lua_setfield(L, -2, "control");
-  lua_pushboolean(L, (button & Qt::AltModifier));
+  lua_pushboolean(L, (button & CanvasBase::EAlt));
   lua_setfield(L, -2, "alt");
-  lua_pushboolean(L, (button & Qt::MetaModifier));
+  lua_pushboolean(L, (button & CanvasBase::EMeta));
   lua_setfield(L, -2, "meta");
 }
 
@@ -91,7 +92,7 @@ void push_button(lua_State *L, int button)
 
 // --------------------------------------------------------------------
 
-LuaTool::LuaTool(Canvas *canvas, lua_State *L0, int luatool)
+LuaTool::LuaTool(CanvasBase *canvas, lua_State *L0, int luatool)
   : Tool(canvas)
 {
   L = L0;
@@ -115,14 +116,13 @@ void LuaTool::mouseButton(int button, bool press)
   lua_call(L, 4, 0);
 }
 
-void LuaTool::mouseMove(int button)
+void LuaTool::mouseMove()
 {
   lua_rawgeti(L, LUA_REGISTRYINDEX, iLuaTool);
   lua_getfield(L, -1, "mouseMove");
   lua_pushvalue(L, -2); // model
   lua_remove(L, -3);
-  push_button(L, button);
-  lua_call(L, 3, 0);
+  lua_call(L, 1, 0);
 }
 
 bool LuaTool::key(int code, int modifiers, String text)
@@ -141,7 +141,7 @@ bool LuaTool::key(int code, int modifiers, String text)
 
 // --------------------------------------------------------------------
 
-ShapeTool::ShapeTool(Canvas *canvas, lua_State *L0, int luatool)
+ShapeTool::ShapeTool(CanvasBase *canvas, lua_State *L0, int luatool)
   : LuaTool(canvas, L0, luatool)
 {
   // nothing else
@@ -253,7 +253,8 @@ void ShapeTool::addMark(const Vector &v, TMarkType t)
 
 // --------------------------------------------------------------------
 
-PasteTool::PasteTool(Canvas *canvas, lua_State *L0, int luatool, Object *obj)
+PasteTool::PasteTool(CanvasBase *canvas, lua_State *L0, int luatool,
+		     Object *obj)
   : LuaTool(canvas, L0, luatool)
 {
   iObject = obj;

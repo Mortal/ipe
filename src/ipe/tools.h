@@ -33,6 +33,7 @@
 #define TOOLS_H
 
 #include "ipetool.h"
+#include "ipecanvas.h"
 
 // avoid including Lua headers here
 typedef struct lua_State lua_State;
@@ -40,13 +41,12 @@ typedef struct lua_State lua_State;
 // --------------------------------------------------------------------
 
 using namespace ipe;
-using namespace ipeqt;
 
 extern void push_button(lua_State *L, int button);
 
 class IpeTransformTool : public TransformTool {
 public:
-  IpeTransformTool(Canvas *canvas, Page *page, int view, TType type,
+  IpeTransformTool(CanvasBase *canvas, Page *page, int view, TType type,
 		   bool withShift, lua_State *L0, int method);
   ~IpeTransformTool();
   virtual void report();
@@ -57,13 +57,13 @@ private:
 
 class LuaTool  : public Tool {
 public:
-  LuaTool(Canvas *canvas, lua_State *L0, int luatool);
+  LuaTool(CanvasBase *canvas, lua_State *L0, int luatool);
   ~LuaTool();
 
   void setColor(Color color) { iColor = color; }
 
   virtual void mouseButton(int button, bool press);
-  virtual void mouseMove(int button);
+  virtual void mouseMove();
   virtual bool key(int code, int modifiers, String text);
 protected:
   lua_State *L;
@@ -77,7 +77,7 @@ public:
 		   ERadius, EMinor, ECurrent, EScissor,
 		   ENumMarkTypes };
 
-  ShapeTool(Canvas *canvas, lua_State *L0, int luatool);
+  ShapeTool(CanvasBase *canvas, lua_State *L0, int luatool);
 
   void setShape(Shape shape, int which = 0);
   void clearMarks();
@@ -96,7 +96,7 @@ private:
 
 class PasteTool : public LuaTool {
 public:
-  PasteTool(Canvas *canvas, lua_State *L0, int luatool, Object *obj);
+  PasteTool(CanvasBase *canvas, lua_State *L0, int luatool, Object *obj);
   ~PasteTool();
 
   void setMatrix(Matrix m) { iMatrix = m; }

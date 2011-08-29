@@ -83,7 +83,7 @@ namespace ipe {
   public:
     PdfWriter(TellStream &stream, const Document *doc,
 	      const FontPool *pool,
-	      bool lastView, int fromPage, int toPage, int compression);
+	      bool markedView, int fromPage, int toPage, int compression);
     ~PdfWriter();
 
     void createPages();
@@ -106,7 +106,7 @@ namespace ipe {
     TellStream &iStream;
     const Document *iDoc;
     //! Show only last view of each page?
-    bool iLastView;
+    bool iMarkedView;
     //! Obj id of XML stream.
     int iXmlStreamNum;
     //! Obj id of font resource dictionary.

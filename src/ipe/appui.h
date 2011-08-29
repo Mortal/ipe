@@ -32,218 +32,136 @@
 #ifndef APPUI_H
 #define APPUI_H
 
-#include "ipeqtcanvas.h"
-
-#include <QMainWindow>
-#include <QAction>
-#include <QToolBar>
-#include <QDockWidget>
-#include <QActionGroup>
-#include <QListWidget>
-#include <QLabel>
-#include <QComboBox>
-#include <QToolButton>
-#include <QTextEdit>
+#include "ipecanvas.h"
 
 using namespace ipe;
-using namespace ipeqt;
 
 // avoid including Lua headers here
 typedef struct lua_State lua_State;
 
-// --------------------------------------------------------------------
+#ifdef IPEUI_GTK
+#include <gtk/gtk.h>
+typedef GtkWidget *WINID;
+typedef GtkMenu *MENUHANDLE;
+#endif
+#ifdef IPEUI_WIN32
+#define _WIN32_WINNT 0x0501
+#define _WIN32_IE 0x0501
+#include <windows.h>
+#include <commctrl.h>
+typedef HWND WINID;
+typedef HMENU MENUHANDLE;
+#endif
+#ifdef IPEUI_QT
+#include <QWidget>
+#include <QMenu>
+typedef QWidget *WINID;
+typedef QMenu *MENUHANDLE;
+#endif
 
-class Prefs {
-public:
-  static Prefs *get();
-  QIcon icon(String name);
-  static QIcon colorIcon(Color color);
-  QPixmap pixmap(String name);
-  String iconDir() const { return iIconDir; }
-
-private:
-  Prefs();
-
-private:
-  static Prefs *singleton;
-  String iIconDir;
-};
-
-// --------------------------------------------------------------------
-
-class LayerBox : public QListWidget {
-  Q_OBJECT
-public:
-  LayerBox(QWidget *parent = 0);
-
-  void set(const Page *page, int view);
-
-signals:
-  void activated(String name, String layer);
-  void showLayerBoxPopup(Vector v, String layer);
-
-public slots:
-  void layerChanged(QListWidgetItem *item);
-
-protected:
-  virtual void mouseReleaseEvent(QMouseEvent *e);
-  virtual void mousePressEvent(QMouseEvent *e);
-
-  void addAction(QMenu *m, QListWidgetItem *item, String name,
-		 const QString &text);
-
-private:
-  bool iInSet;
-};
+class AppUiBase;
+extern WINID check_winid(lua_State *L, int i);
+extern void push_winid(lua_State *L, WINID win);
+extern String ipeIconDirectory();
+extern AppUiBase *createAppUi(lua_State *L0, int model);
 
 // --------------------------------------------------------------------
 
-class PathView : public QWidget {
-  Q_OBJECT
-
-public:
-  PathView(QWidget* parent = 0, Qt::WFlags f = 0);
-
-  void set(const AllAttributes &all, Cascade *sheet);
-
-  virtual QSize sizeHint() const;
-
-signals:
-  void activated(String name);
-  void showPathStylePopup(Vector v);
-
-protected:
-  virtual void paintEvent(QPaintEvent *ev);
-  virtual void mouseReleaseEvent(QMouseEvent *e);
-  virtual void mousePressEvent(QMouseEvent *e);
-  virtual bool event(QEvent *ev);
-
-private:
-  Cascade *iCascade;
-  AllAttributes iAll;
-};
-
-// --------------------------------------------------------------------
-
-class QSignalMapper;
-
-class AppUi : public QMainWindow {
-  Q_OBJECT
-
+class AppUiBase : public CanvasObserver {
 public:
   enum { EFileMenu, EEditMenu, EPropertiesMenu, ESnapMenu,
 	 EModeMenu, EZoomMenu, ELayerMenu, EViewMenu,
 	 EPageMenu, EIpeletMenu, EHelpMenu, ENumMenu };
 
-  // change list in front of AppUi::selector if enum changes
+  // change list selectorNames if enum changes
   enum { EUiStroke, EUiFill, EUiPen, EUiTextSize, EUiMarkShape,
-	 EUiSymbolSize, EUiGridSize, EUiAngleSize, EUiNum,
-	 EUiView = EUiNum, EUiPage };
+	 EUiSymbolSize, EUiGridSize, EUiAngleSize,
+	 EUiView, EUiPage, EUiViewMarked, EUiPageMarked };
 
 public:
-  AppUi(lua_State *L0, int model, Qt::WFlags f=0);
-  ~AppUi();
+  virtual ~AppUiBase();
 
-  Canvas *canvas() { return iCanvas; }
+  CanvasBase *canvas() { return iCanvas; }
+
   void setupSymbolicNames(const Cascade *sheet);
-  void setAttributes(const AllAttributes &all, Cascade *sheet);
   void setGridAngleSize(Attribute abs_grid, Attribute abs_angle);
-  void setLayers(const Page *page, int view);
-  void setZoom(double zoom);
-  void setActionsEnabled(bool mode);
-  QAction *findAction(const char *name) const;
-  void setNumbers(String vno, String pno);
-  void setNotes(String notes);
+  void setAttributes(const AllAttributes &all, Cascade *sheet);
 
-  // direct Lua methods
-  int setBookmarks(lua_State *L);
-  int showTool(lua_State *L);
+public:  // What platforms must implement:
+  virtual WINID windowId() = 0;
+  virtual int actionId(const char *name) const = 0;
+  virtual void closeWindow() = 0;
+  virtual bool actionState(const char *name) = 0;
+  virtual void setActionState(const char *name, bool value) = 0;
+  virtual void setNumbers(String vno, bool vm, String pno, bool pm) = 0;
+  virtual void setLayers(const Page *page, int view) = 0;
+  virtual void setZoom(double zoom) = 0;
+  virtual void setWindowCaption(bool mod, const char *s) = 0;
+  virtual void setNotes(String notes) = 0;
+  virtual void explain(const char *s, int t) = 0;
+  virtual void showWindow(int width, int height) = 0;
+  virtual void action(String name) = 0;
+  virtual void setActionsEnabled(bool mode) = 0;
+  virtual void setMouseIndicator(const char *s) = 0;
+  virtual void setBookmarks(int no, const String *s) = 0;
+  virtual void setToolVisible(int m, bool vis) = 0;
 
-public slots:
-  void action(String name);
-  void qAction(const QString &name);
-  void selectLayerAction(QAction *a);
-  void moveToLayerAction(QAction *a);
-  void textStyleAction(QAction *a);
-
-  void layerAction(String name, String layer);
-  void mouseAction(int button);
-  void positionChanged();
-  void toolChanged(bool hasTool);
-  void toolbarModifiersChanged();
-  void aboutIpe();
-
-  void wheelZoom(int degrees);
-  void absoluteButton(int id);
-  void selector(int id, String value);
-  void comboSelector(int id);
-
-  void bookmarkSelected(QListWidgetItem *item);
-
-  void aboutToShowSelectLayerMenu();
-  void aboutToShowMoveToLayerMenu();
-  void aboutToShowTextStyleMenu();
-  void showPathStylePopup(Vector v);
-  void showLayerBoxPopup(Vector v, String layer);
-
-private:
-  void addItem(QMenu *m, const QString &title, const char *name);
-  void addItem(int m, const QString &title, const char *name);
-  void addSnap(const char *name);
-  void addEdit(const char *name);
-  void buildMenus();
-  void callSelector(String name, String value);
-  void callSelector(const char *name, Color color);
-  void callSelector(const char *name, double scalar);
-  void setCheckMark(String name, Attribute a);
+protected:   // What platforms must implement:
+  virtual void addRootMenu(int id, const char *name) = 0;
+  // if title == 0, add separator
+  virtual void addItem(int id, const char *title = 0,
+		       const char *name = 0) = 0;
+  virtual void startSubMenu(int id, const char *name) = 0;
+  virtual void addSubItem(const char *title, const char *name) = 0;
+  virtual MENUHANDLE endSubMenu() = 0;
+  virtual void addCombo(int sel, String s) = 0;
+  virtual void resetCombos() = 0;
+  virtual void addComboColor(int sel, String s, Color color) = 0;
+  virtual void setComboCurrent(int sel, int idx) = 0;
+  virtual void setPathView(const AllAttributes &all, Cascade *sheet) = 0;
+  virtual void setCheckMark(String name, Attribute a) = 0;
+  virtual void setButtonColor(int sel, Color color) = 0;
 
 protected:
-  void closeEvent(QCloseEvent *ev);
+  virtual void canvasObserverWheelMoved(int degrees);
+  virtual void canvasObserverMouseAction(int button);
+  virtual void canvasObserverPositionChanged();
+  virtual void canvasObserverToolChanged(bool hasTool);
 
-private:
+protected:
+  AppUiBase(lua_State *L0, int model);
+  static const char * const selectorNames[];
+
+  void luaSelector(String name, String value);
+  void luaAction(String name);
+  void luaShowPathStylePopup(Vector v);
+  void luaShowLayerBoxPopup(Vector v, String layer);
+  void luaLayerAction(String name, String layer);
+  void luaAbsoluteButton(const char *s);
+  void luaBookmarkSelected(int index);
+
+  void buildMenus();
+  void showInCombo(const Cascade *sheet, Kind kind,
+		   int sel, const char *deflt = 0);
+  void showMarksInCombo(const Cascade *sheet);
+  void setAttribute(int sel, Attribute a);
+
+protected:
   lua_State *L;
   int iModel;  // reference to Lua model
 
+  MENUHANDLE iSelectLayerMenu;
+  MENUHANDLE iMoveToLayerMenu;
+  MENUHANDLE iTextStyleMenu;
+
   Cascade *iCascade;
   AllAttributes iAll;  // current settings in UI
+  std::vector<String> iComboContents[EUiView];
 
-  Canvas *iCanvas;
-  PathView *iPathView;
+  CanvasBase *iCanvas;
 
-  QMenu *iMenu[ENumMenu];
-  QMenu *iSelectLayerMenu;
-  QMenu *iMoveToLayerMenu;
-  QMenu *iTextStyleMenu;
-
-  QToolButton *iButton[EUiGridSize];
-  QComboBox *iSelector[EUiNum];
-
-  QToolButton *iViewNumber;
-  QToolButton *iPageNumber;
-
-  QToolBar *iSnapTools;
-  QToolBar *iEditTools;
-  QToolBar *iObjectTools;
-
-  QDockWidget *iPropertiesTools;
-  QDockWidget *iLayerTools;
-  QDockWidget *iBookmarkTools;
-  QDockWidget *iNotesTools;
-
-  QActionGroup *iModeActionGroup;
-
-  QAction *iShiftKey;
-
-  QListWidget *iBookmarks;
-  LayerBox *iLayerList;
-  QTextEdit *iPageNotes;
-
+  String iCoordinatesFormat;
   int iMouseIn;
-  QLabel *iMouse;
-  QLabel *iResolution;
-
-  QSignalMapper *iActionMap;
-  std::map<String, QAction *> iActions;
 };
 
 // --------------------------------------------------------------------

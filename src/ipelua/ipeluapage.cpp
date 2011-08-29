@@ -94,7 +94,7 @@ int ipelua::page_constructor(lua_State *L)
 static int page_destructor(lua_State *L)
 {
   SPage *p = check_page(L, 1);
-  if (p->owned && p->page)
+  if (p->owned)
     delete p->page;
   p->page = 0;
   return 0;
@@ -131,7 +131,7 @@ static int page_len(lua_State *L)
 static int page_clone(lua_State *L)
 {
   Page *p = check_page(L, 1)->page;
-  push_page(L, new Page(*p), true);
+  push_page(L, new Page(*p));
   return 1;
 }
 
@@ -499,6 +499,20 @@ static int page_setNotes(lua_State *L)
   return 0;
 }
 
+static int page_marked(lua_State *L)
+{
+  Page *p = check_page(L, 1)->page;
+  lua_pushboolean(L, p->marked());
+  return 1;
+}
+
+static int page_setMarked(lua_State *L)
+{
+  Page *p = check_page(L, 1)->page;
+  p->setMarked(lua_toboolean(L, 2));
+  return 0;
+}
+
 // --------------------------------------------------------------------
 
 static int page_countViews(lua_State *L)
@@ -563,6 +577,22 @@ static int page_clearViews(lua_State *L)
 {
   Page *p = check_page(L, 1)->page;
   p->clearViews();
+  return 0;
+}
+
+static int page_markedView(lua_State *L)
+{
+  Page *p = check_page(L, 1)->page;
+  int n = check_viewno(L, 2, p);
+  lua_pushboolean(L, p->markedView(n));
+  return 1;
+}
+
+static int page_setMarkedView(lua_State *L)
+{
+  Page *p = check_page(L, 1)->page;
+  int n = check_viewno(L, 2, p);
+  p->setMarkedView(n, lua_toboolean(L, 3));
   return 0;
 }
 
@@ -637,6 +667,8 @@ static const struct luaL_Reg page_methods[] = {
   { "insertView", page_insertView },
   { "removeView", page_removeView },
   { "clearViews", page_clearViews },
+  { "markedView", page_markedView },
+  { "setMarkedView", page_setMarkedView },
   { "visible", page_visible },
   { "setVisible", page_setVisible },
   { "bbox", page_bbox },
@@ -656,6 +688,8 @@ static const struct luaL_Reg page_methods[] = {
   { "setTitles", page_setTitles },
   { "notes", page_notes },
   { "setNotes", page_setNotes },
+  { "marked", page_marked },
+  { "setMarked", page_setMarked },
   { "textBox", page_textBox },
   { 0, 0 }
 };

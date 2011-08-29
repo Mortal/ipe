@@ -193,7 +193,7 @@ String XmlParser::parseToTag()
     if (s[0] != '/') {
       XmlAttributes attr;
       if (!parseAttributes(attr))
-	return false;
+	return String();
     }
   }
 }

@@ -460,6 +460,12 @@ void StyleSheet::saveAsXml(Stream &stream, bool saveBitmaps) const
       stream << "\" crop=\"no";
     stream << "\"/>\n";
   }
+  if (iPageNumberStyle.iDefined) {
+    stream << "<pagenumberstyle pos=\"" << iPageNumberStyle.iPos
+	   << "\" size=\"" << iPageNumberStyle.iFontSize
+	   << "\" color=\"" << iPageNumberStyle.iColor
+	   << "\"/>\n";
+  }
   if (iTitleStyle.iDefined) {
     stream << "<titlestyle pos=\"" << iTitleStyle.iPos
 	   << "\" size=\"" << iTitleStyle.iSize.string()

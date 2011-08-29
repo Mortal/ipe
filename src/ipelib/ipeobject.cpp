@@ -331,7 +331,7 @@ Attribute Object::getAttribute(Property prop)
 {
   switch (prop) {
   case EPropPinned:
-    return Attribute(iPinned);
+    return Attribute(pinned());
   case EPropTransformations:
     return Attribute(iTransformations);
   default:
