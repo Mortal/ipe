@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -459,6 +459,12 @@ void StyleSheet::saveAsXml(Stream &stream, bool saveBitmaps) const
     if (!iLayout.iCrop)
       stream << "\" crop=\"no";
     stream << "\"/>\n";
+  }
+  if (iPageNumberStyle.iDefined) {
+    stream << "<pagenumberstyle pos=\"" << iPageNumberStyle.iPos
+	   << "\" size=\"" << iPageNumberStyle.iFontSize
+	   << "\" color=\"" << iPageNumberStyle.iColor
+	   << "\"/>\n";
   }
   if (iTitleStyle.iDefined) {
     stream << "<titlestyle pos=\"" << iTitleStyle.iPos

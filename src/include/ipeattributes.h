@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -222,6 +222,7 @@ namespace ipe {
   class Repository {
   public:
     static Repository *get();
+    static void cleanup();
     String toString(int index) const;
     int toIndex(String str);
     // int getIndex(String str) const;

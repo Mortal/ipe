@@ -5,18 +5,14 @@
 #
 # --------------------------------------------------------------------
 #
-# Include and linking options for libraries
+# Which user interface library shall we use?
 #
-# We just query "pkg-config" for the correct flags.  If this doesn't
-# work on your system, enter the correct linker flags and directories
-# directly.
+# Currently, the choice is between the Win32 API and Qt 4.  
+# Choose one of "WIN32", or "QT".  Unless you compile for Microsoft
+# Windows, you will want "QT" (so the default will be fine).
+# (In fact, WIN32 doesn't work yet.)
 #
-ZLIB_CFLAGS   ?=
-ZLIB_LIBS     ?= -lz
-FREETYPE_CFLAGS ?= $(shell pkg-config --cflags freetype2)
-FREETYPE_LIBS ?= $(shell pkg-config --libs freetype2)
-CAIRO_CFLAGS  ?= $(shell pkg-config --cflags cairo)
-CAIRO_LIBS    ?= $(shell pkg-config --libs cairo)
+IPEUI 	     ?= QT
 #
 # Do you wish to enable the use of alternative text encodings
 # for Latex conversion?  (Useful for Japanese, Korean, Russian, etc.)
@@ -32,9 +28,34 @@ CAIRO_LIBS    ?= $(shell pkg-config --libs cairo)
 #ICONV_CFLAGS =
 #ICONV_LIBS   = -liconv
 #
+# ------------------------------------------------------------------
+# Include and linking options for libraries
+# ------------------------------------------------------------------
+#
 ifndef MACOS
-LUA_CFLAGS    ?= $(shell pkg-config --cflags lua5.1)
-LUA_LIBS      ?= $(shell pkg-config --libs lua5.1)
+#
+# We just query "pkg-config" for the correct flags.  If this doesn't
+# work on your system, enter the correct linker flags and directories
+# directly.  You don't have to worry about the UI libraries you
+# haven't selected above.
+#
+ZLIB_CFLAGS   ?=
+ZLIB_LIBS     ?= -lz
+FREETYPE_CFLAGS ?= $(shell pkg-config --cflags freetype2)
+FREETYPE_LIBS ?= $(shell pkg-config --libs freetype2)
+CAIRO_CFLAGS  ?= $(shell pkg-config --cflags cairo)
+CAIRO_LIBS    ?= $(shell pkg-config --libs cairo)
+# The lua package might be called "lua" or "lua5.1"
+luatest = $(shell pkg-config --modversion --silence-errors lua)
+ifneq "$(luatest)" ""
+  LUA_CFLAGS  ?= $(shell pkg-config --cflags lua)
+  LUA_LIBS    ?= $(shell pkg-config --libs lua)
+else
+  LUA_CFLAGS  ?= $(shell pkg-config --cflags lua5.1)
+  LUA_LIBS    ?= $(shell pkg-config --libs lua5.1)
+endif
+GTK_CFLAGS    ?= $(shell pkg-config --cflags gtk+-2.0)
+GTK_LIBS      ?= $(shell pkg-config --libs gtk+-2.0)
 QT_CFLAGS     ?= $(shell pkg-config --cflags QtGui QtCore)
 QT_LIBS	      ?= $(shell pkg-config --libs QtGui QtCore)
 #
@@ -45,19 +66,28 @@ QT_LIBS	      ?= $(shell pkg-config --libs QtGui QtCore)
 #
 MOC	      ?= moc-qt4
 #MOC	      ?= moc
+#
 else
 #
 # Settings for Mac OS 10.6
 #
 CONFIG     += x86_64
-LUA_CFLAGS = $(shell pkg-config --cflags lua)
-LUA_LIBS   = $(shell pkg-config --libs lua)
-QT_CFLAGS  = -I/Library/Frameworks/QtCore.framework/Versions/4/Headers \
-	     -I/Library/Frameworks/QtGui.framework/Versions/4/Headers
-QT_LIBS    = -F/Library/Frameworks -L/Library/Frameworks \
-	     -framework QtCore -framework ApplicationServices \
-	     -framework QtGui -framework AppKit -framework Cocoa -lz -lm
-MOC	   = moc
+ZLIB_CFLAGS   ?=
+ZLIB_LIBS     ?= -lz
+FREETYPE_CFLAGS ?= -I/usr/X11/include/freetype2 -I/usr/X11/include
+FREETYPE_LIBS ?= -L/usr/X11/lib -lfreetype
+CAIRO_CFLAGS  ?= -I/usr/X11/include/cairo -I/usr/X11/include/pixman-1 \
+	 -I/usr/X11/include/freetype2 -I/usr/X11/include \
+	 -I/usr/X11/include/libpng12
+CAIRO_LIBS ?= -L/usr/X11/lib -lcairo
+LUA_CFLAGS ?= -I/usr/local/include
+LUA_LIBS   ?= -L/usr/local/lib -llua5.1 -lm
+QT_CFLAGS  ?= -I/Library/Frameworks/QtCore.framework/Versions/4/Headers \
+	      -I/Library/Frameworks/QtGui.framework/Versions/4/Headers
+QT_LIBS    ?= -F/Library/Frameworks -L/Library/Frameworks \
+	      -framework QtCore -framework ApplicationServices \
+	      -framework QtGui -framework AppKit -framework Cocoa -lz -lm
+MOC	   ?= moc
 endif
 #
 # --------------------------------------------------------------------
@@ -67,15 +97,17 @@ endif
 CXX = g++
 #
 # Special compilation flags for compiling shared libraries
-# 64-bit Linux requires shared libraries to be compiled with -fPIC
-# (and it doesn't hurt on 32bit Linux)
-DLL_CFLAGS = -fPIC
+# 64-bit Linux requires shared libraries to be compiled as 
+# position independent code  
+# (it doesn't hurt much on 32bit Linux, although you could comment it
+# out for slightly faster code)
+DLL_CFLAGS = -fpic
 #
 # --------------------------------------------------------------------
 #
 # Installing Ipe:
 #
-IPEVERS = 7.0.12
+IPEVERS = 7.1.0
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.
@@ -119,10 +151,15 @@ IPELUADIR = $(IPEPREFIX)/share/ipe/$(IPEVERS)/lua
 # (Individual paths are separated by ";" on both Windows and Unix!)
 IPELUAPATH = $(IPELUADIR)/?.lua
 #
+# Directory where Ipe will look for scripts
+# (standard scripts will also be installed here)
+#
+IPESCRIPTDIR = $(IPEPREFIX)/share/ipe/$(IPEVERS)/scripts
+#
 # Directory where Ipe will look for style files
 # (standard Ipe styles will also be installed here)
 #
-IPESTYLES = $(IPEPREFIX)/share/ipe/$(IPEVERS)/styles
+IPESTYLEDIR = $(IPEPREFIX)/share/ipe/$(IPEVERS)/styles
 #
 # IPEICONDIR contains the icons used in the Ipe user interface
 #

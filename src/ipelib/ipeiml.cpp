@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -199,10 +199,14 @@ bool ImlParser::parsePage(Page &page)
     page.setSection(0, str.empty(), str);
   else
     page.setSection(0, false, String());
+
   if (att.has("subsection", str))
     page.setSection(1, str.empty(), str);
   else
     page.setSection(1, false, String());
+
+  if (att["marked"] == "no")
+    page.setMarked(false);
 
   String tag = parseToTag();
 
@@ -255,6 +259,9 @@ bool ImlParser::parsePage(Page &page)
 	return false;
       page.setActive(page.countViews() - 1, last);
     }
+
+    if (att["marked"] == "yes")
+      page.setMarkedView(page.countViews() - 1, true);
 
     tag = parseToTag();
   }

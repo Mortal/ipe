@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ namespace ipe {
   public:
     PdfWriter(TellStream &stream, const Document *doc,
 	      const FontPool *pool,
-	      bool lastView, int fromPage, int toPage, int compression);
+	      bool markedView, int fromPage, int toPage, int compression);
     ~PdfWriter();
 
     void createPages();
@@ -106,7 +106,7 @@ namespace ipe {
     TellStream &iStream;
     const Document *iDoc;
     //! Show only last view of each page?
-    bool iLastView;
+    bool iMarkedView;
     //! Obj id of XML stream.
     int iXmlStreamNum;
     //! Obj id of font resource dictionary.

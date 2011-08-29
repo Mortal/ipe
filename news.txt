@@ -1,4 +1,147 @@
 --------------------------------------------------------------------
+ 
+Ipe 7.1.0 (2011-08-29) SVN 549
+
+ * Refactored Ipe code so that it is easy to build the Ipe application
+   with different user interface toolkits.  A native Win32 interface
+   is nearly complete.  A Gtk interface is being considered, with
+   Canvas and dialog support implemented.  Perhaps someone will
+   contribute a native Cocoa interface for Mac OS X.
+
+ * Selection preserved after undo.
+
+ * When adding objects to the selection, the last selected object is
+   the primary selection.
+
+ * New shredder mode (feature #16).
+
+ * Easier customization of mouse buttons using a table in "mouse.lua".
+   More than three buttons can now be used.  New "shred" operation.
+
+ * Added "ipescript" tool.  It is no longer necessary to install the
+   Ipe module for Lua to run scripts.
+
+ * Fixed bounding box when exporting a view to Postscript.
+
+ * Properties menu now also shown when no object selected, and allows
+   to change properties of multiple objects at once.
+
+ * Updated Makefile and instructions for compiling on MacOS X (bug
+   #20). Including shell script for building an app bundle by leahcimb.
+
+ * Fixed regular k-gon ipelet (bug #35).
+
+ * Fixed prefs.lua for MacOS X (bug #28).
+
+ * Layers are now again presented in the order in which they were
+   added (bug #32).  In the future we'll need a feature to rearrange
+   them manually.
+
+ * Added preference for zoom factor (feature #53).
+
+ * On MacOS X, the close button should now correctly reflect whether
+   the document is modified.
+
+ * Fixed display of subsection bookmarks (bug #31).
+
+ * Fixed spurious loss of pinning information for group objects (bug #37).
+
+ * First attempt to handle file-open events on Mac OS X.
+   This would allow to launch documents by clicking them (feature #58).
+
+ * Shortcut to rename the active layer (feature #50).
+
+ * If prefs.tablet_mode is true, then in ink mode the selection is not
+   highlighted and the cursor remains a dot (feature #26).
+ 
+--------------------------------------------------------------------
+ 
+Ipe 7.0.14 (2011-01-27) SVN 474 Australia edition
+
+ * Fixed saving of <pagenumberstyle> (bug #7).
+
+ * Fixed iperender and thumbnails on 64-bit platforms.
+
+ * Pressing Enter in view/page selector now jumps to the view/page
+   (feature #24).  Shortcuts for view/page selector.  Original
+   view/page highlighted in selector.
+
+ * Background no longer hides page number in PDF output (bug #8).
+
+ * Mark circle center now also works for arcs (bug #3).
+
+ * Fit to selection/objects now fits to visible object, not including
+   control points (bug #2).
+
+ * Grid now only drawn inside page's frame area, drawn grid can be
+   coarser than grid resolution, thick lines drawn at configurable
+   steps (see prefs.lua)  (feature #17).
+
+ * Correctly render Latex text inside symbols (bug #18).
+
+ * matrix:inverse() no longer crashes on singular matrix.
+
+ * Circle to ellipse transformation no longer crashes on singular
+   ellipse (bug #21).
+
+ * Easier to use symbols by remembering current symbol, which can then
+   be inserted with one function key (Alt+Y) (feature #19).
+
+ * Introduced pref.close_distance.
+
+ * Paste at cursor now correctly observes pinning of the object.
+
+ * Fixed serious memory leak in group object.
+
+ * Implemented marking of pages and views for printing in Ipe, and
+   selecting those in ipetoipe.
+
+--------------------------------------------------------------------
+
+Ipe 7.0.13 (2010-11-26) SVN 466
+
+ * Error message when document requires charset conversion but iconv
+   is not compiled in.
+
+ * Fixed selection of invisible objects.
+
+ * New dialog for jumping to a page or view, showing thumbnails of the
+   pages/ views.
+   This is implemented using a new widget and function in
+   libipeqtcanvas so that it can be reused easily:
+   int pno = ipeqt::PageSelector::selectPageOrView(doc)
+
+ * When using the ink tool, actual stroke color is used while
+   handwriting. 
+
+ * Pressing the eraser end of a pen should generate a middle button
+   event.
+
+ * New action: "fit to page width" 
+
+ * In handwriting mode, cursor is a dot.
+
+ * New preference: prefs.coordinates_format
+
+ * Feedback in status line for line and spline tools now permanent.
+
+ * Pressing the pen without movement in ink tool now makes a dot.
+
+ * Handwriting now creates paths with round line cap, regardless of
+   current setting (but that can still be changed afterwards).
+
+ * Safety check for reasonable locale on startup.
+
+ * Layers now shown in the order in which they appear in views of the
+   page. 
+
+ * Page sorter that lets you rearrange the pages of the document.
+
+ * ipeqt::Canvas can now show page numbers, and Ipe will display page
+   numbers on screen as in the PDF output if page numbering is
+   enabled. 
+
+--------------------------------------------------------------------
 
 Ipe 7.0.12 (2010-11-21) SVN 452
 
@@ -206,8 +349,7 @@ Ipe 7.0.5 (2009-10-22) SVN 357
 
  * Made Lua interface for attribute values more robust - interface now
    checks that attributes have correct type before passing them to
-   Ipelib.  This fixes opacity names starting with digits. 
-   (Bug #2880502)
+   Ipelib.  This fixes opacity names starting with digits. (Bug #288)
 
  * #define to enable use of ancient pdftex versions ( < 130).
    Bug #309.

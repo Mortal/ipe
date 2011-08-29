@@ -1,5 +1,5 @@
-Ipe 7.0.12
-November, 2010
+Ipe 7.1.0
+August, 2011
 
                     Ipe extensible drawing editor
                     =============================
@@ -30,7 +30,7 @@ to work it out.)
 --------------------------------------------------------------------
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by

@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -87,6 +87,7 @@ function MODEL:init(fname)
 
   self.save_timestamp = 0
   self.ui = AppUi(self)
+  self.pristine = false
 
   if fname then
     if ipe.fileExists(fname) then
@@ -97,7 +98,10 @@ function MODEL:init(fname)
       self:setCaption()
     end
   end
-  if not self.doc then self:newDocument() end
+  if not self.doc then
+    self:newDocument()
+    self.pristine = true
+  end
 
   self.mode = "select"
   self.ui:setActionState("mode_select", true)
@@ -143,6 +147,30 @@ function MODEL:print_attributes()
   print("----------------------------------------")
 end
 
+function MODEL:getString(msg, caption, start)
+  if caption == nil then caption = "Ipe" end
+  local d = ipeui.Dialog(self.ui:win(), caption)
+  d:add("label", "label", {label=msg}, 1, 1)
+  d:add("text", "input", {}, 2, 1)
+  d:addButton("cancel", "Cancel", "reject")
+  d:addButton("ok", "Ok", "accept")
+  if start then d:set("text", start) end
+  if d:execute() then
+    return d:get("text")
+  end
+end
+
+function MODEL:getDouble(caption, label, value, minv, maxv)
+  local s = self:getString(label, caption, tostring(value))
+  -- print("getDouble", s)
+  if s then
+    local n = tonumber(s)
+    if n and minv <= n and n <= maxv then
+      return n
+    end
+  end
+end
+
 ----------------------------------------------------------------------
 
 -- Return current page
@@ -174,7 +202,9 @@ end
 -- set window caption
 function MODEL:setCaption()
   local s = "Ipe "
-  if self:isModified() then
+  if config.toolkit == "qt" then
+    s = s .. "[*]"
+  elseif self:isModified() then
     s = s .. '*'
   end
   if self.file_name then
@@ -190,31 +220,33 @@ function MODEL:setCaption()
     s = s .. string.format("(View %d/%d) ", self.vno, self:page():countViews())
   end
 --]]
-  self.ui:setWindowTitle(s)
+  self.ui:setWindowTitle(self:isModified(), s)
 end
 
 -- show a warning messageBox
 function MODEL:warning(text, details)
-  ipeui.messageBox(self.ui, "warning", text, details)
+  ipeui.messageBox(self.ui:win(), "warning", text, details)
 end
 
 -- Set canvas to current page
 function MODEL:setPage()
-  self.ui:setPage(self.doc[self.pno], self.vno, self.doc:sheets())
-  self.ui:setLayers(self:page(), self.vno)
+  local p = self:page()
+  self.ui:setPage(p, self.pno, self.vno, self.doc:sheets())
+  self.ui:setLayers(p, self.vno)
+  self.ui:setNumbering(self.doc:properties().numberpages)
   self.ui:update()
   self:setCaption()
   self:setBookmarks()
-  self.ui:setNotes(self:page():notes())
+  self.ui:setNotes(p:notes())
   local vno
-  if self:page():countViews() > 1 then
-    vno = string.format("View %d/%d", self.vno, self:page():countViews())
+  if p:countViews() > 1 then
+    vno = string.format("View %d/%d", self.vno, p:countViews())
   end
   local pno
   if #self.doc > 1 then
     pno = string.format("Page %d/%d", self.pno, #self.doc)
   end
-  self.ui:setNumbers(vno, pno)
+  self.ui:setNumbers(vno, p:markedView(self.vno), pno, p:marked())
 end
 
 function MODEL:getBookmarks()
@@ -225,7 +257,7 @@ function MODEL:getBookmarks()
       if t.section ~= "" then b[#b+1] = t.section end
     elseif t.title ~= "" then b[#b+1] = t.title end
     if t.subsection then
-      if t.subsection ~= "" then b[#b+1] = t.subsection end
+      if t.subsection ~= "" then b[#b+1] = "  " .. t.subsection end
     elseif t.title ~= "" then b[#b+1] = "   " .. t.title end
   end
   return b
@@ -280,7 +312,7 @@ end
 -- If primaryOnly is true, the primary selection has to be close enough,
 -- otherwise it'll be replaced as above.
 function MODEL:updateCloseSelection(primaryOnly)
-  local bound = prefs.select_distance
+  local bound = prefs.close_distance
   local pos = self.ui:unsnappedPos()
   local p = self:page()
 
@@ -297,10 +329,10 @@ function MODEL:updateCloseSelection(primaryOnly)
   -- current selection is not close enough: find closest object
   local closest
   for i,obj,sel,layer in p:objects() do
-    if (p:visible(self.vno, i) and not p:isLocked(layer)) then
-      local d = p:distance(i, pos, bound)
-      if d < bound then closest = i; bound = d end
-    end
+     if p:visible(self.vno, i) and not p:isLocked(layer) then
+	local d = p:distance(i, pos, bound)
+	if d < bound then closest = i; bound = d end
+     end
   end
 
   if closest then
@@ -363,15 +395,13 @@ end
 ----------------------------------------------------------------------
 
 function MODEL:latexErrorBox(log)
-  local d = ipeui.Dialog(self.ui, "Ipe: error running Latex")
+  local d = ipeui.Dialog(self.ui:win(), "Ipe: error running Latex")
   d:add("label", "label",
 	{ label="An error occurred during the Pdflatex run. " ..
 	  "Please consult the logfile below." },
-	1, 1, 1, 2)
-  d:add("text", "text", { read_only=true, syntax="logfile" }, 2, 1, 1, 2)
-  d:add("ok", "button", { label="Ok", action="accept"}, 3, 2)
-  d:setStretch("row", 2, 1)
-  d:setStretch("column", 1, 1)
+	1, 1)
+  d:add("text", "text", { read_only=true, syntax="logfile" }, 2, 1)
+  d:addButton("ok", "Ok", "accept")
   d:set("text", log)
   d:execute()
 end
@@ -394,7 +424,7 @@ end
 -- returns true if object is unmodified or user confirmed discarding
 function MODEL:checkModified()
   if self:isModified() then
-    return ipeui.messageBox(self.ui, "question",
+    return ipeui.messageBox(self.ui:win(), "question",
 				 "The document has been modified",
 				 "Do you wish to discard the current document?",
 				 "discardcancel") == 0
@@ -585,7 +615,7 @@ function MODEL:autosave()
   end
   self.ui:explain("Autosaving to " .. f .. "...")
   if not self.doc:save(f, "xml") then
-    ipeui.messageBox(self.ui, "critical",
+    ipeui.messageBox(self.ui:win(), "critical",
 		     "Autosaving failed!")
   end
 end
@@ -593,8 +623,9 @@ end
 ----------------------------------------------------------------------
 
 function MODEL:closeEvent()
+  if self == first_model then first_model = nil end
   if self:isModified() then
-    local r = ipeui.messageBox(self.ui, "question",
+    local r = ipeui.messageBox(self.ui:win(), "question",
 				    "The document has been modified",
 				    "Do you wish to save the document?",
 				    "savediscardcancel")
@@ -610,6 +641,7 @@ end
 
 ----------------------------------------------------------------------
 
+-- TODO:  limit on undo stack size?
 function MODEL:registerOnly(t)
   -- store it on undo stack
   self.undo[#self.undo + 1] = t
@@ -619,6 +651,9 @@ function MODEL:registerOnly(t)
 end
 
 function MODEL:register(t)
+  -- store selection
+  t.original_selection = self:selection()
+  t.original_primary = self:page():primarySelection()
   -- perform action
   t.redo(t, self.doc)
   self:registerOnly(t)
@@ -681,6 +716,8 @@ function MODEL:setAttribute(prop, value)
 	     return changed
 	   end
   if (t.redo(t, self.doc)) then
+    t.original_selection = t.selection
+    t.original_primary = self:page():primarySelection()
     self:registerOnly(t)
   end
 end
@@ -702,11 +739,11 @@ function HELPER:message(m)
 end
 
 function HELPER:messageBox(text, details, buttons)
-  return ipeui.messageBox(self.model.ui, nil, text, details, buttons)
+  return ipeui.messageBox(self.model.ui:win(), nil, text, details, buttons)
 end
 
 function HELPER:getString(m)
-  return ipeui.getString(self.model.ui, m)
+  return self.model:getString(m)
 end
 
 function MODEL:runIpelet(label, ipelet, num)
@@ -717,6 +754,8 @@ function MODEL:runIpelet(label, ipelet, num)
 	      original=self:page():clone(),
 	      undo=revertOriginal,
 	      redo=revertFinal,
+	      original_selection = self:selection(),
+	      original_primary = self:page():primarySelection(),
 	    }
   local need_undo = ipelet:run(num or 1, self:page(), self.doc,
 			       self.pno, self.vno,
@@ -733,7 +772,7 @@ end
 
 function MODEL:action_undo()
   if #self.undo <= 1 then
-    ipeui.messageBox(self.ui, "information",
+    ipeui.messageBox(self.ui:win(), "information",
 			  "No undo information available")
     return
   end
@@ -752,7 +791,16 @@ function MODEL:action_undo()
   elseif t.vno0 then
     self.vno = t.vno0
   end
-  self:page():deselectAll()
+  local p = self:page()
+  p:deselectAll()
+  if t.original_selection then
+    for _, no in ipairs(t.original_selection) do
+      p:setSelect(no, 2)
+    end
+  end
+  if t.original_primary then
+    p:setSelect(t.original_primary, 1)
+  end
   self:setPage()
   if t.style_sheets_changed then
     self.ui:setupSymbolicNames(self.doc:sheets())
@@ -762,7 +810,7 @@ end
 
 function MODEL:action_redo()
   if #self.redo == 0 then
-    ipeui.messageBox(self.ui, "information",
+    ipeui.messageBox(self.ui:win(), "information",
 		     "No redo information available")
     return
   end

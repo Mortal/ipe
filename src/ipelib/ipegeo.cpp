@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -477,7 +477,9 @@ Linear::Linear(String str)
 //! Return inverse.
 Linear Linear::inverse() const
 {
-  double t = 1.0/(a[0]*a[3]-a[1]*a[2]);
+  double t = a[0]*a[3]-a[1]*a[2];
+  assert(t != 0);
+  t = 1.0/t;
   return Linear(a[3]*t, -a[1]*t, -a[2]*t, a[0]*t);
 }
 

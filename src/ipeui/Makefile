@@ -10,14 +10,17 @@ MAKE_SYMLINKS = $(call dll_symlinks,ipeui)
 SONAME = $(call soname,ipeui)
 INSTALL_SYMLINKS = $(call install_symlinks,ipeui)
 
-CPPFLAGS += $(QT_CFLAGS) $(LUA_CFLAGS) 
-LIBS += $(QT_LIBS) $(LUA_LIBS)
+CPPFLAGS += $(UI_CFLAGS) $(LUA_CFLAGS) 
+LIBS += $(UI_LIBS) $(LUA_LIBS)
 CXXFLAGS += $(DLL_CFLAGS)
 
 all: $(TARGET)
 
-sources	= ipeui.cpp
-moc_headers = ipeui.h
+sources = ipeui_common.cpp 
+qt_sources = ipeui_qt.cpp
+moc_headers = ipeui_qt.h
+win_sources = ipeui_win.cpp
+gtk_sources = ipeui_gtk.cpp
 
 $(TARGET): $(objects)
 	$(MAKE_LIBDIR)

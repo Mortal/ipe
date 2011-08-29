@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ function preciseTransform(model, num)
   elseif num == 6 then   -- turn 270 degrees
     matrix = ipe.Matrix(0, -1, 1, 0, 0, 0)
   elseif num == 7 then   -- rotate by angle
-    local str = ipeui.getString(model.ui, "Enter angle in degrees")
+    local str = model:getString("Enter angle in degrees")
     if not str or str:match("^%s*$") then return end
     local degrees = tonumber(str)
     if not degrees then
@@ -105,7 +105,7 @@ function preciseTransform(model, num)
     matrix = ipe.Rotation(math.pi * degrees / 180.0)
     label = "rotation by " .. degrees .. " degrees"
   elseif num == 8 then   -- stretch or scale
-    local str = ipeui.getString(model.ui, "Enter stretch factors")
+    local str = model:getString("Enter stretch factors")
     if not str or str:match("^%s*$") then return end
     if str:match("^[%+%-%d%.]+$") then
       local sx = tonumber(str)
@@ -152,7 +152,7 @@ end
 
 function preciseBox(model)
   local dpmm = 72.0 / 25.4
-  local str = ipeui.getString(model.ui, "Enter width and height in mm")
+  local str = model:getString("Enter width and height in mm")
   if not str or str:match("^%s*$") then return end
   local ssx, ssy = str:match("^([%+%-%d%.]+)%s+([%+%-%d%.]+)$")
   if not ssx then
@@ -180,25 +180,35 @@ function mediaBox(model)
   model:creation("create mediabox", obj)
 end
 
-function checkPrimaryIsCircle(model)
+function checkPrimaryIsCircle(model, arc_ok)
   local p = model:page()
   local prim = p:primarySelection()
   if not prim then model.ui:explain("no selection") return end
   local obj = p[prim]
   if obj:type() == "path" then
     local shape = obj:shape()
-    if #shape == 1 and shape[1].type == "ellipse" then
-      return prim, obj, shape
+    if #shape == 1 then
+      local s = shape[1]
+      if s.type == "ellipse" then
+	return prim, obj, s[1]:translation(), shape
+      end
+      if arc_ok and s.type == "curve" and #s == 1 and s[1].type == "arc" then
+	return prim, obj, s[1].arc:matrix():translation(), shape
+      end
     end
   end
-  model:warning("Primary selection is not a circle or ellipse")
+  if arc_ok then
+    model:warning("Primary selection is not an arc, a circle, or an ellipse")
+  else
+    model:warning("Primary selection is not a circle or an ellipse")
+  end
 end
 
 function markCircleCenter(model)
-  local prim, obj, shape = checkPrimaryIsCircle(model)
+  local prim, obj, pos, shape = checkPrimaryIsCircle(model, true)
   if not prim then return end
-  local pos = obj:matrix() * shape[1][1]:translation()
-  local obj = ipe.Reference(model.attributes, model.attributes.markshape, pos)
+  local obj = ipe.Reference(model.attributes, model.attributes.markshape,
+			    obj:matrix() * pos)
   model:creation("mark circle center", obj)
 end
 
@@ -274,10 +284,10 @@ function parabola(model)
 end
 
 function regularKGon(model)
-  local prim, obj, shape = checkPrimaryIsCircle(model)
+  local prim, obj, pos, shape = checkPrimaryIsCircle(model, false)
   if not prim then return end
 
-  local str = ipeui.getString(model.ui, "Enter number of corners")
+  local str = model:getString("Enter number of corners")
   if not str or str:match("^%s*$)") then return end
   local k = tonumber(str)
   if not k then

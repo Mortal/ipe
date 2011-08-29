@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -282,9 +282,19 @@ static int matrix_isIdentity(lua_State *L)
   return 1;
 }
 
+static int matrix_isSingular(lua_State *L)
+{
+  Matrix *m = check_matrix(L, 1);
+  double t = m->a[0]*m->a[3]-m->a[1]*m->a[2];
+  lua_pushboolean(L, t == 0);
+  return 1;
+}
+
 static int matrix_inverse(lua_State *L)
 {
   Matrix *m = check_matrix(L, 1);
+  double t = m->a[0]*m->a[3]-m->a[1]*m->a[2];
+  luaL_argcheck(L, t != 0, 1, "matrix is singular");
   push_matrix(L, m->inverse());
   return 1;
 }
@@ -338,6 +348,7 @@ static const struct luaL_Reg matrix_methods[] = {
   { "linear", matrix_linear },
   { "translation", matrix_translation },
   { "__mul", matrix_mul },
+  { "isSingular", matrix_isSingular },
   { "inverse", matrix_inverse },
   { "elements", matrix_elements },
   { NULL, NULL }

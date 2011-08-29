@@ -10,8 +10,8 @@ MAKE_SYMLINKS = $(call dll_symlinks,ipelua)
 SONAME = $(call soname,ipelua)
 INSTALL_SYMLINKS = $(call install_symlinks,ipelua)
 
-CPPFLAGS += -I../include $(LUA_CFLAGS) $(QT_CFLAGS)
-LIBS += -L$(buildlib) -lipe $(LUA_LIBS) $(QT_LIBS)
+CPPFLAGS += -I../include $(LUA_CFLAGS)
+LIBS += -L$(buildlib) -lipe $(LUA_LIBS)
 CXXFLAGS += $(DLL_CFLAGS)
 
 all: $(TARGET)

@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -102,8 +102,8 @@ static void usage()
 	  " -export      : output contains no Ipe markup.\n"
 	  " -pages <n-m> : export only these pages (implies -export).\n"
 	  " -view <p-v>  : export only this view (implies -export).\n"
-	  " -lastview    "
-	  ": export only last view of each page (implies -export).\n"
+	  " -markedview  "
+	  ": export only marked views on marked pages (implies -export).\n"
 	  " -runlatex    : run Latex even for XML output.\n"
 	  " -nocolor     : avoid any color commands in EPS output.\n"
 	  " -nozip:      : do not compress PDF streams.\n"
@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
 	usage();
       flags |= Document::EExport;
       i += 2;
-    } else if (!strcmp(argv[i], "-lastview")) {
-      flags |= Document::ELastView;
+    } else if (!strcmp(argv[i], "-markedview")) {
+      flags |= Document::EMarkedView;
       flags |= Document::EExport;
       ++i;
     } else if (!strcmp(argv[i], "-runlatex")) {

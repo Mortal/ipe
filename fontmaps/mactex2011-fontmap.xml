@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<fontmap>
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb" name="Helvetica" fullname="Helvetica Regular" familyname="Helvetica" weight="Regular" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb" name="Helvetica-Bold" fullname="Helvetica Bold" familyname="Helvetica" weight="Bold" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb" name="Helvetica-Oblique" fullname="Helvetica Regular Italic" familyname="Helvetica" weight="Regular" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb" name="Helvetica-BoldOblique" fullname="Helvetica Bold Italic" familyname="Helvetica" weight="Bold" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/times/utmr8a.pfb" name="Times-Roman" fullname="Times Regular" familyname="Times" weight="Regular" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/times/utmb8a.pfb" name="Times-Bold" fullname="Times Medium" familyname="Times" weight="Bold" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/times/utmri8a.pfb" name="Times-Italic" fullname="Times Regular Italic" familyname="Times" weight="Regular" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb" name="Times-BoldItalic" fullname="Times Medium Italic" familyname="Times" weight="Bold" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb" name="Courier" fullname="Courier Regular" familyname="Courier" weight="Regular" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb" name="Courier-Bold" fullname="Courier Bold" familyname="Courier" weight="Bold" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb" name="Courier-Oblique" fullname="Courier Regular Oblique" familyname="Courier" weight="Regular" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/courier/ucrbo8a.pfb" name="Courier-BoldOblique" fullname="Courier Bold Oblique" familyname="Courier" weight="Bold" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/symbol/usyr.pfb" name="Symbol" fullname="Symbol" familyname="Symbol" weight="Regular" />
+  <font format="type1" glyphs="/usr/local/texlive/2011/texmf-dist/fonts/type1/urw/zapfding/uzdr.pfb" name="ZapfDingbats" fullname="ZapfDingbats" familyname="ZapfDingbats" weight="Regular" />
+</fontmap>

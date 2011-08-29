@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -467,7 +467,7 @@ DeflateStream::DeflateStream(Stream &stream, int level)
   z->zfree = 0;
   z->opaque = 0;
 
-  int err = deflateInit(z, level);
+  int err = ::deflateInit(z, level);
   if (err != Z_OK) {
     ipeDebug("deflateInit returns error %d", err);
     assert(false);
@@ -480,7 +480,7 @@ DeflateStream::~DeflateStream()
 {
   if (iPriv) {
     z_streamp z = &iPriv->iFlate;
-    deflateEnd(z);
+    ::deflateEnd(z);
     delete iPriv;
   }
 }
@@ -528,7 +528,7 @@ void DeflateStream::close()
     iStream.putRaw(iOut.data(), z->next_out - (Bytef *) iOut.data());
   } while (err == Z_OK);
 
-  err = deflateEnd(z);
+  err = ::deflateEnd(z);
   if (err != Z_OK) {
     ipeDebug("deflateEnd returns error %d", err);
     assert(false);
@@ -547,8 +547,8 @@ Buffer DeflateStream::deflate(const char *data, int size,
 {
   uLong dfsize = uLong(size * 1.001 + 13);
   Buffer deflatedData(dfsize);
-  int err = compress2((Bytef *) deflatedData.data(), &dfsize,
-		      (const Bytef *) data, size, compressLevel);
+  int err = ::compress2((Bytef *) deflatedData.data(), &dfsize,
+			(const Bytef *) data, size, compressLevel);
   if (err != Z_OK) {
     ipeDebug("Zlib compress2 returns errror %d", err);
     assert(false);
@@ -580,7 +580,7 @@ InflateSource::InflateSource(DataSource &source)
 
   fillBuffer();
 
-  int err = inflateInit(z);
+  int err = ::inflateInit(z);
   if (err != Z_OK) {
     ipeDebug("inflateInit returns error %d", err);
     delete iPriv;
@@ -596,7 +596,7 @@ InflateSource::~InflateSource()
 {
   if (iPriv) {
     z_streamp z = &iPriv->iFlate;
-    inflateEnd(z);
+    ::inflateEnd(z);
     delete iPriv;
   }
 }
@@ -635,10 +635,10 @@ int InflateSource::getChar()
     // data is available
     z->next_out = (Bytef *) iOut.data();
     z->avail_out = iOut.size();
-    int err = inflate(z, Z_NO_FLUSH);
+    int err = ::inflate(z, Z_NO_FLUSH);
     if (err != Z_OK && err != Z_STREAM_END) {
       ipeDebug("inflate returns error %d", err);
-      inflateEnd(z);
+      ::inflateEnd(z);
       delete iPriv;
       iPriv = 0;  // set EOF
       return EOF;
@@ -650,7 +650,7 @@ int InflateSource::getChar()
   }
 
   // fillBuffer didn't get any data, must be EOF, so we are done
-  inflateEnd(z);
+  ::inflateEnd(z);
   delete iPriv;
   iPriv = 0;
   return EOF;

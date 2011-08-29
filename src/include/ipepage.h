@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -76,6 +76,7 @@ namespace ipe {
 
     //! Return number of views.
     inline int countViews() const { return iViews.size(); }
+    int countMarkedViews() const;
     //! Return effect of view.
     inline Attribute effect(int index) const { return iViews[index].iEffect; }
     void setEffect(int index, Attribute sym);
@@ -83,6 +84,10 @@ namespace ipe {
     inline String active(int index) const { return iViews[index].iActive; }
     //! Set active layer of view.
     void setActive(int index, String name);
+    //! Return if view is marked.
+    bool markedView(int index) const { return iViews[index].iMarked; }
+    //! Set if view is marked.
+    void setMarkedView(int index, bool marked);
 
     void insertView(int i, String active);
     void removeView(int i);
@@ -108,6 +113,10 @@ namespace ipe {
     bool sectionUsesTitle(int level) const { return iUseTitle[level]; }
     const Text *titleText() const;
     void applyTitleStyle(const Cascade *sheet);
+
+    //! Return if page is marked for printing.
+    bool marked() const { return iMarked; }
+    void setMarked(bool marked);
 
     //! Return notes for this page.
     String notes() const { return iNotes; }
@@ -173,6 +182,7 @@ namespace ipe {
     public:
       Attribute iEffect;
       String iActive;
+      bool iMarked;
     };
     typedef std::vector<SView> ViewSeq;
 
@@ -198,6 +208,7 @@ namespace ipe {
     String iSection[2];
     ObjSeq iObjects;
     String iNotes;
+    bool iMarked;
   };
 
 } // namespace

@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -80,9 +80,14 @@ Group::Group(const Group &rhs)
 //! Destructor.
 Group::~Group()
 {
-  if (iImp->iRefCount == 1)
+  if (iImp->iRefCount == 1) {
+    for (List::iterator it = iImp->iObjects.begin();
+	 it != iImp->iObjects.end(); ++it) {
+      delete *it;
+      *it = 0;
+    }
     delete iImp;
-  else
+  } else
     iImp->iRefCount--;
 }
 
@@ -263,6 +268,7 @@ void Group::detach()
   Imp *old = iImp;
   iImp = new Imp;
   iImp->iRefCount = 1;
+  iImp->iPinned = old->iPinned;
   for (const_iterator it = old->iObjects.begin();
        it != old->iObjects.end(); ++it)
     iImp->iObjects.push_back((*it)->clone());

@@ -7,13 +7,11 @@
 # Are we compiling for Windows?
 ifdef COMSPEC
   WIN32	=  1
-  MINGLIBS ?= c:/Home/Devel/ming
-  QTDIR ?= c:/Qt/4.5.2
+  MINGLIBS ?= c:/Home/Devel/mingw
 endif
 ifdef MINGWCROSS
   WIN32 = 1
-  MINGLIBS ?= /windows/Home/Devel/ming
-  QTDIR ?= /windows/Qt/4.5.2
+  MINGLIBS ?= /opt/mingw
 endif
 ifndef WIN32
   UNAME = $(shell uname)
@@ -37,11 +35,46 @@ endif
 
 # --------------------------------------------------------------------
 
-BUILDDIR = $(IPESRCDIR)/../build
+ifdef WIN32
+  IPEUI := WIN32
+  IPE_USE_ICONV :=
+  BUILDDIR = $(IPESRCDIR)/../mingw
+else
+  BUILDDIR = $(IPESRCDIR)/../build
+endif
 
+# set variables for UI choice
+ifeq ($(IPEUI),QT)
+CPPFLAGS += -DIPEUI_QT
+IPEUI_QT := 1
+UI_CFLAGS := $(QT_CFLAGS)
+UI_LIBS := $(QT_LIBS)
 moc_sources = $(addprefix moc_, $(subst .h,.cpp,$(moc_headers)))
-
-objects = $(addprefix $(OBJDIR)/, $(subst .cpp,.o,$(sources) $(moc_sources)))
+all_sources = $(sources) $(qt_sources)
+objects = $(addprefix $(OBJDIR)/, $(subst .cpp,.o,$(all_sources) \
+	$(moc_sources)))
+else
+ifeq ($(IPEUI), WIN32)
+CPPFLAGS += -DIPEUI_WIN32
+IPEUI_WIN32 := 1
+UI_CFLAGS := 
+UI_LIBS := -lcomctl32 -lcomdlg32 -lgdi32
+all_sources = $(sources) $(win_sources)
+objects = $(addprefix $(OBJDIR)/, $(subst .cpp,.o,$(all_sources)))
+else
+ifeq ($(IPEUI), GTK)
+CPPFLAGS += -DIPEUI_GTK
+IPEUI_GTK := 1
+UI_CFLAGS := $(GTK_CFLAGS)
+UI_LIBS := $(GTK_LIBS)
+all_sources = $(sources) $(gtk_sources)
+BUILDDIR = $(IPESRCDIR)/../build-gtk
+objects = $(addprefix $(OBJDIR)/, $(subst .cpp,.o,$(all_sources)))
+else
+error("Unknown IPEUI selected")
+endif
+endif
+endif
 
 CXXFLAGS += -Wall
 
@@ -66,29 +99,29 @@ ifdef WIN32
   install_symlinks = 
   ipelet_target = $(BUILDDIR)/ipelets/$1.dll
 
-  ZLIB_CFLAGS   := -I$(MINGLIBS)/zlib/include
-  ZLIB_LIBS     := $(MINGLIBS)/zlib/lib/zlib.dll
-  FREETYPE_CFLAGS := -I$(MINGLIBS)/freetype/include
-  FREETYPE_LIBS := $(MINGLIBS)/freetype/lib/freetype2.dll
-  CAIRO_CFLAGS  := -I$(MINGLIBS)/cairo/include
-  CAIRO_LIBS    := $(MINGLIBS)/cairo/lib/cairo.dll
-  LUA_CFLAGS    := -I$(MINGLIBS)/lua/include
-  LUA_LIBS      := $(MINGLIBS)/lua/lib/lua51.dll
-  QT_CFLAGS     := -I$(QTDIR)/include -I$(QTDIR)/include/QtCore \
-	           -I$(QTDIR)/include/QtGui
-  QT_LIBS	:= -L$(MINGLIBS)/qt/lib -lQtGui4 -lQtCore4
+  ZLIB_CFLAGS   := -I$(MINGLIBS)/include
+  ZLIB_LIBS     := $(MINGLIBS)/bin/zlib1.dll
+  FREETYPE_CFLAGS := -I$(MINGLIBS)/include/freetype2 \
+	-I$(MINGLIBS)/include
+  FREETYPE_LIBS := $(MINGLIBS)/bin/freetype6.dll
+  CAIRO_CFLAGS  := -I$(MINGLIBS)/include/cairo
+  CAIRO_LIBS    := $(MINGLIBS)/bin/libcairo-2.dll
+  LUA_CFLAGS    := -I$(MINGLIBS)/include/lua
+  LUA_LIBS      := $(MINGLIBS)/bin/lua51.dll
 
 ifdef MINGWCROSS
   # --------------- Cross compiling with MinGW32 ---------------
-  CXXFLAGS	+= -g -O2 -fno-rtti -fno-exceptions
+  CXXFLAGS	+= -g -O2
   CXX = i586-mingw32msvc-g++
   CC = i586-mingw32msvc-gcc
   STRIP_TARGET  = i586-mingw32msvc-strip $(TARGET)
   WINDRES	= i586-mingw32msvc-windres
+  LDFLAGS	+= -enable-stdcall-fixup \
+	-Wl,--enable-runtime-pseudo-reloc -Wl,-enable-auto-import 
 else
   # --------------- Compiling with MinGW32 under Windows ---------------
   WINDRES	= windres
-  CXXFLAGS	+= -g -O2 -fno-rtti -fno-exceptions
+  CXXFLAGS	+= -g -O2
   LDFLAGS	+= -enable-stdcall-fixup \
 	-Wl,--enable-runtime-pseudo-reloc -Wl,-enable-auto-import 
   MOC	        := $(QTDIR)/bin/moc
@@ -99,7 +132,10 @@ else
   CXXFLAGS	+= -g -O2
   ifdef MACOS
     DLL_LDFLAGS	+= -dynamiclib 
-    soname      = -Wl,-dylib_install_name,lib$1.so.$(IPEVERS)
+    # IPELIBDIRINFO can be overridden as @executable_path/../lib
+    # on the command line or by an environment variable
+    IPELIBDIRINFO ?= $(IPELIBDIR)
+    soname      = -Wl,-dylib_install_name,$(IPELIBDIRINFO)/lib$1.so.$(IPEVERS)
   else	
     DLL_LDFLAGS	+= -shared 
     soname      = -Wl,-soname,lib$1.so.$(IPEVERS)
@@ -134,7 +170,7 @@ MAKE_IPELETDIR = mkdir -p $(BUILDDIR)/ipelets
 MAKE_DEPEND = \
 	mkdir -p $(OBJDIR); \
 	echo "" > $@; \
-	for f in $(sources); do \
+	for f in $(all_sources); do \
 	$(CXX) -MM -MT $(OBJDIR)/$${f%%.cpp}.o $(CPPFLAGS) $$f >> $@; done
 
 # The rules
@@ -143,8 +179,10 @@ $(OBJDIR)/%.o:  %.cpp
 	@echo Compiling $(<F)...
 	$(COMPILE.cc) -o $@ $<
 
+ifdef IPEUI_QT
 moc_%.cpp:  %.h
 	@echo Running moc on $(<F)...
 	$(MOC) $(CPPFLAGS )-o $@ $<
+endif
 
 # --------------------------------------------------------------------

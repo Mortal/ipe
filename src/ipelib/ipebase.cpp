@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -671,7 +671,7 @@ void StringStream::putRaw(const char *data, int size)
     iString += data[i];
 }
 
-int StringStream::tell() const
+long StringStream::tell() const
 {
   return iString.size();
 }
@@ -712,7 +712,7 @@ void FileStream::putRaw(const char *data, int size)
     std::fputc(data[i], iFile);
 }
 
-int FileStream::tell() const
+long FileStream::tell() const
 {
   return std::ftell(iFile);
 }

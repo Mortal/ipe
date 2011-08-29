@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -37,15 +37,42 @@ local function color_icon(sheets, name)
 end
 
 function MODEL:propertiesPopup()
-  self:updateCloseSelection(true)
-  local prim = self:page():primarySelection()
-  if not prim then
-    self.ui:explain("No selection")
-    return
+  self:updateCloseSelection(false)
+  local sel = self:selection()
+  if #sel > 1 then
+    self:multiPopup(sel)
+  elseif #sel == 1 then
+    self:singlePopup(self:page():primarySelection())
+  else
+    self:emptyPopup()
   end
+end
+
+function MODEL:emptyPopup()
+  local m = ipeui.Menu(self.ui:win())
+  m:add("action_paste", "Paste")
+  m:add("action_pan_here", "Pan here")
+  m:add("grid", "Toggle grid")
+  local gp = self.ui:globalPos()
+  local item, num, value = m:execute(gp.x, gp.y)
+  if item then
+    if item:sub(1,7) == "action_" then
+      self:action(item:sub(8))
+    elseif item == "grid" then
+      self:toggleGrid()
+    end
+  end
+end
+
+function MODEL:singlePopup(prim)
   local obj = self:page()[prim]
-  local m = ipeui.Menu()
+  local m = ipeui.Menu(self.ui:win())
   self["properties_" .. obj:type()](self, obj, m)
+  m:add("action_cut", "Cut")
+  m:add("action_copy", "Copy")
+  m:add("action_paste", "Paste")
+  m:add("action_pan_here", "Pan here")
+  m:add("grid", "Toggle grid")
   local gp = self.ui:globalPos()
   local item, num, value = m:execute(gp.x, gp.y)
   if item then
@@ -55,10 +82,20 @@ function MODEL:propertiesPopup()
       self:action(item:sub(8))
     elseif item == "comment" then
       -- nothing to do
+    elseif item == "grid" then
+      self:toggleGrid()
     else
       self:setAttributeOfPrimary(prim, item, value)
     end
   end
+end
+
+--------------------------------------------------------------------
+
+function MODEL:toggleGrid()
+  local t = not self.ui:actionState("grid_visible");
+  self.ui:setActionState("grid_visible", t)
+  self:action_grid_visible()
 end
 
 function MODEL:changeLayerOfPrimary(prim, layer)
@@ -275,3 +312,120 @@ function MODEL:properties_reference(obj, m)
 end
 
 ----------------------------------------------------------------------
+
+local object_name = { text = "Text", path = "Path", image = "Image",
+		       reference = "Reference", group = "Group", }
+
+function MODEL:multiAttributes(m, tm)
+  local layers = self:page():layers()
+  local pinned = { "none", "horizontal", "vertical", "fixed" }
+  local transformations = { "translations", "rigid", "affine" }
+  m:add("layer", "Layer", layers)
+  m:add("pinned", "Pinned", pinned)
+  m:add("transformations", "Transformations", transformations)
+
+  local sheet = self.doc:sheets()
+  local colors = sheet:allNames("color")
+  local sizes = sheet:allNames("symbolsize")
+  local pens = sheet:allNames("pen")
+  local opacity = sheet:allNames("opacity")
+  local pathmodes = { "stroke only", "stroke && fill", "fill only" }
+  local pathmode = { "stroked", "strokedfilled", "filled" }
+  local dashstyle = sheet:allNames("dashstyle")
+  local arrowsizes = sheet:allNames("arrowsize")
+  local arrowshapes = symbolNames(sheet, "arrow/", "(spx)")
+  local tilings = sheet:allNames("tiling")
+  table.insert(tilings, 1, "normal")
+  local gradients = sheet:allNames("gradient")
+  table.insert(gradients, 1, "normal")
+  local linecap = { "normal", "butt", "round", "square", }
+  local linejoin = { "normal", "miter", "round", "bevel", }
+  local fillrule = { "normal", "wind", "evenodd", }
+  local textsize = sheet:allNames("textsize")
+  local textstyle = sheet:allNames("textstyle")
+
+  if tm.path or tm.text or tm.reference then
+    m:add("stroke", "Stroke", colors, nil,
+	  function (i, name) return color_icon(sheet, name) end)
+  end
+  if tm.path or tm.reference then
+    m:add("fill", "Fill", colors, nil,
+	  function (i, name) return color_icon(sheet, name) end)
+  end
+  if tm.path or tm.reference then m:add("pen", "Pen", pens) end
+
+  if tm.path then
+    m:add("pathmode", "Stroke && Fill", pathmode, pathmodes)
+    m:add("dashstyle", "Dash style", dashstyle)
+    local boolnames = { "yes", "no" }
+    local boolmap = { "true", "false" }
+    m:add("farrow", "Forward arrow", boolmap, boolnames)
+    m:add("farrowsize", "Forward arrow size", arrowsizes)
+    m:add("farrowshape", "Forward arrow shape", arrowshapes, arrowshapeToName)
+    m:add("rarrow", "Reverse arrow", boolmap, boolnames)
+    m:add("rarrowsize", "Reverse arrow size", arrowsizes)
+    m:add("rarrowshape", "Reverse arrow shape", arrowshapes, arrowshapeToName)
+    m:add("linecap", "Line cap", linecap)
+    m:add("linejoin", "Line join", linejoin)
+    m:add("fillrule", "Fill rule", fillrule)
+    m:add("tiling", "Tiling pattern", tilings)
+    m:add("gradient", "Gradient", gradients)
+  end
+
+  if tm.text then
+    m:add("textsize", "Text size", textsize)
+    m:add("textstyle", "Text style", textstyle)
+    m:add("horizontalalignment", "Horizontal alignment",
+	  {"left", "right", "hcenter"})
+    m:add("verticalalignment", "Vertical alignment",
+	  {"bottom", "baseline", "top", "vcenter"})
+  end
+
+  if tm.reference then m:add("symbolsize", "Size", sizes) end
+  if tm.text or tm.path then m:add("opacity", "Opacity", opacity) end
+end
+
+function MODEL:multiPopup()
+  -- collect types of selected objects
+  local p = self:page()
+  local typmap = {}
+  local count = 0
+  for i,obj,sel,layer in self:page():objects() do
+    if sel then typmap[obj:type()] = true; count = count + 1 end
+  end
+  local typcount = 0
+  local ttype = nil
+  for t in pairs(typmap) do typcount = typcount + 1; ttype = t end
+
+  local m = ipeui.Menu(self.ui:win())
+  if typcount == 1 then
+    m:add("comment", string.format("%d %s objects", count, object_name[ttype]))
+  else
+    m:add("comment", string.format("%d objects", count))
+  end
+
+  self:multiAttributes(m, typmap)
+
+  m:add("action_cut", "Cut")
+  m:add("action_copy", "Copy")
+  m:add("action_paste", "Paste")
+  m:add("action_pan_here", "Pan here")
+  m:add("grid", "Toggle grid")
+  local gp = self.ui:globalPos()
+  local item, num, value = m:execute(gp.x, gp.y)
+  if item then
+    if item == "layer" then
+      self:action_move_to_layer(value)
+    elseif item:sub(1,7) == "action_" then
+      self:action(item:sub(8))
+    elseif item == "comment" then
+      -- nothing to do
+    elseif item == "grid" then
+      self:toggleGrid()
+    else
+      self:setAttribute(item, value)
+    end
+  end
+end
+
+--------------------------------------------------------------------

@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ namespace ipe {
       ESaveNormal = 0, //!< Nothing special
       EExport = 1,     //!< Don't include Ipe markup
       ENoZip = 2,      //!< Do not compress streams
-      ELastView = 4,   //!< Create last view of each page only
+      EMarkedView = 4, //!< Create marked views only
       ENoColor = 8,    //!< No color commands in EPS output
     };
 
@@ -149,7 +149,8 @@ namespace ipe {
 
     //! Error codes returned by RunLatex.
     enum { ErrNone, ErrNoText, ErrNoDir, ErrWritingSource,
-	   ErrOldPdfLatex, ErrRunLatex, ErrLatex, ErrLatexOutput };
+	   ErrOldPdfLatex, ErrRunLatex, ErrLatex, ErrLatexOutput,
+	   ErrNoIconv };
     int runLatex(String &logFile);
     int runLatex();
 

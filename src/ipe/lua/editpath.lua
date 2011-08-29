@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -101,11 +101,11 @@ function moveCP(shape, spno, segno, cpno, v)
       local alpha = u:angle()
       local m = (sp[1] * ipe.Matrix(radius, 0, 0, radius, 0, 0)
 	       * ipe.Rotation(alpha))
-      sp[1] = m
+      if not m:isSingular() then sp[1] = m end
     elseif cpno == 2 then -- minor
       local u = sp[1]:inverse() * v
       local m = sp[1] * ipe.Matrix(1, 0, u.x, u.y, 0, 0)
-      sp[1] = m
+      if not m:isSingular() then sp[1] = m end
     end
   else -- curve
     local seg = sp[segno]
@@ -709,7 +709,7 @@ end
 
 function EDITTOOL:showMenu()
   local t = self:type()
-  local m = ipeui.Menu()
+  local m = ipeui.Menu(self.model.ui:win())
   local gp = self.model.ui:globalPos()
   if self:canDelete() then
     m:add("action_delete", "Delete vertex")

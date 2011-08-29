@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -230,6 +230,13 @@ int Repository::toIndex(String str)
     return (it - iStrings.begin());
   iStrings.push_back(str);
   return iStrings.size() - 1;
+}
+
+//! Destroy repository object.
+void Repository::cleanup()
+{
+  delete singleton;
+  singleton = 0;
 }
 
 // --------------------------------------------------------------------

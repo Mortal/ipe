@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2010  Otfried Cheong
+    Copyright (C) 1993-2011  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ using namespace ipe;
 Page::Page() : iTitle()
 {
   iUseTitle[0] = iUseTitle[1] = false;
+  iMarked = true;
 }
 
 //! Create a new empty page with standard settings.
@@ -116,6 +117,9 @@ void Page::saveAsXml(Stream &stream) const
     stream.putXmlString(iSection[1]);
     stream << "\"";
   }
+  if (!iMarked)
+    stream << " marked=\"no\"";
+
   stream << ">\n";
   if (!iNotes.empty()) {
     stream << "<notes>";
@@ -142,6 +146,8 @@ void Page::saveAsXml(Stream &stream) const
       stream << " active=\"" << active(i) << "\"";
     if (!effect(i).isNormal())
       stream << " effect=\"" << effect(i).string() << "\"";
+    if (markedView(i))
+      stream << " marked=\"yes\"";
     stream << "/>\n";
   }
   int currentLayer = -1;
@@ -322,6 +328,7 @@ void Page::insertView(int i, String active)
 {
   iViews.insert(iViews.begin() + i, SView());
   iViews[i].iActive = active;
+  iViews[i].iMarked = false;
   for (int l = 0; l < countLayers(); ++l)
     iLayers[l].iVisible.insert(iLayers[l].iVisible.begin() + i, false);
 }
@@ -341,6 +348,21 @@ void Page::clearViews()
   for (LayerSeq::iterator it = iLayers.begin();
        it != iLayers.end(); ++it)
     it->iVisible.clear();
+}
+
+void Page::setMarkedView(int index, bool marked)
+{
+  iViews[index].iMarked = marked;
+}
+
+int Page::countMarkedViews() const
+{
+  int count = 0;
+  for (int i = 0; i < countViews(); ++i) {
+    if (markedView(i))
+      ++count;
+  }
+  return (count == 0) ? 1 : count;
 }
 
 // --------------------------------------------------------------------
@@ -546,9 +568,7 @@ String Page::section(int level) const
 
   If \a useTitle is \c true, then \a name is ignored, and the section
   title will be copied from the page title (and further changes to the
-  page title are automatically reflected.
-
-  This function marks the page as edited. */
+  page title are automatically reflected). */
 void Page::setSection(int level, bool useTitle, String name)
 {
   iUseTitle[level] = useTitle;
@@ -573,6 +593,12 @@ String Page::title() const
 void Page::setNotes(String notes)
 {
   iNotes = notes;
+}
+
+//! Set if page is marked for printing.
+void Page::setMarked(bool marked)
+{
+  iMarked = marked;
 }
 
 //! Return Text object representing the title text.

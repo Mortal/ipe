@@ -7,14 +7,16 @@ include ../common.mak
 
 TARGET = $(call exe_target,ipeview)
 
-CPPFLAGS += -I../include -I../ipeqtcanvas $(QT_CFLAGS)
-LIBS += -L$(buildlib) -lipeqtcanvas -lipecairo -lipe \
-	$(QT_LIBS) $(CAIRO_LIBS)
+CPPFLAGS += -I../include -I../ipecairo -I../ipecanvas \
+	$(UI_CFLAGS) $(CAIRO_CFLAGS)
+LIBS += -L$(buildlib) $(UI_LIBS) $(CAIRO_LIBS) -lipecanvas -lipecairo -lipe
 
 all: $(TARGET)
 
-sources	= ipeview.cpp
-moc_headers = ipeview.h
+win_sources = ipeview_win.cpp
+qt_sources = ipeview_qt.cpp
+moc_headers = ipeview_qt.h
+gtk_sources = ipeview_gtk.cpp
 
 ifdef WIN32
 CXXFLAGS += -mwindows
@@ -23,7 +25,7 @@ LDFLAGS  += -mwindows
 resource = $(OBJDIR)/res.o
 
 $(resource): ipeview.rc
-	windres -i ipeview.rc -o $@ --include-dir=../ipe
+	$(WINDRES) -i ipeview.rc -o $@ --include-dir=../ipe
 
 else
 resource = 
