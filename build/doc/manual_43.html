@@ -3,8 +3,8 @@
    "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
-     using Hyperlatex v 2.6 (c) Otfried Cheong
-     on Emacs 22.2.1, Sun Nov 21 20:59:06 2010 -->
+     using Hyperlatex v 11.07 (c) Otfried Cheong
+     on Emacs 23.2.1, Mon Aug 29 23:43:23 2011 -->
 <head>
 <title>Ipe Manual -- 9.2 The &lt;page&gt; element</title>
 
@@ -19,8 +19,8 @@ div.verse, div.quote, div.quotation {
 </style>
 
 <link rel="stylesheet"
-        href="manual.css" type="text/css"><meta http-equiv="Content-Type" 
-        content="text/html; charset=UTF-8">
+        href="manual.css" type="text/css" /><meta http-equiv="Content-Type" 
+        content="text/html; charset=UTF-8" />
 </head>
 <body bgcolor="#ffffe6">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
@@ -40,6 +40,8 @@ div.verse, div.quote, div.quotation {
   the subsection of the previous page.  If the attribute is present,
   but its value is an empty string, then the contents of the
   <code>title</code> attribute is used instead.
+<dt><b>marked</b><dd> (optional) The page is marked for printing unless the
+  value of this attribute is <code>no</code>.
 </dl>
 
 <h4><a name="id2">Contents</a></h4>
@@ -78,6 +80,8 @@ containing notes for this page.
 <dt><b>effect</b><dd> (optional) The symbolic name of a graphics effect to be
   used during the PDF page transition.  The effect must be defined in
   the style sheet.
+<dt><b>marked</b><dd> (optional) The view is marked for printing if the value
+  of this attribute is <code>yes</code>.
 </dl>
 <p>The view element must be empty.
 <hr />
