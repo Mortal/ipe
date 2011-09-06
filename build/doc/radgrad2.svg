@@ -9,7 +9,7 @@
 <stop offset="1.0" style="stop-color:rgb(0%,0%,0%);stop-opacity:0;"/>
 </radialGradient>
 </defs>
-<g id="surface1">
+<g id="surface0">
 <path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke:rgb(0%,0%,100%);stroke-opacity:1;stroke-miterlimit:10;" d="M 1 1 L 199 1 L 199 199 L 1 199 Z M 1 1 " transform="matrix(1,0,0,-1,-0.5,199.5)"/>
 <path style=" stroke:none;fill-rule:evenodd;fill:url(#radial0);" d="M 153.5 99.5 C 153.5 69.675781 129.324219 45.5 99.5 45.5 C 69.675781 45.5 45.5 69.675781 45.5 99.5 C 45.5 129.324219 69.675781 153.5 99.5 153.5 C 129.324219 153.5 153.5 129.324219 153.5 99.5 Z M 153.5 99.5 "/>
 </g>

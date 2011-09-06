@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 11.07 (c) Otfried Cheong
-     on Emacs 23.2.1, Mon Aug 29 23:43:23 2011 -->
+     on Emacs 22.2.1, Wed Sep  7 05:00:11 2011 -->
 <head>
 <title>Ipe Manual -- 12.2 Environment variables</title>
 
@@ -37,9 +37,19 @@ environment variables:
 </dl>
 <p>The Ipe program uses several additional environment variables:
 <dl><dt><b>EDITOR</b><dd> external editor to use for editing text objects.
-<dt><b>IPESTYLES</b><dd> a directory where Ipe looks for stylesheets, for
-  instance for the standard stylesheet <i>basic.isy</i>.
-<dt><b>IPELETPATH</b><dd> a list of directories containing ipelets.
+<dt><b>IPESTYLES</b><dd> a list of directories, separated by semicolons, where
+  Ipe looks for stylesheets, for instance for the standard stylesheet
+  <i>basic.isy</i>. You can write &#95; (a single underscore) for the
+  system-wide stylesheet directory.  If this variable is not set, the
+  default consists of the system-wide stylesheet directory, plus
+  <i>~/.ipe/styles</i> on Unix, plus
+  <i>~/Library/Ipe/Styles</i> on OS&nbsp;X.
+<dt><b>IPELETPATH</b><dd> a list of directories, separated by semicolons,
+  containing ipelets. You can write &#95; (a single underscore) for the
+  system-wide ipelet directory. If this variable is not set, the
+  default consists of the system-wide ipelet directory, plus
+  <i>~/.ipe/ipelets</i> on Unix, plus
+  <i>~/Library/Ipe/Ipelets</i> on OS&nbsp;X.
 <dt><b>IPEICONDIR</b><dd> directory containing icons for the Ipe user interface.
 <dt><b>IPEDOCDIR</b><dd> directory containing Ipe documentation.
 <dt><b>IPELUAPATH</b><dd> path for searching for Ipe Lua code.

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 11.07 (c) Otfried Cheong
-     on Emacs 23.2.1, Mon Aug 29 23:43:23 2011 -->
+     on Emacs 22.2.1, Wed Sep  7 05:00:11 2011 -->
 <head>
 <title>Ipe Manual -- 12.1 Command line options</title>
 
@@ -83,10 +83,6 @@ converts <i>figure1.eps</i> to <i>figure1.pdf</i>.
   will cause a Postscript error when displayed).
 <dt><b><code>-nozip</code></b><dd> 
   Do not compress streams in PDF or Postscript output.
-<dt><b><code>-styleupdate</code></b><dd> Update all style sheets in the document
-  from external style sheet files in the current directory.  The
-  external file's name must match the name of the style sheet and have
-  the extension 'isy'.
 </dl>
 
 <h4><a name="id4">Iperender: converting to a bitmap or SVG art</a></h4>
@@ -125,6 +121,14 @@ If not provided, the outfile is guessed by adding the extension
 for the Ipe objects, such as the script "update-master".  Ipescript
 automatically finds the script in Ipe's script directories.  On Unix,
 you can place your own scripts in <i>&#36;HOME/.ipe/scripts</i>.
+<p>The Ipe distribution contains the following scripts:
+<ul><li><i>update-master</i>, explained 
+  <a href="manual_35.html">earlier</a>;
+<li><i>add-style</i> to add a stylesheet to Ipe figures;
+<li><i>update-styles</i> to update the stylesheets in Ipe figures
+  (in the same way that Ipe does it using the "Update stylesheets"
+  function). 
+</ul>
 
 <h4><a name="id8">Svgtoipe: Importing SVG figures</a></h4>
 

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 11.07 (c) Otfried Cheong
-     on Emacs 23.2.1, Mon Aug 29 23:43:23 2011 -->
+     on Emacs 22.2.1, Wed Sep  7 05:00:06 2011 -->
 <head>
 <title>Ipe Manual -- 9.4 The &lt;ipestyle&gt; element</title>
 
@@ -113,21 +113,26 @@ described below.
 <dt><b>size</b><dd> (required) The font size as a number.
 </dl>
 
-<h3><a name="id15">9.4.8 The <tt>&lt;pathstyle&gt;</tt> element</a></h3>
+<h3><a name="id15">9.4.8 The <tt>textpad</tt> element</a></h3>
+<p>It defines padding around text objects for the computation of bounding
+boxes.  The four required attributes are <tt>left</tt>,
+<tt>right</tt>, <tt>top</tt>, and  <tt>bottom</tt>.
+
+<h3><a name="id16">9.4.9 The <tt>&lt;pathstyle&gt;</tt> element</a></h3>
 <p>It defines the default setting for path objects.
 
-<h4><a name="id16">Attributes</a></h4>
+<h4><a name="id17">Attributes</a></h4>
 <dl><dt><b>cap</b><dd> (optional) Same as for <code>&lt;path&gt;</code> elements.
 <dt><b>join</b><dd> (optional) Same as for <code>&lt;path&gt;</code> elements.
 <dt><b>fillrule</b><dd> (optional) Same as for <code>&lt;path&gt;</code> elements.
 </dl>
 
-<h3><a name="id17">9.4.9 The <tt>&lt;opacity&gt;</tt> element</a></h3>
+<h3><a name="id18">9.4.10 The <tt>&lt;opacity&gt;</tt> element</a></h3>
 <p>The <code>opacity</code> element defines a possible opacity value (also
 known as an alpha-value).  All opacity values used in a document must
 be defined in the style sheet.
 
-<h4><a name="id18">Attributes</a></h4>
+<h4><a name="id19">Attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) A symbolic name, to be used in the
   <code>opacity</code> attribute of a <code>text</code> or <code>path</code> element. 
 <dt><b>value</b><dd> (required) An absolute value for the opacity, between
@@ -135,11 +140,11 @@ be defined in the style sheet.
   opaque.
 </dl>
 
-<h3><a name="id19">9.4.10 The <tt>&lt;gradient&gt;</tt> element</a></h3>
+<h3><a name="id20">9.4.11 The <tt>&lt;gradient&gt;</tt> element</a></h3>
 
 <p>The <code>gradient</code> element defines a gradient pattern.
 
-<h4><a name="id20">Attributes of <code>&lt;gradient&gt;</code></a></h4>
+<h4><a name="id21">Attributes of <code>&lt;gradient&gt;</code></a></h4>
 <dl><dt><b>name</b><dd> (required) The symbolic name (to be used in the
   <code>gradient</code> attribute of <code>&lt;path&gt;</code> elements).
 <dt><b>type</b><dd> (required) Possible values are
@@ -160,18 +165,18 @@ least two stops.  Stops must be defined in increasing offset order.
 It is not necessary that the first offset is&nbsp;0.0 and the last one
 is&nbsp;1.0.
 
-<h4><a name="id21">Attributes of <code>&lt;stop&gt;</code></a></h4>
+<h4><a name="id22">Attributes of <code>&lt;stop&gt;</code></a></h4>
 <dl><dt><b>offset</b><dd> (required) Offset of the color stop (a number between
   0.0 and 1.0).
 <dt><b>color</b><dd> (required) Color at this color stop (three
   numbers). Symbolic names are not allowed.
 </dl>
 
-<h3><a name="id22">9.4.11 The <tt>&lt;tiling&gt;</tt> element</a></h3>
+<h3><a name="id23">9.4.12 The <tt>&lt;tiling&gt;</tt> element</a></h3>
 <p>The <code>tiling</code> element defines a tiling pattern.  Only very simple
 patterns that hatch the area with a line are supported.
 
-<h4><a name="id23">Attributes</a></h4>
+<h4><a name="id24">Attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) The symbolic name (to be used in the <code>tiling</code>
   attribute of <code>&lt;path&gt;</code> elements).
 <dt><b>angle</b><dd> (required) Slope of the hatching line in degrees, between
@@ -183,12 +188,12 @@ patterns that hatch the area with a line are supported.
 if the absolute value of <code>angle</code> is less than 45&nbsp;degrees, and in
 the <i>y</i>-direction otherwise.
 
-<h3><a name="id24">9.4.12 The <tt>&lt;effect&gt;</tt> element</a></h3>
+<h3><a name="id25">9.4.13 The <tt>&lt;effect&gt;</tt> element</a></h3>
 <p>The <code>effect</code> element defines a graphic effect to be used during a
 PDF page transition.  Acrobat Reader supports these effects, but not
 all PDF viewers do.
 
-<h4><a name="id25">Attributes</a></h4>
+<h4><a name="id26">Attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) The symbolic name (to be used in the <code>effect</code>
   attribute of <code>&lt;view&gt;</code> elements).
 <dt><b>duration</b><dd> (required) Value must be a real number, indicating the
@@ -200,7 +205,7 @@ all PDF viewers do.
   <code>ipe::Effect::TEffect</code> for the exact meaning).
 </dl>
 
-<h3><a name="id26">9.4.13 Other style definition elements</a></h3>
+<h3><a name="id27">9.4.14 Other style definition elements</a></h3>
 <p>The remaining style definition elements are:
 <ul><li><code>&lt;color&gt;</code> Defines a symbolic color.  The value must be an
   absolute color, that is either a single gray value (between 0 and
@@ -227,7 +232,7 @@ all PDF viewers do.
   only used to fill the angle selector in the user interface.
 </ul>
 
-<h4><a name="id27">Common attributes</a></h4>
+<h4><a name="id28">Common attributes</a></h4>
 <dl><dt><b>name</b><dd> (required) A symbolic name, which must start with a
   letter 'a' to 'z' or 'A' to 'Z'.
 <dt><b>value</b><dd> (required) A legal absolute value for the type of
