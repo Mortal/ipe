@@ -121,6 +121,9 @@ namespace ipe {
     const Layout *layout() const;
     void setLayout(const Layout &margins);
 
+    const TextPadding *textPadding() const;
+    void setTextPadding(const TextPadding &pad);
+
     const TitleStyle *titleStyle() const;
     void setTitleStyle(const TitleStyle &ts);
 
@@ -162,6 +165,7 @@ namespace ipe {
     String iEncoding;
     String iPreamble;
     Layout iLayout;
+    TextPadding iTextPadding;
     TitleStyle iTitleStyle;
     PageNumberStyle iPageNumberStyle;
 
@@ -197,6 +201,7 @@ namespace ipe {
     const Tiling *findTiling(Attribute sym) const;
     const Effect *findEffect(Attribute sym) const;
     const Layout *findLayout() const;
+    const TextPadding *findTextPadding() const;
     const StyleSheet::TitleStyle *findTitleStyle() const;
     const StyleSheet::PageNumberStyle *findPageNumberStyle() const;
     String findPreamble() const;
@@ -209,8 +214,6 @@ namespace ipe {
     void allNames(Kind kind, AttributeSeq &seq) const;
     int findDefinition(Kind kind, Attribute sym) const;
     void allCMaps(std::vector<String> &seq) const;
-
-    String update(String dir);
 
   private:
     std::vector<StyleSheet *> iSheets;

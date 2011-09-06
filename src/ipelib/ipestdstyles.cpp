@@ -42,6 +42,7 @@ static const char *styleStandard[] = {
   "<dashstyle name=\"normal\" value=\"[]0\"/>",
   "<textsize name=\"normal\" value=\"\\normalsize\"/>",
   "<textstretch name=\"normal\" value=\"1\"/>",
+  "<textpad left=\"0\" right=\"0\" top=\"0\" bottom=\"0\"/>",
   "<symbolsize name=\"normal\" value=\"3\"/>",
   "<arrowsize name=\"normal\" value=\"7\"/>",
   "<symbol name=\"arrow/normal(spx)\">",

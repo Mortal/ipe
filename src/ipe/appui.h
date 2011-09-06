@@ -127,6 +127,7 @@ protected:
   virtual void canvasObserverMouseAction(int button);
   virtual void canvasObserverPositionChanged();
   virtual void canvasObserverToolChanged(bool hasTool);
+  virtual void canvasObserverSizeChanged();
 
 protected:
   AppUiBase(lua_State *L0, int model);

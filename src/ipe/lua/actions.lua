@@ -114,7 +114,7 @@ function MODEL:set_absolute(prop, value)
   end
 end
 
-function MODEL:layerAction(a, layer)
+function MODEL:layerAction(a, layer, target)
   local name = a
   local arg = nil
   if a:sub(-2) == "on" then
@@ -123,6 +123,8 @@ function MODEL:layerAction(a, layer)
   elseif a:sub(-3) == "off" then
     name = a:sub(1,-4)
     arg = false
+  else
+    arg = target
   end
   local f = self["layeraction_" .. name]
   if f then
@@ -308,9 +310,23 @@ function MODEL:showLayerBoxPopup(v, layer)
   else
     m:add("snapon", "Enable snapping")
   end
-  local r = m:execute(v.x, v.y)
+  local layers = p:layers()
+  if #layers > 1 then
+    local targets = {}
+    local i0 = indexOf(layer,layers)
+    if i0 ~= 1 then targets[1] = "_top_" end
+    for i,l in ipairs(layers) do
+      if i ~= i0 - 1 and i ~= i0 then
+	targets[#targets + 1] = l
+      end
+    end
+    m:add("move", "Move " .. layer, targets,
+	  function (i, l) if l == "_top_" then return "to top"
+	    else return "after " .. l end end)
+  end
+  local r, no, subitem = m:execute(v.x, v.y)
   if r then
-    self:layerAction(r, layer)
+    self:layerAction(r, layer, subitem)
   end
 end
 
@@ -369,6 +385,24 @@ function MODEL:layeraction_snap(layer, arg)
 	   end
   t.redo = function (t, doc)
 	     doc[t.pno]:setSnapping(t.layer, t.snapping)
+	   end
+  self:register(t)
+end
+
+function MODEL:layeraction_move(layer, arg)
+  local p = self:page()
+  local target = 1
+  if arg ~= "_top_" then target = indexOf(arg, p:layers()) end
+  local t = { label="move layer " .. layer,
+	      pno=self.pno,
+	      vno=self.vno,
+	      original=p:clone(),
+	      layer=layer,
+	      target=target,
+	      undo=revertOriginal
+	    }
+  t.redo = function (t, doc)
+	     doc[t.pno]:moveLayer(t.layer, t.target)
 	   end
   self:register(t)
 end
@@ -554,7 +588,8 @@ end
 function MODEL:action_show_configuration()
   local s = ""
   s = s .. " * Lua code: " .. package.path
-  s = s .. "\n * Style directory: " .. config.styles
+  s = s .. "\n * Style directories:\n  - " ..
+    table.concat(config.styleDirs, "\n  - ")
   s = s .. "\n * Styles for new documents: " ..
     table.concat(prefs.styles, ", ")
   s = s .. "\n * Autosave file: " .. prefs.autosave_filename
@@ -859,6 +894,15 @@ function MODEL:action_fit_width()
   box:add(V(-layout.origin.x - 2, y0 - 2))
   box:add(V(-layout.origin.x + layout.papersize.x + 2, y0 + 2))
   self:fitBox(box);
+end
+
+function MODEL:action_fit_top()
+  self:action_fit_width()  -- sets zoom and x-pan correctly
+  local layout = self.doc:sheets():find("layout")
+  local x0 = self.ui:pan().x
+  local ht = 0.5 * self.ui:canvasSize().y / self.ui:zoom()
+  local y0 = -layout.origin.y + layout.papersize.y + 2 - ht
+  self.ui:setPan(V(x0, y0))
 end
 
 function MODEL:action_fit_objects()
@@ -1683,30 +1727,45 @@ function MODEL:action_check_style()
     self.ui:explain("no undefined symbols")
   else
     self:warning("Undefined symbolic attributes:",
-		 "<qt><ul><li>" .. table.concat(syms, "<li>") .. "</qt>")
+		 "\n - " .. table.concat(syms, "\n - ") .. "\n")
   end
 end
 
 function MODEL:action_update_style_sheets()
-  if not self.file_name then
-    self:warning("Cannot update stylesheets",
-		 "The document has no filename")
-    return
+  local dir = nil
+  if self.file_name then dir = string.gsub(self.file_name, "[^/]+$", "") end
+  local sheets = self.doc:sheets()
+  local qlog = ""
+  for index=1,sheets:count() do
+    local sheet = sheets:sheet(index)
+    local name = sheet:name()
+    if not name then
+      qlog = qlog .. " - unnamed stylesheet\n"
+    elseif name == "standard" then
+      qlog = qlog .. " - standard stylesheet\n"
+    else
+      qlog = qlog .. " - stylesheet '" .. name .. "'\n"
+      local s = findStyle(name .. ".isy", dir)
+      if s then
+	qlog = qlog .. "     updating from '" .. s .."'\n"
+	local nsheet = ipe.Sheet(s)
+	if not nsheet then
+	  qlog = qlog .. "    ! failed to load '" .. s .. "'!\n"
+	else
+	  sheets:insert(index, nsheet)
+	  sheets:remove(index + 1) -- remove old sheet
+	end
+      end
+    end
   end
-  local dir = string.gsub(self.file_name, "[^/]+$", "")
-  local sheets = self.doc:sheets():clone()
-  local log = sheets:update(dir)
-  -- TODO!
-  local qlog = "<qt><ol>"
-  for w in string.gmatch(log, "[^\n]+") do
-    qlog = qlog .. "<li>" .. w .. "</li>"
-  end
-  qlog = qlog .. "</ol></qt>"
+
   ipeui.messageBox(self.ui:win(), "information",
 		   "Result of updating stylesheets:", qlog)
 
   local t = { label="update style sheets",
+	      style_sheets_changed = true,
 	      final = sheets,
+	      original = self.doc:sheets():clone(),
 	    }
   t.undo = function (t, doc)
 	     t.final = doc:replaceSheets(t.original)
@@ -1731,8 +1790,7 @@ local function sheets_add(d, dd)
   local i = d:get("list")
   if not i then i = 1 end
   local s, f = ipeui.fileDialog(dd.model.ui:win(), "open", "Add stylesheet",
-				"Ipe stylesheets (*.isy)",
-				config.styles)
+				"Ipe stylesheets (*.isy)")
   if not s then return end
   local sheet, msg = ipe.Sheet(s)
   if not sheet then

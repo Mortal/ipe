@@ -12,8 +12,8 @@ CPPFLAGS += -I../include -I../ipecanvas -I../ipecairo -I../ipelua \
 LIBS += -L$(buildlib) -lipecanvas -lipecairo -lipelua -lipe -lipeui \
 	$(LUA_LIBS) $(UI_LIBS) $(CAIRO_LIBS) $(ZLIB_LIBS)
 
-CPPFLAGS += -DIPELETPATH=\"$(IPELETPATH)\"
-CPPFLAGS += -DIPELUAPATH=\"$(IPELUAPATH)\"
+CPPFLAGS += -DIPELETDIR=\"$(IPELETDIR)\"
+CPPFLAGS += -DIPELUADIR=\"$(IPELUADIR)\"
 CPPFLAGS += -DIPEICONDIR=\"$(IPEICONDIR)\"
 CPPFLAGS += -DIPEDOCDIR=\"$(IPEDOCDIR)\"
 CPPFLAGS += -DIPESTYLEDIR=\"$(IPESTYLEDIR)\"

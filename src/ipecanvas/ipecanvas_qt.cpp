@@ -247,11 +247,9 @@ void Canvas::tabletEvent(QTabletEvent *ev)
 					     iAdditionalModifiers);
     } else if (iTool)
       iTool->mouseButton(Qt::LeftButton | iAdditionalModifiers, true);
-    else {
-      if (iObserver)
-	iObserver->canvasObserverMouseAction(Qt::LeftButton |
-					     iAdditionalModifiers);
-    }
+    else if (iObserver)
+      iObserver->canvasObserverMouseAction(Qt::LeftButton |
+					   iAdditionalModifiers);
     break;
   case QEvent::TabletMove:
     if (ev->pressure() > 0.01) {

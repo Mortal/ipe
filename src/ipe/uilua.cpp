@@ -369,7 +369,10 @@ static int shapetool_setshape(lua_State *L)
   int which = 0;
   if (!lua_isnoneornil(L, 2))
     which = luaL_checkint(L, 2);
-  tool->setShape(shape, which);
+  double pen = 1.0;
+  if (lua_isnumber(L, 3))
+    pen = luaL_checknumber(L, 3);
+  tool->setShape(shape, which, pen);
   return 0;
 }
 

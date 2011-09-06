@@ -10,6 +10,7 @@ TARGET = $(call exe_target,ipescript)
 CPPFLAGS += -I../include -I../ipelua $(LUA_CFLAGS) 
 LIBS += -L$(buildlib) -lipelua -lipe $(LUA_LIBS)
 
+CPPFLAGS += -DIPELETDIR=\"$(IPELETDIR)\"
 CPPFLAGS += -DIPESTYLEDIR=\"$(IPESTYLEDIR)\"
 CPPFLAGS += -DIPESCRIPTDIR=\"$(IPESCRIPTDIR)\"
 

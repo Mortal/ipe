@@ -144,18 +144,19 @@ bool LuaTool::key(int code, int modifiers, String text)
 ShapeTool::ShapeTool(CanvasBase *canvas, lua_State *L0, int luatool)
   : LuaTool(canvas, L0, luatool)
 {
-  // nothing else
+  iPen = 1.0;
 }
 
 void ShapeTool::draw(Painter &painter) const
 {
   double z = 1.0 / iCanvas->zoom();
-  painter.setPen(Attribute(Fixed::fromDouble(1.0)));
+  painter.setPen(Attribute(Fixed::fromDouble(iPen)));
   painter.setStroke(Attribute(iColor));
   painter.newPath();
   iShape.draw(painter);
   painter.drawPath(EStrokedOnly);
   painter.setStroke(Attribute(Color(0, 1000, 0)));
+  painter.setPen(Attribute(Fixed::fromDouble(1.0)));
   painter.newPath();
   iAuxShape.draw(painter);
   painter.drawPath(EStrokedOnly);
@@ -230,12 +231,13 @@ void ShapeTool::draw(Painter &painter) const
   }
 }
 
-void ShapeTool::setShape(Shape shape, int which)
+void ShapeTool::setShape(Shape shape, int which, double pen)
 {
   if (which == 1)
     iAuxShape = shape;
   else
     iShape = shape;
+  iPen = pen;
 }
 
 void ShapeTool::clearMarks()

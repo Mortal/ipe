@@ -7,7 +7,7 @@
 #
 # Which user interface library shall we use?
 #
-# Currently, the choice is between the Win32 API and Qt 4.  
+# Currently, the choice is between the Win32 API and Qt 4.
 # Choose one of "WIN32", or "QT".  Unless you compile for Microsoft
 # Windows, you will want "QT" (so the default will be fine).
 # (In fact, WIN32 doesn't work yet.)
@@ -97,8 +97,8 @@ endif
 CXX = g++
 #
 # Special compilation flags for compiling shared libraries
-# 64-bit Linux requires shared libraries to be compiled as 
-# position independent code  
+# 64-bit Linux requires shared libraries to be compiled as
+# position independent code
 # (it doesn't hurt much on 32bit Linux, although you could comment it
 # out for slightly faster code)
 DLL_CFLAGS = -fpic
@@ -107,7 +107,7 @@ DLL_CFLAGS = -fpic
 #
 # Installing Ipe:
 #
-IPEVERS = 7.1.0
+IPEVERS = 7.1.1
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.
@@ -139,26 +139,16 @@ IPEHEADERDIR = $(IPEPREFIX)/include
 # Where Ipelets will be installed:
 IPELETDIR = $(IPEPREFIX)/lib/ipe/$(IPEVERS)/ipelets
 #
-# List of paths where Ipe will search for Ipelets:
-# (Individual paths are separated by ";" on both Windows and Unix!)
-IPELETPATH = $(IPELETDIR)
-#
 # Where Lua code will be installed
 # (This is the part of the Ipe program written in the Lua language)
 IPELUADIR = $(IPEPREFIX)/share/ipe/$(IPEVERS)/lua
 #
-# List of patterns where Ipe will search for Lua code:
-# (Individual paths are separated by ";" on both Windows and Unix!)
-IPELUAPATH = $(IPELUADIR)/?.lua
-#
 # Directory where Ipe will look for scripts
 # (standard scripts will also be installed here)
-#
 IPESCRIPTDIR = $(IPEPREFIX)/share/ipe/$(IPEVERS)/scripts
 #
 # Directory where Ipe will look for style files
 # (standard Ipe styles will also be installed here)
-#
 IPESTYLEDIR = $(IPEPREFIX)/share/ipe/$(IPEVERS)/styles
 #
 # IPEICONDIR contains the icons used in the Ipe user interface

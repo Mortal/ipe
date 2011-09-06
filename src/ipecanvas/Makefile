@@ -38,9 +38,7 @@ $(DEPEND): Makefile
 install: $(TARGET)
 	$(INSTALL_DIR) $(INSTALL_ROOT)$(IPELIBDIR)
 	$(INSTALL_PROGRAMS) $(TARGET) $(INSTALL_ROOT)$(IPELIBDIR)
-	$(INSTALL_FILES) ipecanvas.h $(INSTALL_ROOT)$(IPEHEADERDIR)
-	$(INSTALL_FILES) ipetool.h $(INSTALL_ROOT)$(IPEHEADERDIR)
-# TODO	$(INSTALL_FILES) ipeselector.h $(INSTALL_ROOT)$(IPEHEADERDIR)
+	$(INSTALL_FILES) *.h $(INSTALL_ROOT)$(IPEHEADERDIR)
 	$(INSTALL_SYMLINKS)
 
 # --------------------------------------------------------------------

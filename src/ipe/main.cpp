@@ -104,7 +104,7 @@ static int traceback (lua_State *L)
 static void setup_config(lua_State *L, const char *var,
 			 const char *env, const char *conf)
 {
-  const char *p = getenv(env);
+  const char *p = env ? getenv(env) : 0;
 #ifdef WIN32
   push_string(L, p ? p : Platform::ipeDir(conf));
 #else
@@ -126,16 +126,19 @@ static lua_State *setup_lua()
   return L;
 }
 
-static void setup_globals(lua_State *L, const char *home,
-			  int width, int height, const char *tk)
+static void setup_globals(lua_State *L, int width, int height, const char *tk)
 {
   lua_getglobal(L, "package");
   const char *luapath = getenv("IPELUAPATH");
+  if (luapath)
+    lua_pushstring(L, luapath);
+  else {
 #ifdef WIN32
-  push_string(L, luapath ? luapath : Platform::ipeDir("lua/?.lua"));
+    push_string(L, Platform::ipeDir("lua/?.lua"));
 #else
-  lua_pushstring(L, luapath ? luapath : IPELUAPATH);
+    lua_pushstring(L, IPELUADIR "/?.lua");
 #endif
+  }
   lua_setfield(L, -2, "path");
 
   lua_newtable(L);  // config table
@@ -151,13 +154,13 @@ static void setup_globals(lua_State *L, const char *home,
   lua_setfield(L, -2, "toolkit");
 
 #ifdef WIN32
-  setup_config(L, "styles", "IPESTYLES", "styles");
+  setup_config(L, "system_styles", 0, "styles");
+  setup_config(L, "system_ipelets", 0, "ipelets");
   setup_config(L, "docdir", "IPEDOCDIR", "doc");
-  setup_config(L, "ipelets", "IPELETPATH", "ipelets");
 #else
-  setup_config(L, "styles", "IPESTYLES", IPESTYLEDIR);
+  setup_config(L, "system_styles", 0, IPESTYLEDIR);
+  setup_config(L, "system_ipelets", 0, IPELETDIR);
   setup_config(L, "docdir", "IPEDOCDIR", IPEDOCDIR);
-  setup_config(L, "ipelets", "IPELETPATH", IPELETPATH);
 #endif
   push_string(L, Platform::fontmapFile());
   lua_setfield(L, -2, "fontmap");
@@ -165,11 +168,6 @@ static void setup_globals(lua_State *L, const char *home,
   lua_setfield(L, -2, "latexdir");
   push_string(L, ipeIconDirectory());
   lua_setfield(L, -2, "icons");
-
-  if (home) {
-    lua_pushstring(L, home);
-    lua_setfield(L, -2, "home");
-  }
 
   lua_pushfstring(L, "Ipe %d.%d.%d",
 		  IPELIB_VERSION / 10000,
@@ -185,7 +183,6 @@ static void setup_globals(lua_State *L, const char *home,
   lua_setfield(L, -2, "screen_geometry");
 
   lua_setglobal(L, "config");
-
 }
 
 static bool lua_run_ipe(lua_State *L, lua_CFunction fn)
@@ -234,8 +231,7 @@ int main(int argc, char *argv[])
 
   QRect r = a.desktop()->screenGeometry();
 
-  setup_globals(L, QDir::homePath().toUtf8(),
-		r.width(), r.height(), "qt");
+  setup_globals(L, r.width(), r.height(), "qt");
 
   lua_run_ipe(L, mainloop);
 
@@ -303,7 +299,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   int cx = GetSystemMetrics(SM_CXSCREEN);
   int cy = GetSystemMetrics(SM_CYSCREEN);
-  setup_globals(L, "C:\\", cx, cy, "win32");
+  setup_globals(L, cx, cy, "win32");
 
   lua_run_ipe(L, mainloop);
 
@@ -339,7 +335,7 @@ int main(int argc, char *argv[])
   int width = gdk_screen_get_width(screen);
   int height = gdk_screen_get_height(screen);
   ipeDebug("Screen resolution is (%d x %d)", width, height);
-  setup_globals(L, getenv("HOME"), width, height, "gtk");
+  setup_globals(L, width, height, "gtk");
 
   lua_run_ipe(L, mainloop);
 
@@ -348,5 +344,4 @@ int main(int argc, char *argv[])
 }
 
 #endif
-
 // --------------------------------------------------------------------

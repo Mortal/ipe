@@ -491,7 +491,7 @@ static int dialog_tostring(lua_State *L)
 
 static int dialog_destructor(lua_State *L)
 {
-  fprintf(stderr, "Dialog::~Dialog()\n");
+  //fprintf(stderr, "Dialog::~Dialog()\n");
   Dialog **dlg = check_dialog(L, 1);
   delete (*dlg);
   *dlg = 0;
@@ -586,7 +586,7 @@ static int menu_tostring(lua_State *L)
 
 static int menu_destructor(lua_State *L)
 {
-  fprintf(stderr, "Menu::~Menu()\n");
+  //fprintf(stderr, "Menu::~Menu()\n");
   Menu **m = check_menu(L, 1);
   delete *m;
   *m = 0;
@@ -667,7 +667,7 @@ static int timer_tostring(lua_State *L)
 static int timer_destructor(lua_State *L)
 {
   Timer **t = check_timer(L, 1);
-  fprintf(stderr, "Timer::~Timer()\n");
+  //fprintf(stderr, "Timer::~Timer()\n");
   delete *t;
   *t = 0;
   return 0;

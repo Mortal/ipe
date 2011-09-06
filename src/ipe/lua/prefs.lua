@@ -28,6 +28,8 @@
 
 --]]
 
+local home = os.getenv("HOME")
+
 prefs = {}
 
 -- List of stylesheets that are added to newly created docs.  Without
@@ -41,9 +43,9 @@ prefs.autosave_interval = 600 -- 10 minutes
 
 -- Filename for autosaving
 -- can contain '%s' for the filename of the current file
--- can use config.home for the user's home directory
--- prefs.autosave_filename = config.home .. "/autosave.ipe"
-prefs.autosave_filename = config.home .. "/%s.autosave"
+-- can use 'home' for the user's home directory
+-- prefs.autosave_filename = home .. "/autosave.ipe"
+prefs.autosave_filename = home .. "/%s.autosave"
 
 -- External editor for editing text objects
 -- must contain '%s' for the temporary filename
@@ -156,7 +158,7 @@ prefs.auto_export_only_if_exists = true
 -- If you use Ipe from the commandline, "." is the right value.
 prefs.save_as_directory = "."
 -- Otherwise, you could use the home directory, or Documents:
--- prefs.save_as_directory = config.home
--- prefs.save_as_directory = config.home .. "/Documents"
+-- prefs.save_as_directory = home
+-- prefs.save_as_directory = home .. "/Documents"
 
 ----------------------------------------------------------------------

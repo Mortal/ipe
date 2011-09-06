@@ -199,6 +199,13 @@ namespace ipe {
     bool iCrop;
   };
 
+  //! Padding for text bounding box.
+  /*! \ingroup attr */
+  struct TextPadding {
+  public:
+    double iLeft, iRight, iTop, iBottom;
+  };
+
   struct Effect {
   public:
     //! The various fancy effects that Acrobat Reader will show.

@@ -118,6 +118,7 @@ StyleSheet::StyleSheet()
   iStandard = false;
   iTitleStyle.iDefined = false;
   iPageNumberStyle.iDefined = false;
+  iTextPadding.iLeft = -1.0;
   iLineJoin = EDefaultJoin;
   iLineCap = EDefaultCap;
   iFillRule = EDefaultRule;
@@ -136,6 +137,21 @@ const Layout *StyleSheet::layout() const
     return 0;
   else
     return &iLayout;
+}
+
+//! Return text object padding (for bbox computation).
+const TextPadding *StyleSheet::textPadding() const
+{
+  if (iTextPadding.iLeft < 0)
+    return 0;
+  else
+    return &iTextPadding;
+}
+
+//! Set padding for text object bbox computation.
+void StyleSheet::setTextPadding(const TextPadding &pad)
+{
+  iTextPadding = pad;
 }
 
 //! Set style of page titles.
@@ -460,6 +476,14 @@ void StyleSheet::saveAsXml(Stream &stream, bool saveBitmaps) const
       stream << "\" crop=\"no";
     stream << "\"/>\n";
   }
+  if (iTextPadding.iLeft >= 0.0) {
+    stream << "<textpad left=\"" << iTextPadding.iLeft
+	   << "\" right=\"" << iTextPadding.iRight
+	   << "\" top=\"" << iTextPadding.iTop
+	   << "\" bottom=\"" << iTextPadding.iBottom
+	   << "\"/>\n";
+
+  }
   if (iPageNumberStyle.iDefined) {
     stream << "<pagenumberstyle pos=\"" << iPageNumberStyle.iPos
 	   << "\" size=\"" << iPageNumberStyle.iFontSize
@@ -684,6 +708,18 @@ const Layout *Cascade::findLayout() const
   return 0;
 }
 
+//! Find text padding (for text bbox computation).
+const TextPadding *Cascade::findTextPadding() const
+{
+  for (int i = 0; i < count(); ++i) {
+    const TextPadding *t = iSheets[i]->textPadding();
+    if (t) return t;
+  }
+  // must never happen
+  assert(false);
+  return 0;
+}
+
 //! Get style of page titles (or 0 if none defined).
 const StyleSheet::TitleStyle *Cascade::findTitleStyle() const
 {
@@ -753,6 +789,8 @@ TFillRule Cascade::fillRule() const
 
 void Cascade::allNames(Kind kind, AttributeSeq &seq) const
 {
+  if (has(kind, Attribute::NORMAL()))
+    seq.push_back(Attribute::NORMAL());
   for (int i = 0; i < count(); ++i)
     iSheets[i]->allNames(kind, seq);
 }
@@ -781,77 +819,6 @@ void Cascade::allCMaps(std::vector<String> &seq) const
   for (int i = 0; i < count(); ++i) {
     iSheets[i]->allCMaps(seq);
   }
-}
-
-// --------------------------------------------------------------------
-
-static StyleSheet *updateSheet(StyleSheet *sheet, String dir, String &log)
-{
-  if (sheet->isStandard()) {
-    log.append("standard stylesheet\n");
-    return sheet;
-  }
-  if (sheet->name().empty()) {
-    log.append("unnamed stylesheet\n");
-    return sheet;
-  }
-  // else try to load it
-  String fn = dir;
-  if (!fn.isEmpty() && fn.right(1) != "/")
-    fn += "/";
-  fn += sheet->name() + ".isy";
-  std::FILE *file = std::fopen(fn.z(), "rb");
-  if (!file) {
-    if (errno == ENOENT) {
-      log.append("'");
-      log.append(sheet->name());
-      log.append("' not found\n");
-      return sheet;
-    } else {
-      log.append("'");
-      log.append(sheet->name());
-      log.append("': cannot open file '");
-      log.append(fn);
-      log.append("'\n");
-      return sheet;
-    }
-  }
-  FileSource source(file);
-  ImlParser parser(source);
-  StyleSheet *nSheet = parser.parseStyleSheet();
-  std::fclose(file);
-  if (!nSheet) {
-    log.append("'");
-    log.append(sheet->name());
-    log.append("': cannot parse file '");
-    log.append(fn);
-    log.append("'\n");
-    return sheet;
-  }
-  log.append("'");
-  log.append(nSheet->name());
-  log.append("' updated from '");
-  log.append(fn);
-  log.append("'\n");
-  return nSheet;
-}
-
-//! Update all style sheets in document from stylesheet file
-/*! Looks for files in directory \a dir whose name matches the name of
-  the style sheet and has the extension 'isy'.
-  \returns a string describing what has been done.
-*/
-String Cascade::update(String dir)
-{
-  String log;
-  for (int i = count() - 1; i >= 0; --i) {
-    StyleSheet *sheet = updateSheet(iSheets[i], dir, log);
-    if (sheet != iSheets[i]) {
-      delete iSheets[i];
-      iSheets[i] = sheet;
-    }
-  }
-  return log;
 }
 
 // --------------------------------------------------------------------

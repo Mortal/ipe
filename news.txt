@@ -1,5 +1,43 @@
 --------------------------------------------------------------------
  
+Ipe 7.1.1 (2011-09-07) SVN 563 Oberwolfach edition
+
+ * Fixed crash on odoc event on Mac OS X (bug #63).
+
+ * When a point is created using the lines tool (by clicking left and
+   then right at the same location), force line cap to be round to
+   avoid making invisible object (and for consistency with ink tool).
+
+ * IPESTYLES is now a list of style directories.  Ipe will search for
+   stylesheets in all these directories. By default, this will now
+   include ~/.ipe/styles on Unix, and also ~/Library/Ipe/Styles on
+   OSX.
+
+ * Fixed omission of ~/.ipe/ipelets on OSX and added
+   ~/Library/Ipe/Ipelets as well.
+
+ * Layers can now be moved in the layerlist (right-click on layer
+   name).
+
+ * Zoom and pan now properly initialized when Ipe starts up (feature
+   #4).
+
+ * New script "add-style" to add stylesheet to an Ipe figure.
+
+ * Removed "-styleupdate" option from ipetoipe, and created new script
+   "update-styles".  Updating styles both inside Ipe and using
+   "update-styles" now searches the entire IPESTYLES list.
+
+ * Reenabled compilation of omitted image ipelet (bug #66).
+
+ * New <textpad> setting in stylesheet to fix cropped text (bug #49).
+
+ * Always present 'normal' as the first attribute in dropdown list.
+
+ * Show real linewidth during handwriting.
+
+--------------------------------------------------------------------
+ 
 Ipe 7.1.0 (2011-08-29) SVN 549
 
  * Refactored Ipe code so that it is easy to build the Ipe application

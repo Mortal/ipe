@@ -370,15 +370,6 @@ static int cascade_has(lua_State *L)
   return 1;
 }
 
-static int cascade_update(lua_State *L)
-{
-  Cascade *p = check_cascade(L, 1)->cascade;
-  const char *dir = luaL_checkstring(L, 2);
-  String s = p->update(String(dir));
-  push_string(L, s);
-  return 1;
-}
-
 static int cascade_count(lua_State *L)
 {
   Cascade *p = check_cascade(L, 1)->cascade;
@@ -433,7 +424,6 @@ static const struct luaL_Reg cascade_methods[] = {
   { "sheet", cascade_sheet },
   { "insert", cascade_insert },
   { "remove", cascade_remove },
-  { "update", cascade_update },
   { NULL, NULL }
 };
 

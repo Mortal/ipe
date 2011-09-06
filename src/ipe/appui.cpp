@@ -222,6 +222,7 @@ void AppUiBase::buildMenus()
   addItem(EZoomMenu, "Normal size", "@normal_size");
   addItem(EZoomMenu, "Fit page", "@fit_page");
   addItem(EZoomMenu, "Fit width", "@fit_width");
+  addItem(EZoomMenu, "Fit page top", "@fit_top");
   addItem(EZoomMenu, "Fit objects", "@fit_objects");
   addItem(EZoomMenu, "Fit selection", "@fit_selection");
   addItem(EZoomMenu);
@@ -378,9 +379,17 @@ void AppUiBase::canvasObserverMouseAction(int button)
 {
   lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
   lua_getfield(L, -1, "mouseButtonAction");
-  lua_insert(L, -2); // before model
+  lua_insert(L, -2); // model
   push_button(L, button);
   lua_call(L, 3, 0);
+}
+
+void AppUiBase::canvasObserverSizeChanged()
+{
+  lua_rawgeti(L, LUA_REGISTRYINDEX, iModel);
+  lua_getfield(L, -1, "sizeChanged");
+  lua_insert(L, -2); // model
+  lua_call(L, 1, 0);
 }
 
 // --------------------------------------------------------------------

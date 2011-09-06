@@ -474,6 +474,15 @@ bool ImlParser::parseStyle(StyleSheet &sheet)
       layout.iParagraphSkip = Lex(att["skip"]).getDouble();
       layout.iCrop = !(att["crop"] == "no");
       sheet.setLayout(layout);
+    } else if (tag == "textpad") {
+      if (!parseAttributes(att) || !att.slash())
+	return false;
+      TextPadding pad;
+      pad.iLeft = Lex(att["left"]).getDouble();
+      pad.iRight = Lex(att["right"]).getDouble();
+      pad.iTop = Lex(att["top"]).getDouble();
+      pad.iBottom = Lex(att["bottom"]).getDouble();
+      sheet.setTextPadding(pad);
     } else if (tag == "titlestyle") {
       if (!parseAttributes(att) || !att.slash())
 	return false;

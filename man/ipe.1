@@ -5,7 +5,7 @@
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
 .\" \fI<whatever>\fP escape sequences to invoke bold face and italics, 
 .\" respectively.
-.TH IPE 1 "September 29, 2009"
+.TH IPE 1 "September 1, 2011"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -37,7 +37,7 @@ in HTML and PDF format; see below.
 .TP
 \fB\-sheet\fR \fIstylesheet\fP
 add the Ipe style sheet in the indicated file to all newly created Ipe
-documents.
+documents.  This option can be used more than once.
 
 .SH ENVIRONMENT VARIABLES
 
@@ -53,6 +53,29 @@ the complete path of the font map, describing where Ipe can find the
 14 standard PDF fonts.
 
 .TP
+\fBIPEANCIENTPDFTEX\fP 
+set this variable to use Pdftex versions older than 1.40.
+
+.TP
+\fBIPELETPATH\fP a list of directories, separated by semicolons,
+containing ipelets. You can write a single underscore for the
+system-wide ipelet directory. If this variable is not set, the default
+consists of the system-wide ipelet directory, plus
+\fI~/.ipe/ipelets\fP on Unix, plus \fI~/Library/Ipe/Ipelets\fP on OS
+X.
+
+.TP
+\fBEDITOR\fP
+external editor to use for editing text objects.
+
+.TP
+\fBIPESTYLES\fP a list of directories, separated by semicolons, where
+Ipe looks for stylesheets. You can write a single underscore for the
+system-wide stylesheet directory.  If this variable is not set, the
+default consists of the system-wide stylesheet directory, plus
+\fI~/.ipe/styles\fP on Unix, plus \fI~/Library/Ipe/Styles\fP on OS X.
+
+.TP
 \fBIPEDEBUG\fP
 set this to 1 for debugging output.
 
@@ -61,9 +84,12 @@ set this to 1 for debugging output.
 the directory containing the Ipe documentation.
 
 .TP
-\fBIPELETPATH\fP
-a list of directories where Ipe looks for ipelets. Directories are
-separated by ":" on Unix, and by ";" on Windows.
+\fBIPEICONDIR\fP directory containing icons for the Ipe user
+interface.
+
+.TP
+\fBIPELUAPATH\fP
+path for searching for Ipe Lua code.
 
 .SH AUTHOR
 Otfried Cheong

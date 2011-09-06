@@ -7,6 +7,7 @@ GOAL ?= all
 subdirs = \
 	ipelib \
 	ipelets/lua \
+	ipelets/image \
 	ipetoipe \
 	ipe6upgrade \
 	ipeextract \
@@ -18,8 +19,6 @@ subdirs = \
 	ipelua \
 	ipeui \
 	ipe
-
-#	ipelets/image \
 
 .PHONY: all $(subdirs)
 
@@ -33,11 +32,11 @@ ipe6upgrade: ipelib
 ipeextract: ipelib
 ipecairo: ipelib
 iperender: ipelib ipecairo
-ipeqtcanvas: ipelib ipecairo
-ipeview: ipeqtcanvas
+ipecanvas: ipelib ipecairo
+ipeview: ipecanvas
 ipelua: ipelib
 ipescript: ipelib ipelua
-ipe: ipeqtcanvas ipelua
+ipe: ipecanvas ipelua
 
 $(subdirs):
 	$(MAKE) --directory=$@ $(GOAL)
