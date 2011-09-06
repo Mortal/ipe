@@ -231,6 +231,33 @@ void Page::addLayer()
   }
 }
 
+//! Moves the position of a layer in the layer list.
+void Page::moveLayer(int index, int newIndex)
+{
+  assert(0 <= index && index < int(iLayers.size())
+	 && 0 <= newIndex && newIndex < int(iLayers.size()));
+
+  SLayer layer = iLayers[index];
+  iLayers.erase(iLayers.begin() + index);
+  iLayers.insert(iLayers.begin() + newIndex, layer);
+
+  // Layer of object needs to be decreased by one if > index
+  // Then increase by one if >= newIndex
+  // If == index, then replace by newIndex
+  for (ObjSeq::iterator it = iObjects.begin(); it != iObjects.end(); ++it) {
+    int k = it->iLayer;
+    if (k == index) {
+      k = newIndex;
+    } else {
+      if (k > index)
+	k -= 1;
+      if (k >= newIndex)
+	k += 1;
+    }
+    it->iLayer = k;
+  }
+}
+
 //! Removes an empty layer from the page.
 /*! All objects are adjusted.  Panics if there are objects in the
   deleted layer, of if it is the only layer.

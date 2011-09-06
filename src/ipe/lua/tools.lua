@@ -199,6 +199,11 @@ function LINESTOOL:mouseButton(button, modifiers, press)
     self:compute()
     self.model.ui:finishTool()
     local obj = ipe.Path(self.model.attributes, { self.shape }, true)
+    -- if it is just a point, force line cap to round
+    if #self.shape == 1 and self.shape[1].type == "segment" and
+      self.shape[1][1] == self.shape[1][2] then
+      obj:set("linecap", "round")
+    end
     self.model:creation("create path", obj)
     return
   end
@@ -610,8 +615,8 @@ function INKTOOL:new(model)
   model.ui:shapeTool(tool)
   local s = model.doc:sheets():find("color", model.attributes.stroke)
   tool.setColor(s.r, s.g, s.b)
-  local w = model.doc:sheets():find("pen", model.attributes.pen)
-  model.ui:setCursor(w, s.r, s.g, s.b)
+  tool.w = model.doc:sheets():find("pen", model.attributes.pen)
+  model.ui:setCursor(tool.w, s.r, s.g, s.b)
   return tool
 end
 
@@ -620,7 +625,7 @@ function INKTOOL:compute()
   for i = 2, #self.v do
     self.shape[#self.shape + 1] = { type="segment", self.v[i-1], self.v[i] }
   end
-  self.setShape( { self.shape } )
+  self.setShape( { self.shape }, 0, self.w * self.model.ui:zoom())
 end
 
 function INKTOOL:mouseButton(button, modifiers, press)

@@ -143,12 +143,22 @@ function transformShape(matrix, shape)
   end
 end
 
+function findStyle(w, dir)
+  if dir and ipe.fileExists(dir .. "/" .. w) then
+    return dir .. "/" .. w
+  end
+  for _, d in ipairs(config.styleDirs) do
+    local s = d .. "/" .. w
+    if ipe.fileExists(s) then return s end
+  end
+end
+
 ----------------------------------------------------------------------
--- This function is called to launch a file
+-- This function is called to launch a file on MacOS X
 
 function file_open_event(fname)
   if first_model and first_model.pristine then
-    first_model.loadDocument(fname)
+    first_model:loadDocument(fname)
   else
     MODEL:new(fname)
   end
@@ -214,7 +224,7 @@ end
 local function show_configuration()
   local s = config.version
   s = s .. "\nLua code: " .. package.path
-  s = s .. "\nStyle directory: " .. config.styles
+  s = s .. "\nStyle directories: " .. table.concat(config.styleDirs, ", ")
   s = s .. "\nStyles for new documents: " .. table.concat(prefs.styles, ", ")
   s = s .. "\nAutosave file: " .. prefs.autosave_filename
   s = s .. "\nDocumentation: " .. config.docdir
@@ -236,26 +246,56 @@ end
 test1 = string.format("%g", 1.5)
 test2 = string.format("%s", tonumber("1.5"))
 if test1 ~= "1.5" or test2 ~= "1.5" then
-   m = "<qt>Formatting the number <code>1.5</code> results in '"
-      .. test1 .. "'. "
-      .. "Reading '1.5' results in <code>" .. test2 .. "</code><br />"
-      .. "Therefore Ipe will not work correctly when loading or saving files. "
-      .. "<em>Please report this problem.</em><br />"
-      .. "As a workaround, you can start Ipe from the commandline like this: "
-      .. "<pre>export LANG=C\nexport LC_NUMERIC=C\nipe</pre></qt>"
-   ipeui.messageBox(nil, "critical",
-		    "Ipe is running with an incorrect locale", m)
-   return
+  m = "<qt>Formatting the number <code>1.5</code> results in '"
+    .. test1 .. "'. "
+    .. "Reading '1.5' results in <code>" .. test2 .. "</code><br />"
+    .. "Therefore Ipe will not work correctly when loading or saving files. "
+    .. "<em>Please report this problem.</em><br />"
+    .. "As a workaround, you can start Ipe from the commandline like this: "
+    .. "<pre>export LANG=C\nexport LC_NUMERIC=C\nipe</pre></qt>"
+  ipeui.messageBox(nil, "critical",
+		   "Ipe is running with an incorrect locale", m)
+  return
 end
 
-config.ipeletDirs = {}
-for w in string.gmatch(config.ipelets, "[^;]+") do
-  config.ipeletDirs[#config.ipeletDirs + 1] = w
+--------------------------------------------------------------------
+
+local home = os.getenv("HOME")
+local ipeletpath = os.getenv("IPELETPATH")
+if ipeletpath then
+  config.ipeletDirs = {}
+  for w in string.gmatch(ipeletpath, "[^:;]+") do
+    if w == "_" then w = config.system_ipelets end
+    config.ipeletDirs[#config.ipeletDirs + 1] = w
+  end
+else
+  config.ipeletDirs = { config.system_ipelets }
+  if config.platform ~= "win" then
+    table.insert(config.ipeletDirs, 1, home .. "/.ipe/ipelets")
+    if config.platform == "apple" then
+      table.insert(config.ipeletDirs, 2, home .. "/Library/Ipe/Ipelets")
+    end
+  end
 end
 
-if config.platform == "unix" then
-  table.insert(config.ipeletDirs, 1, config.home .. "/.ipe/ipelets")
+local ipestyles = os.getenv("IPESTYLES")
+if ipestyles then
+  config.styleDirs = {}
+  for w in string.gmatch(ipestyles, "[^:;]+") do
+    if w == "_" then w = config.system_styles end
+    config.styleDirs[#config.styleDirs + 1] = w
+  end
+else
+  config.styleDirs = { config.system_styles }
+  if config.platform ~= "win" then
+    table.insert(config.styleDirs, 1, home .. "/.ipe/styles")
+    if config.platform == "apple" then
+      table.insert(config.styleDirs, 2, home .. "/Library/Ipe/Styles")
+    end
+  end
 end
+
+--------------------------------------------------------------------
 
 -- look for ipelets
 ipelets = {}
@@ -292,6 +332,8 @@ for _,w in ipairs(config.ipeletDirs) do
   end
 end
 
+--------------------------------------------------------------------
+
 -- Windows provides the command line as one long string
 if config.toolkit == "win32" then
   local t = {}
@@ -310,6 +352,8 @@ if #argv == 1 and (argv[1] == "--help" or argv[1] == "-h") then
   usage()
   return
 end
+
+--------------------------------------------------------------------
 
 local first_file = nil
 local i = 1
@@ -332,7 +376,7 @@ if #style_sheets > 0 then prefs.styles = style_sheets end
 config.styleList = {}
 for _,w in ipairs(prefs.styles) do
   if w:sub(-4) ~= ".isy" then w = w .. ".isy" end
-  if not w:find("/") then w = config.styles .. "/" .. w end
+  if not w:find("/") then w = findStyle(w) end
   config.styleList[#config.styleList + 1] = w
 end
 

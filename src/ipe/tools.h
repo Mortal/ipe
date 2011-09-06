@@ -79,12 +79,13 @@ public:
 
   ShapeTool(CanvasBase *canvas, lua_State *L0, int luatool);
 
-  void setShape(Shape shape, int which = 0);
+  void setShape(Shape shape, int which = 0, double pen=1.0);
   void clearMarks();
   void addMark(const Vector &v, TMarkType t);
 
   virtual void draw(Painter &painter) const;
 private:
+  double iPen;
   Shape iShape;
   Shape iAuxShape;
   struct SMark {

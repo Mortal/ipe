@@ -281,7 +281,18 @@ static int page_removeLayer(lua_State *L)
   Page *p = check_page(L, 1)->page;
   int n = check_layer(L, 2, p);
   p->removeLayer(p->layer(n));
-  return 1;
+  return 0;
+}
+
+static int page_moveLayer(lua_State *L)
+{
+  Page *p = check_page(L, 1)->page;
+  int index = check_layer(L, 2, p);
+  int newIndex = luaL_checkint(L, 3) - 1;
+  luaL_argcheck(L, 0 <= newIndex && newIndex < p->countLayers(),
+		3, "invalid target index");
+  p->moveLayer(index, newIndex);
+  return 0;
 }
 
 // --------------------------------------------------------------------
@@ -656,6 +667,7 @@ static const struct luaL_Reg page_methods[] = {
   { "renameLayer", page_renameLayer },
   { "addLayer", page_addLayer },
   { "removeLayer", page_removeLayer },
+  { "moveLayer", page_moveLayer },
   { "select", page_select },
   { "setSelect", page_setSelect },
   { "layerOf", page_layerOf },

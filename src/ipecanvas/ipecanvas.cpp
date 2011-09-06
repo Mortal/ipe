@@ -53,6 +53,7 @@ void CanvasObserver::canvasObserverWheelMoved(int degrees) { /* nothing */ }
 void CanvasObserver::canvasObserverMouseAction(int button) { /* nothing */ }
 void CanvasObserver::canvasObserverPositionChanged() { /* nothing */ }
 void CanvasObserver::canvasObserverToolChanged(bool hasTool) { /* nothing */ }
+void CanvasObserver::canvasObserverSizeChanged() { /* nothing */ }
 
 /*! \class ipe::Canvas
   \ingroup canvas
@@ -584,6 +585,9 @@ void CanvasBase::refreshSurface()
       cairo_surface_destroy(iSurface);
     iSurface = 0;
     iRepaintObjects = true;
+    // give Ipe a chance to set pan and zoom according to new size
+    if (iObserver)
+      iObserver->canvasObserverSizeChanged();
   }
   if (iRepaintObjects) {
     iRepaintObjects = false;

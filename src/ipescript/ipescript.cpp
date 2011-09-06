@@ -61,14 +61,12 @@ static int traceback (lua_State *L)
   return 1;
 }
 
-static void setup_config(lua_State *L, const char *var,
-			 const char *env, const char *conf)
+static void setup_config(lua_State *L, const char *var, const char *conf)
 {
-  const char *p = getenv(env);
 #ifdef WIN32
-  push_string(L, p ? p : Platform::ipeDir(conf));
+  push_string(L, Platform::ipeDir(conf));
 #else
-  lua_pushstring(L, p ? p : conf);
+  lua_pushstring(L, conf);
 #endif
   lua_setfield(L, -2, var);
 }
@@ -94,10 +92,10 @@ static void setup_globals(lua_State *L)
     int i = 0;
     while (i < scripts.size()) {
       int j = i;
-      while (i < scripts.size() && scripts[i] != ';')
+      while (i < scripts.size() && scripts[i] != ';' && scripts[i] != ':')
 	i += 1;
       String d = scripts.substr(j, i-j);
-      if (d.empty())
+      if (d == "_")
 	d = IPESCRIPTDIR;
       d += "/?.lua";
       if (!s.empty())
@@ -133,9 +131,9 @@ static void setup_globals(lua_State *L)
   lua_setfield(L, -2, "platform");
 
 #ifdef WIN32
-  setup_config(L, "styles", "IPESTYLES", "styles");
+  setup_config(L, "system_styles", "styles");
 #else
-  setup_config(L, "styles", "IPESTYLES", IPESTYLEDIR);
+  setup_config(L, "system_styles", IPESTYLEDIR);
 #endif
   push_string(L, Platform::latexDirectory());
   lua_setfield(L, -2, "latexdir");

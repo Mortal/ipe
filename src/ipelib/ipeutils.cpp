@@ -139,6 +139,9 @@ void BBoxPainter::doDrawText(const Text *text)
   box.addPoint(matrix() * Vector(0, text->totalHeight()));
   box.addPoint(matrix() * Vector(text->width(), text->totalHeight()));
   box.addPoint(matrix() * Vector(text->width(), 0));
+  const TextPadding *pad = cascade()->findTextPadding();
+  box.addPoint(box.bottomLeft() - Vector(pad->iLeft, pad->iBottom));
+  box.addPoint(box.topRight() + Vector(pad->iRight, pad->iTop));
   box.clipTo(iClipBox.back());
   iBBox.addRect(box);
 }

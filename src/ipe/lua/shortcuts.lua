@@ -103,6 +103,7 @@ shortcuts = {
   zoom_out = "Ctrl+PgDown",
   fit_page = "\\",
   fit_width = "-",
+  fit_top = nil,
   fit_objects = "=",
   fit_selection = "@",
   pan_here = "X",

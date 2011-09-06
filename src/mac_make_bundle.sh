@@ -21,7 +21,7 @@ echo '{
 	CFBundleName = ipe;
 	CFBundleDisplayName = Ipe;
 	CFBundleIdentifier = "local.ipe";
-	CFBundleVersion = "7.1.0";
+	CFBundleVersion = "7.1.1";
 	CFBundlePackageType = APPL;
 	CFBundleSignature = ipee;
 	CFBundleExecutable = ipe;
@@ -99,4 +99,4 @@ find $APPPLUGINS -d -type f -exec $FIX_QTGUI {} \; &> /dev/null
 find $APPPLUGINS -d -type f -exec $FIX_QTNETWORK {} \; &> /dev/null
 
 ## Create icon
-sips -s format icns $APPLOCAL/share/ipe/7.1.0/icons/ipe.png --out $APPRESOURCES/ipe.icns
+sips -s format icns $APPLOCAL/share/ipe/7.1.1/icons/ipe.png --out $APPRESOURCES/ipe.icns

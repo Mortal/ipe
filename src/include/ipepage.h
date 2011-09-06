@@ -39,7 +39,6 @@
 namespace ipe {
 
   class StyleSheet;
-  // class DataSource;
 
   // --------------------------------------------------------------------
 
@@ -68,6 +67,7 @@ namespace ipe {
     void setLocked(int i, bool flag);
     void setSnapping(int i, bool flag);
 
+    void moveLayer(int index, int newIndex);
     int findLayer(String name) const;
     void addLayer(String name);
     void addLayer();

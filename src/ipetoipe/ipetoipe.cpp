@@ -107,7 +107,6 @@ static void usage()
 	  " -runlatex    : run Latex even for XML output.\n"
 	  " -nocolor     : avoid any color commands in EPS output.\n"
 	  " -nozip:      : do not compress PDF streams.\n"
-	  " -styleupdate : update style sheets.\n"
 	  );
   exit(1);
 }
@@ -133,7 +132,6 @@ int main(int argc, char *argv[])
 
   uint flags = Document::ESaveNormal;
   bool runLatex = false;
-  bool styleUpdate = false;
   int fromPage = -1;
   int toPage = -1;
   int viewNo = -1;
@@ -169,9 +167,6 @@ int main(int argc, char *argv[])
       ++i;
     } else if (!strcmp(argv[i], "-nozip")) {
       flags |= Document::ENoZip;
-      ++i;
-    } else if (!strcmp(argv[i], "-styleupdate")) {
-      styleUpdate = true;
       ++i;
     } else {
       // last one or two arguments must be filenames
@@ -231,11 +226,6 @@ int main(int argc, char *argv[])
 
   if (!doc.ptr())
     return 1;
-
-  if (styleUpdate) {
-    String curdir = ipe::Platform::currentDirectory();
-    fprintf(stderr, "%s", doc.ptr()->cascade()->update(curdir).z());
-  }
 
   fprintf(stderr, "Document %s has %d pages (%d views)\n",
 	  infile.z(), doc->countPages(), doc->countTotalViews());

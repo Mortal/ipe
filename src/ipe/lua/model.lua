@@ -88,6 +88,7 @@ function MODEL:init(fname)
   self.save_timestamp = 0
   self.ui = AppUi(self)
   self.pristine = false
+  self.first_show = true
 
   if fname then
     if ipe.fileExists(fname) then
@@ -119,6 +120,13 @@ function MODEL:init(fname)
     self.timer:setInterval(1000 * prefs.autosave_interval) -- millisecs
     self.timer:start()
   end
+end
+
+function MODEL:sizeChanged()
+  if self.first_show then
+    self:action_fit_top()
+  end
+  self.first_show = false
 end
 
 ----------------------------------------------------------------------
@@ -643,6 +651,7 @@ end
 
 -- TODO:  limit on undo stack size?
 function MODEL:registerOnly(t)
+  self.pristine = false
   -- store it on undo stack
   self.undo[#self.undo + 1] = t
   -- flush redo stack
