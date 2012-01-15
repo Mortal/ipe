@@ -78,9 +78,9 @@ void AppUiBase::buildMenus()
   addRootMenu(ESnapMenu, "&Snap");
   addRootMenu(EModeMenu, "&Mode");
   addRootMenu(EZoomMenu, "&Zoom");
-  addRootMenu(ELayerMenu, "&Layer");
-  addRootMenu(EViewMenu, "&View");
-  addRootMenu(EPageMenu, "&Page");
+  addRootMenu(ELayerMenu, "&Layers");
+  addRootMenu(EViewMenu, "&Views");
+  addRootMenu(EPageMenu, "&Pages");
   addRootMenu(EIpeletMenu, "&Ipelets");
   addRootMenu(EHelpMenu, "&Help");
 
@@ -90,6 +90,7 @@ void AppUiBase::buildMenus()
   addItem(EFileMenu, "Save", "save");
   addItem(EFileMenu, "Save as", "save_as");
   addItem(EFileMenu);
+  addItem(EFileMenu, "Automatically run Latex", "*auto_latex");
   addItem(EFileMenu, "Run Latex", "run_latex");
   addItem(EFileMenu);
   addItem(EFileMenu, "Close", "close");

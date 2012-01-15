@@ -224,6 +224,9 @@ namespace ipe {
     inline int countSubPaths() const { return iImp->iSubPaths.size(); }
     //! Return subpath.
     inline const SubPath *subPath(int i) const { return iImp->iSubPaths[i]; }
+
+    bool isSegment() const;
+
     void appendSubPath(SubPath *sp);
 
     void draw(Painter &painter) const;

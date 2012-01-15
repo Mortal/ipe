@@ -42,7 +42,7 @@
 
 namespace ipe {
 
-  class Font;
+  struct Font;
 
   class PsPainter : public PdfPainter {
   public:

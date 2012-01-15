@@ -66,22 +66,6 @@ void LayerBox::layerChanged(QListWidgetItem *item)
 void LayerBox::set(const Page *page, int view)
 {
   iInSet = true;
-#if 0
-  // find ordering of layers <first_view, layer>
-  std::vector<std::pair<int,int> > idx(page->countLayers());
-  for (int i = 0; i < page->countLayers(); ++i) {
-    int first = page->countViews();
-    for (int j = 0; j < page->countViews(); ++j) {
-      if (page->visible(j, i)) {
-	first = j;
-	break;
-      }
-    }
-    idx[i] = std::pair<int,int>(first, i);
-  }
-  std::sort(idx.begin(), idx.end());
-#endif
-
   clear();
   for (int i = 0; i < page->countLayers(); ++i) {
     // int i = idx[j].second;

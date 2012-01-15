@@ -124,7 +124,6 @@ else
   CXXFLAGS	+= -g -O2
   LDFLAGS	+= -enable-stdcall-fixup \
 	-Wl,--enable-runtime-pseudo-reloc -Wl,-enable-auto-import 
-  MOC	        := $(QTDIR)/bin/moc
 endif
 
 else

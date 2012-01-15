@@ -1,7 +1,10 @@
-/*
+----------------------------------------------------------------------
+-- Select objects within bounding box of primary selection
+----------------------------------------------------------------------
+--[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -23,21 +26,36 @@
     "http://www.gnu.org/copyleft/gpl.html", or write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-*/
-/*
-** LuaFileSystem
-** Copyright Kepler Project 2003 (http://www.keplerproject.org/luafilesystem)
-**
-** $Id: lfs.h,v 1.5 2008/02/19 20:08:23 mascarenhas Exp $
-*/
+--]]
 
-/* Define 'chdir' for systems that do not implement it */
-#ifdef NO_CHDIR
-#define chdir(p)	(-1)
-#define chdir_error	"Function 'chdir' not provided by system"
-#else
-#define chdir_error	strerror(errno)
-#endif
+-- To assign a shortcut to this:
+-- shortcuts.ipelet_1_selectbox = "Alt+E"
 
+label = "Select inside"
 
-int luaopen_lfs (lua_State *L);
+about = [[
+Select objects that are inside the bounding box of the primary selection.
+
+This ipelet is part of Ipe.
+]]
+
+function run(model, num)
+  local p = model:page()
+  if not p:hasSelection() then
+    model.ui:explain("no selection")
+    return
+  end
+  local prim = p:primarySelection()
+  local box = p:bbox(prim)
+
+  p:deselectAll()
+
+  for i = 1,#p do
+    local b = p:bbox(i)
+    if i ~= prim and box:contains(b) then p:setSelect(i, 2) end
+  end
+
+  p:ensurePrimarySelection()
+end
+
+----------------------------------------------------------------------

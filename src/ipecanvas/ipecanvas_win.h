@@ -56,6 +56,7 @@ namespace ipe {
 
     virtual void invalidate();
     virtual void invalidate(int x, int y, int w, int h);
+    virtual void setCursor(TCursor cursor, double w, Color *color);
   private:
     static const char className[];
     static LRESULT CALLBACK wndProc(HWND hwnd, UINT Message,

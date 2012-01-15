@@ -81,8 +81,8 @@ bool Tool::key(int code, int modifiers, String text)
 
 // --------------------------------------------------------------------
 
-/*! \class ipeqt::PanTool
-  \ingroup qtcanvas
+/*! \class ipe::PanTool
+  \ingroup canvas
   \brief A tool for panning the canvas.
 */
 

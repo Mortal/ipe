@@ -67,11 +67,10 @@
    It provides drawing of Ipe objects using the Cairo library.
    \li \e libipelua implements the \ref lua "Lua bindings" for Ipelib.
    If installed properly, it can be loaded dynamically from Lua using
-   \c require.
-   \li \e libipeqtcanvas implements the \ref qtcanvas "Ipe canvas module".
-   It provides a Qt widget for displaying and editing Ipe objects.
-   \li \e libipeui implements Lua bindings for user interfaces. It is
-   implemented using Qt (but the Lua bindings do not show that).  This
+   \c require. It is also used by ipescript.
+   \li \e libipecanvas implements the \ref qtcanvas "Ipe canvas module".
+   It provides a widget for displaying and editing Ipe objects.
+   \li \e libipeui implements Lua bindings for user interfaces. This
    library does not depend on any other Ipe component, and can be used
    for other Lua projects.
 
@@ -80,7 +79,7 @@
    \li \ref base : Some basic datatypes: ipe::String, ipe::Buffer,
    ipe::Stream, ipe::Fixed
    \li \ref geo :  Geometric types and linear algebra: ipe::Vector,
-   ipe::Matrix, ipe::Line, ipe::Segment, ipe::Arc, ipe::Bezier
+   ipe::Matrix, ipe::Line, ipe::Segment, ipe::Arc, ipe::Bezier, ipe::Shape.
    \li \ref attr : Attributes such as ipe::Color, ipe::Kind, ipe::Attribute
    \li \ref obj : The five ipe::Object types: ipe::Group, ipe::Path,
    ipe::Text, ipe::Image, and ipe::Reference
@@ -90,9 +89,9 @@
    \li \ref ipelet : The ipe::Ipelet interface
    \li \ref cairo : Classes to draw Ipe objects on a Cairo surface:
    ipe::CairoPainter, ipe::Fonts, ipe::Face
-   \li \ref qtcanvas : A Qt widget ipeqt::Canvas to display Ipe objects,
-   and tools for this canvas: ipeqt::PanTool, ipeqt::SelectTool,
-   ipeqt::TransformTool.
+   \li \ref canvas : A widget ipe::Canvas to display Ipe objects,
+   and tools for this canvas: ipe::PanTool, ipe::SelectTool,
+   ipe::TransformTool.
 
    Finally, here is list of the pages describing Lua bindings:
 
@@ -103,8 +102,8 @@
    \li \ref luaipe Lua bindings for the Ipe program itself.
 */
 
-/*! \namespace ipe
-  \brief Ipe library namespace
+/* namespace ipe
+  brief Ipe library namespace
 
   Nearly all symbols defined by the Ipe library and the Ipe-Cairo
   interface are in the namespace ipe.  (Other symbols all start with

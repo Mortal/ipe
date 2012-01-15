@@ -893,7 +893,7 @@ void AppUi::cmd(int id, int notification)
 
 static const char * const aboutText =
   "Ipe %d.%d.%d\n\n"
-  "Copyright (c) 1993-2011 Otfried Cheong\n\n"
+  "Copyright (c) 1993-2012 Otfried Cheong\n\n"
   "The extensible drawing editor Ipe creates figures "
   "in Postscript and PDF format, "
   "using LaTeX to format the text in the figures.\n"

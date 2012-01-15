@@ -459,6 +459,7 @@ static int object_set(lua_State *L)
   SObject *s = check_object(L, 1);
   Property prop = Property(luaL_checkoption(L, 2, NULL, property_names));
   Attribute value = check_property(prop, L, 3);
+  // XXX stroke and fill are no longer used
   Attribute stroke = Attribute::BLACK();
   Attribute fill = Attribute::WHITE();
   if (!lua_isnoneornil(L, 4))

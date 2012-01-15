@@ -14,7 +14,11 @@ CPPFLAGS += -I../../include $(QT_CFLAGS)
 LIBS += -L$(buildlib) -lipe $(QT_LIBS)
 CXXFLAGS += $(DLL_CFLAGS)
 
+ifndef IPEUI_QT
+all:
+else
 all: $(TARGET)
+endif
 
 sources	= image.cpp
 

@@ -1,5 +1,5 @@
-Ipe 7.1.1
-September, 2011
+Ipe 7.1.2
+January, 2012
 
                     Ipe extensible drawing editor
                     =============================
@@ -73,21 +73,21 @@ not send bug reports directly to me (the first thing I would do with
 the report is to enter it into the bug tracking system).
 
 Suggestions for features, or random comments on Ipe can be sent to the
-Ipe discussion mailing list at <ipe-discuss@cs.uu.nl>.  If you have
-problems installing or using Ipe and cannot find a guru among your
-real-life friends, the Ipe discussion mailing list would also be the
-best place to ask.
+Ipe discussion mailing list at <ipe-discuss@lists.science.uu.nl>.  If
+you have problems installing or using Ipe and cannot find a guru among
+your real-life friends, the Ipe discussion mailing list would also be
+the best place to ask.
 
 You can send suggestions or comments directly to me by Email, but you
 should then not expect a reply.  I cannot dedicate much time to Ipe,
 and the little time I have I prefer to put into development.  I'm much
 more likely to get involved in a discussion of desirable features on
-the mailing list, where anyone interested can participate than by
-direct Email.
+the mailing list, where anyone interested can participate, rather than
+by direct Email.
 
 If you write interesting ipelets that might be useful to others,
-please let me know, and I will put a link or copy (as you prefer) on
-the Ipe web page.
+please put a link or copy (as you prefer) on the Ipe wiki.  Feel free
+to advertise them on the Ipe discussion list!
 
 	Otfried Cheong
 	Dept. of Computer Science

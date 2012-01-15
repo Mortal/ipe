@@ -732,6 +732,7 @@ function MODEL:createText(mode)
     end
     local obj = ipe.Text(self.attributes, t, pos)
     self:creation("create text", obj)
+    self:autoRunLatex()
   end
 end
 
@@ -772,6 +773,7 @@ function MODEL:createParagraph(pos, width, pinned)
       obj:set("pinned", "horizontal")
     end
     self:creation("create text paragraph", obj)
+    self:autoRunLatex()
   end
 end
 
@@ -858,6 +860,7 @@ function CHANGEWIDTHTOOL:mouseButton(button, modifiers, press)
     self:compute()
     self.model.ui:finishTool()
     self.model:setAttributeOfPrimary(self.prim, "width", self.nwid)
+    self.model:autoRunLatex()
   end
 end
 
@@ -937,7 +940,7 @@ local mouse_mappings = {
 	     m.ui:selectTool(m:page(), m.vno, prefs.select_distance, mo.shift)
 	   end,
   translate = function (m, mo) m:startTransform("translate", mo.shift) end,
-  rotate = function (m, mo) m:startTransform("rotate", modifiers.shift) end,
+  rotate = function (m, mo) m:startTransform("rotate", mo.shift) end,
   stretch = function (m, mo) m:startTransform("stretch", mo.shift) end,
   scale = function (m, mo) m:startTransform("stretch", true) end,
   pan = function (m, mo) m.ui:panTool(m:page(), m.vno) end,
@@ -1044,7 +1047,7 @@ function MODEL:action_edit_text(prim, obj)
   end
   local r = d:execute(prefs.editor_size)
   if not r or string.match(d:get("text"), "^%s*$") then return end
-  apply_text_edit(d, data, false)
+  apply_text_edit(d, data, self.auto_latex)
 end
 
 function MODEL:action_edit()

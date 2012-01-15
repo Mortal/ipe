@@ -752,7 +752,7 @@ void ClosedSpline::snapBnd(const Vector &mouse, const Matrix &m,
   several subpaths, one can construct objects with holes, and more
   complicated pattern.
 
-  A subpath is either an Ellips (a complete, closed ellipse), a
+  A subpath is either an Ellipse (a complete, closed ellipse), a
   ClosedSpline (a closed uniform B-spline curve), or a Curve.  A curve
   consists of a sequence of segments.  Segments are either straight, a
   quadratic Bezier spline, a cubic Bezier spline, an elliptic arc, or
@@ -762,7 +762,7 @@ void ClosedSpline::snapBnd(const Vector &mouse, const Matrix &m,
   passed by value efficiently.  The only mutator methods are
   appendSubPath() and load(), which can only be called during
   construction of the Shape (that is, before its implementation has
-  been shared.
+  been shared).
 */
 
 //! Construct an empty shape (zero subpaths).
@@ -860,6 +860,21 @@ Shape::Shape(const Vector &center, double radius,
 }
 
 // --------------------------------------------------------------------
+
+//! Is this Shape a single straight segment?
+bool Shape::isSegment() const
+{
+  if (countSubPaths() != 1)
+    return false;
+  const SubPath *p = subPath(0);
+  if (p->type() != SubPath::ECurve || p->closed())
+    return false;
+  const Curve *c = p->asCurve();
+  if (c->countSegments() != 1 ||
+      c->segment(0).type() != CurveSegment::ESegment)
+    return false;
+  return true;
+}
 
 //! Add shape (transformed by \a m) to \a box.
 void Shape::addToBBox(Rect &box, const Matrix &m, bool cp) const

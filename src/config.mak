@@ -107,12 +107,12 @@ DLL_CFLAGS = -fpic
 #
 # Installing Ipe:
 #
-IPEVERS = 7.1.1
+IPEVERS = 7.1.2
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.
-# You could choose "/usr/local" or "/opt/ipe-7.0", or
-# even "/usr", or "$(HOME)/ipe-7.0" if you have to install in your home
+# You could choose "/usr/local" or "/opt/ipe7", or
+# even "/usr", or "$(HOME)/ipe7" if you have to install in your home
 # directory.
 #
 # If you are installing Ipe in a networked environment, keep in mind

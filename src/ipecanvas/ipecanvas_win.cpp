@@ -106,6 +106,11 @@ void Canvas::wheel(int zDelta)
     iObserver->canvasObserverWheelMoved(zDelta);
 }
 
+void Canvas::setCursor(TCursor cursor, double w, Color *color)
+{
+  // TODO
+}
+
 // --------------------------------------------------------------------
 
 void Canvas::updateSize()

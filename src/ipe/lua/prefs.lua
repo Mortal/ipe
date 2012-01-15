@@ -61,6 +61,9 @@ else
   prefs.external_editor = nil
 end
 
+-- Should LaTeX be run automatically every time text has changed?
+prefs.auto_run_latex = true
+
 -- Should the external editor be called automatically?
 prefs.auto_external_editor = nil
 
@@ -137,7 +140,9 @@ end
 -- tablet mode (true or false)
 -- If tablet_mode is true, then the current selection is not highlighted
 -- when in "ink" drawing mode.
-prefs.tablet_mode = true
+prefs.tablet_mode = false
+-- Extended properties menu, perhaps useful for tablets
+prefs.tablet_menu = false
 
 -- format string for the coordinates in the status bar
 -- (x, unit, y, unit)

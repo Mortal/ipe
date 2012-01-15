@@ -279,36 +279,21 @@ end
 function MODEL:showLayerBoxPopup(v, layer)
   local p = self:page()
   local m = ipeui.Menu(self.ui:win())
-  local canDelete = true
-  local canLock = true
-  -- layers active in some view cannot be deleted or locked
-  for j = 1, p:countViews() do
-    if layer == p:active(j) then
-      canDelete = false
-      canLock = false
-      break
-    end
-  end
-  -- layers containing an object cannot be deleted
-  for i,obj,sel,l in p:objects() do
-    if l == layer then
-      canDelete = false
-      break
-    end
-  end
-  m:add("rename", "Rename")
-  if canDelete then
-    m:add("delete", "Delete")
+  local active = p:active(self.vno)
+  m:add("rename", "Rename " .. layer)
+  m:add("delete", "Delete " .. layer)
+  if layer ~= active then
+    m:add("merge", "Merge into " .. active)
   end
   if p:isLocked(layer) then
-    m:add("lockoff", "Unlock")
-  elseif canLock then
-    m:add("lockon", "Lock")
+    m:add("lockoff", "Unlock " .. layer)
+  else
+    m:add("lockon", "Lock " .. layer)
   end
   if p:hasSnapping(layer) then
-    m:add("snapoff", "Disable snapping")
+    m:add("snapoff", "Disable snapping for " .. layer)
   else
-    m:add("snapon", "Enable snapping")
+    m:add("snapon", "Enable snapping for " .. layer)
   end
   local layers = p:layers()
   if #layers > 1 then
@@ -353,6 +338,14 @@ end
 
 function MODEL:layeraction_lock(layer, arg)
   local p = self:page()
+  for j = 1, p:countViews() do
+    if layer == p:active(j) then
+      self:warning("Cannot lock layer '" .. layer .. "'.",
+		   "Layer '" .. layer .. "' is the active layer of view "
+		     .. j .. ".")
+      return
+    end
+  end
   local t = { label="set locking of layer " .. layer,
 	      pno=self.pno,
 	      vno=self.vno,
@@ -393,6 +386,8 @@ function MODEL:layeraction_move(layer, arg)
   local p = self:page()
   local target = 1
   if arg ~= "_top_" then target = indexOf(arg, p:layers()) end
+  local current = indexOf(layer, p:layers())
+  if target < current then target = target + 1 end
   local t = { label="move layer " .. layer,
 	      pno=self.pno,
 	      vno=self.vno,
@@ -431,11 +426,11 @@ end
 
 function MODEL:layeraction_rename(layer)
   local p = self:page()
-  local name = self:getString("Enter new layer name")
+  local name = self:getString("Enter new name for layer '" .. layer .. "'")
   if not name then return end
   name = string.gsub(name, "%s+", "_")
   if indexOf(name, p:layers()) then
-    self:warning("Cannot rename layer",
+    self:warning("Cannot rename layer '" .. layer .. "'.",
 		 "The name '" .. name .. "' is already in use.")
     return
   end
@@ -462,10 +457,11 @@ end
 
 function MODEL:layeraction_delete(layer)
   local p = self:page()
-  for i,obj,sel,lay in p:objects() do
-    if lay == layer then
-      self:warning("Cannot delete layer",
-		   "Layer '" .. layer .. "' is not empty.")
+  for j = 1, p:countViews() do
+    if layer == p:active(j) then
+      self:warning("Cannot delete layer '" .. layer .. "'.",
+		   "Layer '" .. layer .. "' is the active layer of view "
+		     .. j .. ".")
       return
     end
   end
@@ -477,7 +473,44 @@ function MODEL:layeraction_delete(layer)
 	      undo=revertOriginal
 	    }
   t.redo = function (t, doc)
-	     doc[t.pno]:removeLayer(t.layer)
+	     local p = doc[t.pno]
+	     for i = #p,1,-1 do
+	       if p:layerOf(i) == t.layer then
+		 p:remove(i)
+	       end
+	     end
+	     p:removeLayer(t.layer)
+	   end
+  self:register(t)
+end
+
+function MODEL:layeraction_merge(layer)
+  local p = self:page()
+  local active = p:active(self.vno)
+  for j = 1, p:countViews() do
+    if layer == p:active(j) then
+      self:warning("Cannot remove layer '" .. layer .. "'.",
+		   "Layer '" .. layer .. "' is the active layer of view "
+		     .. j .. ".")
+      return
+    end
+  end
+  local t = { label="merge layer " .. layer .. " into " .. active,
+	      pno=self.pno,
+	      vno=self.vno,
+	      original=p:clone(),
+	      layer=layer,
+	      target=active,
+	      undo=revertOriginal
+	    }
+  t.redo = function (t, doc)
+	     local p = doc[t.pno]
+	     for i = 1,#p do
+	       if p:layerOf(i) == t.layer then
+		 p:setLayerOf(i, t.target)
+	       end
+	     end
+	     p:removeLayer(t.layer)
 	   end
   self:register(t)
 end
@@ -518,6 +551,11 @@ end
 
 function MODEL:action_quit()
   ipeui.closeAllWindows()
+end
+
+function MODEL:action_auto_latex()
+  self.auto_latex = self.ui:actionState("auto_latex")
+  print("Auto is", self.auto_latex)
 end
 
 ----------------------------------------------------------------------
@@ -1734,6 +1772,7 @@ end
 function MODEL:action_update_style_sheets()
   local dir = nil
   if self.file_name then dir = string.gsub(self.file_name, "[^/]+$", "") end
+  if dir == "" then dir = "." end
   local sheets = self.doc:sheets()
   local qlog = ""
   for index=1,sheets:count() do

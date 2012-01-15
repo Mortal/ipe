@@ -134,10 +134,10 @@ function create_symbol(model, num)
   local name = str:match("^%s*%S+%s*$")
   local old = model.doc:sheets():find("symbol", name)
   if old then
-    local r = ipeui.messageBox(model.ui, "question",
-				    "Symbol '" .. name .. "' already exists",
-				    "Do you want to proceed?",
-				    "okcancel")
+    local r = ipeui.messageBox(model.ui:win(), "question",
+			       "Symbol '" .. name .. "' already exists",
+			       "Do you want to proceed?",
+			       "okcancel")
     if r <= 0 then return end
   end
 
