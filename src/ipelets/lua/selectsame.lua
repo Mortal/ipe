@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
--- qvoronoi ipelet description
+-- Select objects with same attribute as primary selection
 ----------------------------------------------------------------------
 --[[
 
@@ -28,29 +28,52 @@
 
 --]]
 
-label = "Voronoi diagrams"
+-- To assign a shortcut to first method (stroke), uncomment this:
+-- shortcuts.ipelet_1_selectsame = "Alt+E"
+
+label = "Select same"
 
 about = [[
-Computes Voronoi diagrams and Delaunay triangulations.
+Select objects that have the same attribute value as the primary selection.
 
-Uses the Qhull library by C. Bradford Barber and Hannu Huhdanpaa.
+This ipelet is part of Ipe.
 ]]
 
--- this variable will store the C++ ipelet when it has been loaded
-ipelet = false
+methods = {
+  { label = "stroke" },
+  { label = "fill" },
+  { label = "pen" },
+  { label = "dashstyle" },
+}
 
-function run(model, num)
-  if not ipelet then ipelet = assert(ipe.Ipelet(dllname)) end
-  model:runIpelet(methods[num].label, ipelet, num)
+type = _G.type
+
+function equal(a, b)
+  if type(a) == "table" and type(b) == "table" then
+    -- must be colors
+    return a.r == b.r and a.g == b.g and a.b == b.b
+  else
+    return a == b
+  end
 end
 
-methods = {
-  { label="Delaunay triangulation" },
-  { label="Voronoi diagram" },
-  { label="Order-2 Voronoi diagram" },
-  { label="Order-3 Voronoi diagram" },
-  { label="Furthest-point Voronoi diagram" },
-  { label="Set length of infinite edges" },
-}
+function run(model, num)
+  local p = model:page()
+  if not p:hasSelection() then
+    model.ui:explain("no selection")
+    return
+  end
+  local att = methods[num].label
+  local prim = p:primarySelection()
+  local val = p[prim]:get(att)
+
+  p:deselectAll()
+
+  for i = 1,#p do
+    if equal(p[i]:get(att), val) then p:setSelect(i, 2) end
+  end
+
+  p:setSelect(prim, 1) -- select primary again
+end
 
 ----------------------------------------------------------------------

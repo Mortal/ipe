@@ -1,5 +1,49 @@
 --------------------------------------------------------------------
  
+Ipe 7.1.2 (2012-1-16) SVN 580  Sydney edition
+
+ * Latex is now automatically run every time text is inserted or
+   edited. This can be disabled from the File menu or from prefs.lua
+   (feature #98).
+
+ * Update stylesheets didn't look in current directory when filename
+   contained no slash (bug #68).
+
+ * Moving layers now moves them to the expected place.
+
+ * Properties menu less enormous.  Cut, copy, etc. will only be shown
+   when prefs.tablet_menu is true.
+
+ * Search & replace ipelet now only affects selected text
+   objects (bug #96).
+
+ * Fixed crash in rotate with right+alt (bug #97).
+
+ * Fixed compiler warnings (bug #89).
+
+ * Checkboxes in dialogs were not initialized correctly (bug #93).
+
+ * When the end of the undo/redo sequence is reached, a message
+   appears only in the status line (no longer using a pop-up).
+
+ * "Join paths" and "Compose paths" are again available in the
+   properties menu (bug #91).
+
+ * Invisible line segments with arrows now work correctly: If a line
+   segment is set to "filled only", then the arrows are drawn in the
+   fill color, and the segment itself is not drawn at all (bug #78).
+
+ * Cycling through "stroke-only / stroke & fill / fill-only" no longer
+   forgets the current colors of the object (bug #79).
+
+ * "Delete" and "Merge" now show up for each layer, but give an error
+   message if the layer is active.
+
+ * Color icons again visible in stroke and fill color list in property
+   menu. (Once again, Qt changed the semantics of an operation.)
+
+--------------------------------------------------------------------
+ 
 Ipe 7.1.1 (2011-09-07) SVN 563 Oberwolfach edition
 
  * Fixed crash on odoc event on Mac OS X (bug #63).

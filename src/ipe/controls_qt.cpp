@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -66,22 +66,6 @@ void LayerBox::layerChanged(QListWidgetItem *item)
 void LayerBox::set(const Page *page, int view)
 {
   iInSet = true;
-#if 0
-  // find ordering of layers <first_view, layer>
-  std::vector<std::pair<int,int> > idx(page->countLayers());
-  for (int i = 0; i < page->countLayers(); ++i) {
-    int first = page->countViews();
-    for (int j = 0; j < page->countViews(); ++j) {
-      if (page->visible(j, i)) {
-	first = j;
-	break;
-      }
-    }
-    idx[i] = std::pair<int,int>(first, i);
-  }
-  std::sort(idx.begin(), idx.end());
-#endif
-
   clear();
   for (int i = 0; i < page->countLayers(); ++i) {
     // int i = idx[j].second;

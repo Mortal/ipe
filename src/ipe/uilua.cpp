@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -543,14 +543,14 @@ static int appui_setBookmarks(lua_State *L)
   AppUiBase **ui = check_appui(L, 1);
   luaL_argcheck(L, lua_istable(L, 2), 2, "argument is not a table");
   int no = lua_objlen(L, 2);
-  String bm[no];
+  std::vector<String> bm;
   for (int i = 1; i <= no; ++i) {
     lua_rawgeti(L, 2, i);
     luaL_argcheck(L, lua_isstring(L, -1), 2, "item is not a string");
-    bm[i-1] = String(lua_tostring(L, -1));
+    bm.push_back(String(lua_tostring(L, -1)));
     lua_pop(L, 1);
   }
-  (*ui)->setBookmarks(no, bm);
+  (*ui)->setBookmarks(no, &bm[0]);
   return 0;
 }
 

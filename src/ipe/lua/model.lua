@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -107,6 +107,13 @@ function MODEL:init(fname)
   self.mode = "select"
   self.ui:setActionState("mode_select", true)
   self.ui:setActionState("grid_visible", self.snap.grid_visible)
+
+  self.auto_latex = prefs.auto_run_latex
+  self.ui:setActionState("auto_latex", self.auto_latex)
+
+  if self.auto_latex then
+    self:runLatex()
+  end
 
   if #self:getBookmarks() == 0 then
     self.ui:showTool("bookmarks", false)
@@ -425,6 +432,12 @@ function MODEL:runLatex()
     return false
   else
     self:warning("An error occurred during the Pdflatex run", errmsg)
+  end
+end
+
+function MODEL:autoRunLatex()
+  if self.auto_latex then
+    self:runLatex()
   end
 end
 
@@ -781,8 +794,7 @@ end
 
 function MODEL:action_undo()
   if #self.undo <= 1 then
-    ipeui.messageBox(self.ui:win(), "information",
-			  "No undo information available")
+    self.ui:explain("No more undo information available")
     return
   end
   t = self.undo[#self.undo]
@@ -819,8 +831,7 @@ end
 
 function MODEL:action_redo()
   if #self.redo == 0 then
-    ipeui.messageBox(self.ui:win(), "information",
-		     "No redo information available")
+    self.ui:explain("No more redo information available")
     return
   end
   t = self.redo[#self.redo]

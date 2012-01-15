@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -37,10 +37,10 @@ This ipelet is part of Ipe.
 ]]
 
 function run(model)
-  local s = [[<qt>Enter pattern and replacement text.<br/>
+  local s = [[Enter pattern and replacement text.
 The pattern will be substituted by the replacement text in all
-selected text objects.<br/>
-      The substitution does not occur inside groups.</qt>]]
+selected text objects.
+The substitution does not occur inside groups.]]
   local d = ipeui.Dialog(model.ui:win(), "Search & replace")
   d:add("label1", "label", {label=s}, 1, 1, 1, 4)
   d:add("label2", "label", {label="Pattern"}, 2, 1)
@@ -69,7 +69,7 @@ selected text objects.<br/>
 	      redo = _G.revertFinal,
 	    }
   for i,obj,sel,layer in t.final:objects() do
-    if obj:type() == "text" then
+    if sel and obj:type() == "text" then
       local text = obj:text()
       text = text:gsub(s1, s2)
       obj:setText(text)

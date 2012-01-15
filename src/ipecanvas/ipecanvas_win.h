@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ namespace ipe {
 
     virtual void invalidate();
     virtual void invalidate(int x, int y, int w, int h);
+    virtual void setCursor(TCursor cursor, double w, Color *color);
   private:
     static const char className[];
     static LRESULT CALLBACK wndProc(HWND hwnd, UINT Message,

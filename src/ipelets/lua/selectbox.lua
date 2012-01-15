@@ -1,8 +1,7 @@
-// -*- C++ -*-
-// --------------------------------------------------------------------
-// The Ipe object factory.
-// --------------------------------------------------------------------
-/*
+----------------------------------------------------------------------
+-- Select objects within bounding box of primary selection
+----------------------------------------------------------------------
+--[[
 
     This file is part of the extensible drawing editor Ipe.
     Copyright (C) 1993-2012  Otfried Cheong
@@ -27,28 +26,36 @@
     "http://www.gnu.org/copyleft/gpl.html", or write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-*/
+--]]
 
-#ifndef IPEFACTORY_H
-#define IPEFACTORY_H
+-- To assign a shortcut to this:
+-- shortcuts.ipelet_1_selectbox = "Alt+E"
 
-#include "ipebitmap.h"
-#include "ipeobject.h"
+label = "Select inside"
 
-// --------------------------------------------------------------------
+about = [[
+Select objects that are inside the bounding box of the primary selection.
 
-namespace ipe {
+This ipelet is part of Ipe.
+]]
 
-  class ObjectFactory {
-  public:
-    static Object *createObject(String name, const XmlAttributes &attr,
-				String data);
-    static Object *createImage(String name, const XmlAttributes &attr,
-			       Bitmap bitmap);
-  };
+function run(model, num)
+  local p = model:page()
+  if not p:hasSelection() then
+    model.ui:explain("no selection")
+    return
+  end
+  local prim = p:primarySelection()
+  local box = p:bbox(prim)
 
-}
+  p:deselectAll()
 
-// --------------------------------------------------------------------
+  for i = 1,#p do
+    local b = p:bbox(i)
+    if i ~= prim and box:contains(b) then p:setSelect(i, 2) end
+  end
 
-#endif
+  p:ensurePrimarySelection()
+end
+
+----------------------------------------------------------------------

@@ -103,7 +103,8 @@ Ipe should compile on most Unix platforms and on Microsoft Windows.
 Mac OS X is not an officially supported platform - while it is based
 on a Unix kernel, the Apple application infrastructure is proprietary
 and quite different from standard Unix.  I do not own an Apple
-computer, and cannot help you with building or installing Ipe on Mac OS.
+computer, and cannot help you with building or installing Ipe on Mac
+OS.
 
 
 --------------------------------------------------------------------
@@ -297,13 +298,13 @@ The Ipe libraries are shared libraries, and so your dynamic linker has
 to find "libipe*.so".  If you have chosen a standard library directory
 for IPELIBDIR, saying "sudo ldconfig" will be enough to run Ipe.
 
-If you installed in a different location, such as "/opt/ipe-7.0", you
+If you installed in a different location, such as "/opt/ipe7", you
 can make a small script called "ipe" like the following, and put it in
 your path:
 
 #!/bin/sh
-export LD_LIBRARY_PATH="/opt/ipe-7.0/lib/:$LD_LIBRARY_PATH"
-/opt/ipe-7.0/bin/ipe $* &
+export LD_LIBRARY_PATH="/opt/ipe7/lib/:$LD_LIBRARY_PATH"
+/opt/ipe7/bin/ipe $* &
 
 Alternatively, you could put links to the library in a standard
 location:

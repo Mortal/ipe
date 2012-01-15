@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -124,9 +124,9 @@ int AppUi::actionId(const char *name) const
 
 void AppUi::addItem(QMenu *m, const QString &title, const char *name)
 {
-  bool canUseWhileDrawing = false;
+  // bool canUseWhileDrawing = false;
   if (name[0] == '@') {
-    canUseWhileDrawing = true;
+    // canUseWhileDrawing = true;
     name = name + 1;
   }
   bool checkable = (m == iMenu[EModeMenu]) ||
@@ -733,7 +733,7 @@ void AppUi::comboSelector(int id)
 
 static const char * const aboutText =
 "<qt><h2>Ipe %d.%d.%d</h2>"
-"<p>Copyright (c) 1993-2011 Otfried Cheong</p>"
+"<p>Copyright (c) 1993-2012 Otfried Cheong</p>"
 "<p>The extensible drawing editor Ipe creates figures "
 "in Postscript and PDF format, "
 "using LaTeX to format the text in the figures.</p>"

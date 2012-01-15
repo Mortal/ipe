@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -58,6 +58,7 @@ shortcuts = {
   join_paths = "Ctrl+J",
   insert_text_box = "F10",
   edit = "Ctrl+E",
+  edit_as_xml = nil,
   change_width = "Ctrl+W",
   document_properties = "Ctrl+Shift+P",
   style_sheets = "Ctrl+Shift+S",

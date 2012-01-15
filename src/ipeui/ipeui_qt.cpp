@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -317,6 +317,7 @@ bool PDialog::buildAndRun(int w, int h)
 	  QCheckBox *ch = new QCheckBox(QString::fromUtf8(m.text.z()), this);
 	  if (m.lua_method != LUA_NOREF)
 	    connect(ch, SIGNAL(stateChanged(int)), SLOT(notifyLua()));
+	  ch->setChecked(m.value);
 	  w = ch;
 	}
 	break;
@@ -530,7 +531,9 @@ int PMenu::add(lua_State *L)
 	double green = luaL_checknumber(L, -2);
 	double blue = luaL_checknumber(L, -1);
 	lua_pop(L, 3);         // pop result
-	ma->setIcon(colorIcon(red, green, blue));
+	QIcon icon = colorIcon(red, green, blue);
+	ma->setIcon(icon);
+	ma->setIconVisibleInMenu(true);
       }
       if (hascheck) {
 	ma->setCheckable(true);

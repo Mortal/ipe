@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -224,6 +224,9 @@ namespace ipe {
     inline int countSubPaths() const { return iImp->iSubPaths.size(); }
     //! Return subpath.
     inline const SubPath *subPath(int i) const { return iImp->iSubPaths[i]; }
+
+    bool isSegment() const;
+
     void appendSubPath(SubPath *sp);
 
     void draw(Painter &painter) const;

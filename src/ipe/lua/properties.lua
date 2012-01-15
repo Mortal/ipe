@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -50,8 +50,8 @@ end
 
 function MODEL:emptyPopup()
   local m = ipeui.Menu(self.ui:win())
-  m:add("action_paste", "Paste")
-  m:add("action_pan_here", "Pan here")
+  m:add("action_paste_at_cursor", "Paste at cursor")
+  m:add("action_pan_here", "Pan canvas")
   m:add("grid", "Toggle grid")
   local gp = self.ui:globalPos()
   local item, num, value = m:execute(gp.x, gp.y)
@@ -68,11 +68,13 @@ function MODEL:singlePopup(prim)
   local obj = self:page()[prim]
   local m = ipeui.Menu(self.ui:win())
   self["properties_" .. obj:type()](self, obj, m)
-  m:add("action_cut", "Cut")
-  m:add("action_copy", "Copy")
-  m:add("action_paste", "Paste")
-  m:add("action_pan_here", "Pan here")
-  m:add("grid", "Toggle grid")
+  if prefs.tablet_menu then
+    m:add("action_cut", "Cut")
+    m:add("action_copy", "Copy")
+    m:add("action_paste_at_cursor", "Paste at cursor")
+    m:add("action_pan_here", "Pan canvas")
+    m:add("grid", "Toggle grid")
+  end
   local gp = self.ui:globalPos()
   local item, num, value = m:execute(gp.x, gp.y)
   if item then
@@ -137,25 +139,31 @@ function MODEL:setAttributeOfPrimary(prim, prop, value)
 				     t.stroke, t.fill)
 	   end
   self:register(t)
+  if prop == "minipage" or prop == "textsize" or prop == "textstyle" then
+    self:autoRunLatex()
+  end
 end
 
 ----------------------------------------------------------------------
 
 function MODEL:insertBasic(m, obj)
-  local prim = self:page():primarySelection()
-  local layer = self:page():layerOf(prim)
-  local layers = self:page():layers()
-  local pinned = { "none", "horizontal", "vertical", "fixed" }
-  local transformations = { "translations", "rigid", "affine" }
-  m:add("layer", "Layer: " .. layer, layers)
-  m:add("pinned", "Pinned: " .. obj:get("pinned"), pinned)
-  m:add("transformations", "Transformations: " .. obj:get("transformations"),
-	transformations)
+  local p = self:page()
+  local layerL = p:layers()
+  local pinnedL = { "none", "horizontal", "vertical", "fixed" }
+  local transformationsL = { "translations", "rigid", "affine" }
+  local layer = p:layerOf(p:primarySelection())
+  local pinned = obj:get("pinned")
+  local transformations = obj:get("transformations")
+  m:add("layer", "Layer: " .. layer, layerL, nil, layer)
+  m:add("pinned", "Pinned: " .. pinned, pinnedL, nil, pinned)
+  m:add("transformations", "Transformations: " .. transformations,
+	transformationsL, nil, transformations)
 end
 
 function MODEL:insertOpacity(m, obj)
-  local opacity = self.doc:sheets():allNames("opacity")
-  m:add("opacity", "Opacity: " .. obj:get("opacity"), opacity)
+  local opacityL = self.doc:sheets():allNames("opacity")
+  local opacity = obj:get("opacity")
+  m:add("opacity", "Opacity: " .. opacity, opacityL, nil, opacity)
 end
 
 ----------------------------------------------------------------------
@@ -183,18 +191,18 @@ function MODEL:properties_path(obj, m)
   local sheet = self.doc:sheets()
   local colors = sheet:allNames("color")
   local pathmodes = { "stroke only", "stroke && fill", "fill only" }
-  local pathmode = { "stroked", "strokedfilled", "filled" }
-  local pen = sheet:allNames("pen")
-  local dashstyle = sheet:allNames("dashstyle")
-  local arrowsizes = sheet:allNames("arrowsize")
-  local arrowshapes = symbolNames(sheet, "arrow/", "(spx)")
-  local tilings = sheet:allNames("tiling")
-  table.insert(tilings, 1, "normal")
-  local gradients = sheet:allNames("gradient")
-  table.insert(gradients, 1, "normal")
-  local linecap = { "normal", "butt", "round", "square", }
-  local linejoin = { "normal", "miter", "round", "bevel", }
-  local fillrule = { "normal", "wind", "evenodd", }
+  local pathmodeL = { "stroked", "strokedfilled", "filled" }
+  local penL = sheet:allNames("pen")
+  local dashstyleL = sheet:allNames("dashstyle")
+  local arrowsizeL = sheet:allNames("arrowsize")
+  local arrowshapeL = symbolNames(sheet, "arrow/", "(spx)")
+  local tilingL = sheet:allNames("tiling")
+  table.insert(tilingL, 1, "normal")
+  local gradientL = sheet:allNames("gradient")
+  table.insert(gradientL, 1, "normal")
+  local linecapL = { "normal", "butt", "round", "square", }
+  local linejoinL = { "normal", "miter", "round", "bevel", }
+  local fillruleL = { "normal", "wind", "evenodd", }
 
   local shape = obj:shape()
 
@@ -203,50 +211,63 @@ function MODEL:properties_path(obj, m)
   self:insertBasic(m, obj)
 
   local pm = obj:get("pathmode")
-  m:add("pathmode", "Stroke && Fill: " .. pathmodes[indexOf(pm, pathmode)],
-	pathmode, pathmodes)
+  m:add("pathmode", "Stroke && Fill: " .. pathmodes[indexOf(pm, pathmodeL)],
+	pathmodeL, pathmodes, pm)
   if pm ~= "filled"  then
-    m:add("stroke", "Stroke: " .. colorString(obj:get("stroke")), colors, nil,
+    m:add("stroke", "Stroke color: " .. colorString(obj:get("stroke")),
+	  colors, nil,
 	  function (i, name) return color_icon(self.doc:sheets(), name) end)
   end
   if pm ~= "stroked" then
-    m:add("fill", "Fill: " .. colorString(obj:get("fill")), colors, nil,
+    m:add("fill", "Fill color: " .. colorString(obj:get("fill")), colors, nil,
 	  function (i, name) return color_icon(self.doc:sheets(), name) end)
   end
-  m:add("pen", "Pen: " .. obj:get("pen"), pen)
-  m:add("dashstyle", "Dash style: " .. obj:get("dashstyle"), dashstyle)
+
+  local pen = obj:get("pen")
+  m:add("pen", "Pen width: " .. pen, penL, nil, pen)
+  local dashstyle = obj:get("dashstyle")
+  m:add("dashstyle", "Dash style: " .. dashstyle, dashstyleL, nil, dashstyle)
 
   local farr = obj:get("farrow")
   local rarr = obj:get("rarrow")
   local boolnames = { "yes", "no" }
   local boolmap = { "true", "false" }
   local bool_to_yesno = { [false]="no", [true]="yes" }
-  m:add("farrow", "Forward arrow: " .. bool_to_yesno[farr], boolmap, boolnames)
+  m:add("farrow", "Forward arrow: " .. bool_to_yesno[farr], boolmap,
+	boolnames, tostring(farr))
   if farr then
-    m:add("farrowsize", "Forward arrow size", arrowsizes)
-    m:add("farrowshape", "Forward arrow shape", arrowshapes, arrowshapeToName)
+    m:add("farrowsize", "Forward arrow size", arrowsizeL,
+	  nil, obj:get("farrowsize"))
+    m:add("farrowshape", "Forward arrow shape", arrowshapeL,
+	  arrowshapeToName, obj:get("farrowshape"))
   end
-  m:add("rarrow", "Reverse arrow: " .. bool_to_yesno[rarr], boolmap, boolnames)
+  m:add("rarrow", "Reverse arrow: " .. bool_to_yesno[rarr], boolmap,
+	boolnames, tostring(rarr))
   if rarr then
-    m:add("rarrowsize", "Reverse arrow size", arrowsizes)
-    m:add("rarrowshape", "Reverse arrow shape", arrowshapes, arrowshapeToName)
+    m:add("rarrowsize", "Reverse arrow size", arrowsizeL,
+	  nil, obj:get("rarrowsize"))
+    m:add("rarrowshape", "Reverse arrow shape", arrowshapeL,
+	  arrowshapeToName, obj:get("rarrowshape"))
   end
 
-  m:add("linecap", "Line cap: " .. obj:get("linecap"), linecap)
-  m:add("linejoin", "Line join: " .. obj:get("linejoin"), linejoin)
-  m:add("fillrule", "Fill rule: " .. obj:get("fillrule"), fillrule)
+  local lc = obj:get("linecap")
+  local lj = obj:get("linejoin")
+  local fr = obj:get("fillrule")
+  m:add("linecap", "Line cap: " .. lc, linecapL, nil, lc)
+  m:add("linejoin", "Line join: " .. lj, linejoinL, nil, lj)
+  m:add("fillrule", "Fill rule: " .. fr, fillruleL, nil, fr)
 
   if pm ~= "stroked" then
-    m:add("tiling", "Tiling pattern: " .. obj:get("tiling"), tilings)
-    m:add("gradient", "Gradient: " .. obj:get("gradient"), gradients)
+    local tiling = obj:get("tiling")
+    local gradient = obj:get("gradient")
+    m:add("tiling", "Tiling pattern: " .. tiling, tilingL, nil, tiling)
+    m:add("gradient", "Gradient: " .. gradient, gradientL, nil, gradient)
   end
   self:insertOpacity(m, obj)
 
   if #shape > 1 then
     m:add("action_decompose", "Decompose path")
   end
-  m:add("action_join", "Join paths")
-  m:add("action_compose", "Compose paths")
   m:add("action_edit_as_xml", "Edit as XML")
   m:add("action_edit", "Edit path")
 end
@@ -254,25 +275,30 @@ end
 function MODEL:properties_text(obj, m)
   local sheet = self.doc:sheets()
   local minipage = obj:get("minipage")
-  local stroke = sheet:allNames("color")
-  local textsize = sheet:allNames("textsize")
-  local textstyle = sheet:allNames("textstyle")
+  local colors = sheet:allNames("color")
+  local textsizeL = sheet:allNames("textsize")
+  local textstyleL = sheet:allNames("textstyle")
   m:add("comment", "Text object")
   self:insertBasic(m, obj)
   local t = minipage and "minipage" or "label"
-  m:add("minipage", "Type: " .. t, {"true", "false"}, {"minipage", "label"})
-  m:add("stroke", "Stroke: " .. colorString(obj:get("stroke")), stroke,
+  m:add("minipage", "Type: " .. t, {"true", "false"}, {"minipage", "label"},
+	tostring(minipage))
+  m:add("stroke", "Color: " .. colorString(obj:get("stroke")), colors,
 	nil,
 	function (i, name) return color_icon(self.doc:sheets(), name) end)
-  m:add("textsize", "Size: " .. obj:get("textsize"), textsize)
+  local ts = obj:get("textsize")
+  m:add("textsize", "Size: " .. ts, textsizeL, nil, ts)
   if minipage then
-    m:add("textstyle", "Style: " .. obj:get("textstyle"), textstyle)
+    local ts = obj:get("textstyle")
+    m:add("textstyle", "Style: " .. ts, textstyleL, nil, ts)
   else
-    m:add("horizontalalignment", "Horizontal alignment: " ..
-	  obj:get("horizontalalignment"), {"left", "right", "hcenter"})
+    local ha = obj:get("horizontalalignment")
+    m:add("horizontalalignment", "Horizontal alignment: " .. ha,
+	  {"left", "right", "hcenter"}, nil, ha)
   end
-  m:add("verticalalignment", "Vertical alignment: " ..
-	obj:get("verticalalignment"), {"bottom", "baseline", "top", "vcenter"})
+  local va = obj:get("verticalalignment")
+  m:add("verticalalignment", "Vertical alignment: " .. va,
+	{"bottom", "baseline", "top", "vcenter"}, nil, va)
 
   self:insertOpacity(m, obj)
 
@@ -302,12 +328,15 @@ function MODEL:properties_reference(obj, m)
   m:add("comment", "Reference object")
   m:add("comment", "Symbol name: " .. obj:symbol())
   self:insertBasic(m, obj)
-  m:add("stroke", "Stroke: " .. colorString(obj:get("stroke")), colors, nil,
+  m:add("stroke", "Stroke color: " .. colorString(obj:get("stroke")),
+	colors, nil,
   	function (i, name) return color_icon(self.doc:sheets(), name) end)
-  m:add("fill", "Fill: " .. colorString(obj:get("fill")), colors, nil,
+  m:add("fill", "Fill color: " .. colorString(obj:get("fill")), colors, nil,
 	function (i, name) return color_icon(self.doc:sheets(), name) end)
-  m:add("symbolsize", "Size: " .. obj:get("symbolsize"), sizes)
-  m:add("pen", "Pen: " .. obj:get("pen"), pens)
+  local ss = obj:get("symbolsize")
+  m:add("symbolsize", "Size: " .. ss, sizes, nil, ss)
+  local pen = obj:get("pen")
+  m:add("pen", "Pen: " .. pen, pens, nil, pen)
   m:add("action_edit_as_xml", "Edit as XML")
 end
 
@@ -345,14 +374,14 @@ function MODEL:multiAttributes(m, tm)
   local textstyle = sheet:allNames("textstyle")
 
   if tm.path or tm.text or tm.reference then
-    m:add("stroke", "Stroke", colors, nil,
+    m:add("stroke", "Stroke color", colors, nil,
 	  function (i, name) return color_icon(sheet, name) end)
   end
   if tm.path or tm.reference then
-    m:add("fill", "Fill", colors, nil,
+    m:add("fill", "Fill color", colors, nil,
 	  function (i, name) return color_icon(sheet, name) end)
   end
-  if tm.path or tm.reference then m:add("pen", "Pen", pens) end
+  if tm.path or tm.reference then m:add("pen", "Pen width", pens) end
 
   if tm.path then
     m:add("pathmode", "Stroke && Fill", pathmode, pathmodes)
@@ -406,11 +435,18 @@ function MODEL:multiPopup()
 
   self:multiAttributes(m, typmap)
 
-  m:add("action_cut", "Cut")
-  m:add("action_copy", "Copy")
-  m:add("action_paste", "Paste")
-  m:add("action_pan_here", "Pan here")
-  m:add("grid", "Toggle grid")
+  if typcount == 1 and ttype == 'path' then
+    m:add("action_join", "Join paths")
+    m:add("action_compose", "Compose paths")
+  end
+
+  if prefs.tablet_menu then
+    m:add("action_cut", "Cut")
+    m:add("action_copy", "Copy")
+    m:add("action_paste_at_cursor", "Paste at cursor")
+    m:add("action_pan_here", "Pan canvas")
+    m:add("grid", "Toggle grid")
+  end
   local gp = self.ui:globalPos()
   local item, num, value = m:execute(gp.x, gp.y)
   if item then
@@ -429,3 +465,4 @@ function MODEL:multiPopup()
 end
 
 --------------------------------------------------------------------
+

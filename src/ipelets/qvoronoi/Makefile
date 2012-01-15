@@ -1,5 +1,7 @@
 # --------------------------------------------------------------------
 # Makefile for qvoronoi ipelet
+# Needs qhull library (www.qhull.org)
+# On Ubuntu:  apt-get install libqhull-dev
 # --------------------------------------------------------------------
 
 IPESRCDIR = ../..
@@ -11,8 +13,8 @@ ifdef WIN32
 QHULL_CFLAGS = -I../../../../qhull2002.1/src
 QHULL_LIBS = -L../../../../qhull2002.1 -lqhull
 else
-QHULL_CFLAGS = -I../../../../qhull-2003.1/src
-QHULL_LIBS = -L../../../../qhull-2003.1/src -lqhull
+QHULL_CFLAGS = -I/usr/include/qhull
+QHULL_LIBS = -lqhull
 endif
 
 TARGET = $(call ipelet_target,qvoronoi)

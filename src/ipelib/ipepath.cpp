@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2011  Otfried Cheong
+    Copyright (C) 1993-2012  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -50,7 +50,12 @@ using namespace ipe;
   using the <b>winding fill rule</b> by setting the fillRule
   attribute.  This isn't really supported by the Ipe user interface,
   which doesn't show the orientation of paths.)
-*/
+
+  If the path consists of a single line segment and is filled only,
+  then it is not drawn at all.  This can be used to draw arrow heads
+  without bodies.  The fill color is used to draw the arrows in this
+  case.
+ */
 
 //! Construct from XML data.
 Path *Path::create(const XmlAttributes &attr, String data)
@@ -265,7 +270,8 @@ void Path::saveAsXml(Stream &stream, String layer) const
     stream << " fill=\"" << iFill.string() << "\"";
   if (stroked && !iDashStyle.isNormal())
     stream << " dash=\"" << iDashStyle.string() << "\"";
-  if (stroked && !iPen.isNormal())
+  if ((stroked || (iHasFArrow && iFArrowOk) || (iHasRArrow && iRArrowOk))
+      && !iPen.isNormal())
     stream << " pen=\"" << iPen.string() << "\"";
   if (stroked && iLineCap != EDefaultCap)
     stream << " cap=\"" << iLineCap - 1 << "\"";
@@ -275,12 +281,12 @@ void Path::saveAsXml(Stream &stream, String layer) const
     stream << " fillrule=\"wind\"";
   else if (filled && iFillRule == EEvenOddRule)
     stream << " fillrule=\"eofill\"";
-  if (stroked && iHasFArrow && iFArrowOk) {
+  if (iHasFArrow && iFArrowOk) {
     String s = iFArrowShape.string();
     stream << " arrow=\"" << s.substr(6, s.size() - 11)
 	   << "/" << iFArrowSize.string() << "\"";
   }
-  if (stroked && iHasRArrow && iRArrowOk) {
+  if (iHasRArrow && iRArrowOk) {
     String s = iRArrowShape.string();
     stream << " rarrow=\"" << s.substr(6, s.size() - 11)
 	   << "/" << iRArrowSize.string() << "\"";
@@ -296,7 +302,8 @@ void Path::saveAsXml(Stream &stream, String layer) const
   stream << "</path>\n";
 }
 
-//! Draw an arrow of \a size with tip at \a v1 directed from \a v0 to \a v1.
+/*! Draw an arrow of \a size with tip at \a pos directed
+  in direction \a angle. */
 void Path::drawArrow(Painter &painter, Vector pos, Angle angle,
 		     Attribute shape, Attribute size, double radius)
 {
@@ -385,39 +392,49 @@ void Path::draw(Painter &painter) const
   painter.pushMatrix();
   painter.transform(matrix());
   painter.untransform(transformations());
-  painter.newPath();
-  iShape.draw(painter);
-  painter.drawPath(iPathMode);
+  if (!iShape.isSegment() || iPathMode != EFilledOnly) {
+    painter.newPath();
+    iShape.draw(painter);
+    painter.drawPath(iPathMode);
+  }
   if (iPathMode == EStrokedAndFilled && !iGradient.isNormal()) {
     // need to stroke separately
     painter.newPath();
     iShape.draw(painter);
     painter.drawPath(EStrokedOnly);
   }
-  // Draw arrows
-  if (iHasFArrow && iFArrowOk) {
-    double r = 0.0;
-    if (iFArrowArc && (iFArrowShape == Attribute::ARROW_ARC() ||
-		       iFArrowShape == Attribute::ARROW_FARC())) {
-      CurveSegment seg = iShape.subPath(0)->asCurve()->segment(-1);
-      Vector center = painter.matrix() * seg.matrix().translation();
-      r = (center - painter.matrix() * iFArrowPos).len();
-      if ((painter.matrix().linear() * seg.matrix().linear()).determinant()<0)
-	r = -r;
+  if ((iHasFArrow && iFArrowOk) || (iHasRArrow && iRArrowOk)) {
+    // Draw arrows
+    if (iPathMode == EFilledOnly) {
+      painter.setStroke(iFill);
+      painter.setPen(iPen);
+      painter.setLineCap(lineCap());
+      painter.setLineJoin(lineJoin());
     }
-    drawArrow(painter, iFArrowPos, iFArrowDir, iFArrowShape, iFArrowSize, r);
-  }
-  if (iHasRArrow && iRArrowOk) {
-    double r = 0.0;
-    if (iRArrowArc && (iRArrowShape == Attribute::ARROW_ARC() ||
-		       iRArrowShape == Attribute::ARROW_FARC())) {
-      CurveSegment seg = iShape.subPath(0)->asCurve()->segment(0);
-      Vector center = painter.matrix() * seg.matrix().translation();
-      r = (center - painter.matrix() * iRArrowPos).len();
-      if ((painter.matrix().linear() * seg.matrix().linear()).determinant()>0)
-	r = -r;
+    if (iHasFArrow && iFArrowOk) {
+      double r = 0.0;
+      if (iFArrowArc && (iFArrowShape == Attribute::ARROW_ARC() ||
+			 iFArrowShape == Attribute::ARROW_FARC())) {
+	CurveSegment seg = iShape.subPath(0)->asCurve()->segment(-1);
+	Vector center = painter.matrix() * seg.matrix().translation();
+	r = (center - painter.matrix() * iFArrowPos).len();
+	if ((painter.matrix().linear() * seg.matrix().linear()).determinant()<0)
+	  r = -r;
+      }
+      drawArrow(painter, iFArrowPos, iFArrowDir, iFArrowShape, iFArrowSize, r);
     }
-    drawArrow(painter, iRArrowPos, iRArrowDir, iRArrowShape, iRArrowSize, r);
+    if (iHasRArrow && iRArrowOk) {
+      double r = 0.0;
+      if (iRArrowArc && (iRArrowShape == Attribute::ARROW_ARC() ||
+			 iRArrowShape == Attribute::ARROW_FARC())) {
+	CurveSegment seg = iShape.subPath(0)->asCurve()->segment(0);
+	Vector center = painter.matrix() * seg.matrix().translation();
+	r = (center - painter.matrix() * iRArrowPos).len();
+	if ((painter.matrix().linear() * seg.matrix().linear()).determinant()>0)
+	  r = -r;
+      }
+      drawArrow(painter, iRArrowPos, iRArrowDir, iRArrowShape, iRArrowSize, r);
+    }
   }
   painter.popMatrix();
   painter.pop();
@@ -459,10 +476,12 @@ void Path::snapBnd(const Vector &mouse, const Matrix &m,
 //! Set whether object will be stroked and filled.
 void Path::setPathMode(TPathMode pm)
 {
+  /* XXX
   if (iPathMode == EStrokedOnly && pm != EStrokedOnly)
     iFill = Attribute::WHITE();
   if (iPathMode == EFilledOnly && pm != EFilledOnly)
     iStroke = Attribute::BLACK();
+  */
   iPathMode = pm;
 }
 
@@ -503,6 +522,7 @@ void Path::setOpacity(Attribute opaq)
 //! Set pen.
 void Path::setPen(Attribute pen)
 {
+  ipeDebug("set pen");
   iPen = pen;
 }
 
@@ -548,10 +568,10 @@ void Path::setFillRule(TFillRule s)
 
 void Path::checkStyle(const Cascade *sheet, AttributeSeq &seq) const
 {
-  if (iPathMode <= EStrokedAndFilled)
-    checkSymbol(EColor, iStroke, sheet, seq);
-  if (iPathMode >= EStrokedAndFilled)
-    checkSymbol(EColor, iFill, sheet, seq);
+  // XXX if (iPathMode <= EStrokedAndFilled)
+  checkSymbol(EColor, iStroke, sheet, seq);
+  // XXX if (iPathMode >= EStrokedAndFilled)
+  checkSymbol(EColor, iFill, sheet, seq);
   checkSymbol(EDashStyle, iDashStyle, sheet, seq);
   checkSymbol(EPen, iPen, sheet, seq);
   checkSymbol(EArrowSize, iFArrowSize, sheet, seq);
@@ -565,18 +585,22 @@ void Path::checkStyle(const Cascade *sheet, AttributeSeq &seq) const
     checkSymbol(EGradient, iGradient, sheet, seq);
 }
 
+// nStroke and nFill attribute are not used
+// remove in future version
 bool Path::setAttribute(Property prop, Attribute value,
 			Attribute nStroke, Attribute nFill)
 {
   switch (prop) {
   case EPropPathMode:
     if (value.pathMode() != pathMode()) {
-      TPathMode old = pathMode();
+      // XXX TPathMode old = pathMode();
       setPathMode(value.pathMode());
+      /* XXX
       if (old == EStrokedOnly)
 	setFill(nFill);
       if (old == EFilledOnly)
 	setStroke(nStroke);
+      */
       return true;
     }
     break;
