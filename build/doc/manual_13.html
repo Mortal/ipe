@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- XML file produced from file: manual.tex
      using Hyperlatex v 11.07 (c) Otfried Cheong
-     on Emacs 22.2.1, Wed Sep  7 04:59:55 2011 -->
+     on Emacs 23.2.1, Sun Jan 15 22:56:14 2012 -->
 <head>
 <title>Ipe Manual -- 3.10 Layers</title>
 
@@ -31,13 +31,24 @@ div.verse, div.quote, div.quotation {
 on the page belongs to a layer.  There is no relationship between
 layers and the <a href="manual_4.html">back-to-front ordering</a> of
 objects, so the layer is really just an attribute of the object.
-<p>Layers have several attributes.  They may be editable or locked.
-Objects can be selected and modified only if their layer is editable.
-A layer may be visible or invisible.  A layer may have snapping on or
-off--objects will behave magnetically only if their layer has
-snapping on.
-<p>When editing a page in Ipe, there is one <em>active layer</em>. New
-objects are always created in the active layer.
+<p>The layers of the current page are displayed in the layer list, at the
+bottom left of the Ipe window.  The checkmark to the left of the layer
+name determines whether the layer is visible.  The layer marked with a
+yellow background is the <em>active</em> layer. New
+objects are always created in the active layer. You can change the
+active layer by left-clicking on the layer name.
+<p>By right-clicking on a layer name, you open the layer context menu
+that allows you to change layer attributes, to rename layers, to
+delete empty layers, and to change the ordering of layers in the layer
+list (this ordering has no other significance).
+<p>A layer may be editable or locked.  Objects can be selected and
+modified only if their layer is editable. Locked layer are displayed
+in the layer list with a pink background.  You can lock and unlock
+layers from the layer context menu, but note that the active layer
+cannot be locked.
+<p>A layer may have snapping on or off--objects will behave magnetically
+only if their layer has snapping on.  Layers without snapping are
+displayed dimmed in the layer list.
 <p>Layers are also used to create pages that are displayed incrementally
 in Acrobat Reader.  Once you have distributed your objects over
 various layers, you can create <a href="manual_30.html"><em>views</em></a>, which
