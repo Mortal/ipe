@@ -1,54 +1,83 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <!-- XML file produced from file: manual.tex
-     using Hyperlatex v 11.07 (c) Otfried Cheong
-     on Emacs 23.2.1, Sun Jan 15 22:56:15 2012 -->
+     using Hyperlatex v 12.09 (c) Otfried Cheong
+     on Emacs 23.4.1, Wed Jan  9 02:24:18 2013 -->
 <head>
 <title>Ipe Manual -- 10 If you have used Ipe&nbsp;6 before</title>
-
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,
+    initial-scale=1" /><link rel="stylesheet" href="manual.css" />
 <style type="text/css">
-.maketitle { text-align : center }
-div.abstract { margin-left: 20%; margin-right: 10%; }
-h3.abstract  { text-align : center }
-div.verse, div.quote, div.quotation {
+.tex-maketitle { text-align: center; }
+div.tex-abstract { margin-left: 20%; margin-right: 10%; }
+h3.tex-abstract  { text-align: center; }
+div.tex-verse, div.tex-quote, div.tex-quotation, div.tex-math {
   margin-left : 10%; 
   margin-right : 10%;
 }
+.tex-normalsize { font-size: medium; }
+.tex-large { font-size: large; }
+.tex-Large { font-size: x-large; }
+.tex-LARGE { font-size: xx-large; }
+.tex-huge { font-size: xx-large; }
+.tex-Huge { font-size: xx-large; }
+.tex-small { font-size: small; }
+.tex-footnotesize { font-size: x-small; }
+.tex-scriptsize { font-size: x-small; }
+.tex-tiny { font-size: xx-small; }
+.tex-emph { font-style: italic; }
+.tex-strong { font-weight: bold; }
+.tex-bf { font-weight: bold; }
+.tex-it { font-style: italic; }
+.tex-tt { font-family: monospace; }
+.tex-underline { text-decoration: underline; }
+.tex-sf { font: sans-serif; }
+.tex-sc { font-variant: small-caps; }
+.tex-center { text-align: center; }
+.tex-mbox { white-space: nowrap; }
+.tex-verbatim, .tex-example {
+  border-radius: 16px;
+  box-shadow: #387BBE 0px 0px 12px 0px;
+  padding: 1em 1em;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+dl.tex-description dt {
+  float: left;
+  clear: left;
+}
 </style>
 
-<link rel="stylesheet"
-        href="manual.css" type="text/css" /><meta http-equiv="Content-Type" 
-        content="text/html; charset=UTF-8" />
 </head>
 <body bgcolor="#ffffe6">
+<div data-role="page">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_47.html"><img border="0" alt="11 Using Ipe figures in Latex" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>10 If you have used Ipe&nbsp;6 before</b></td></tr></table>
+    <td bgcolor="#99ccff"><a href="manual_47.html"><img border="0" alt="11 Using Ipe figures in Latex" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><span class="tex-bf">10 If you have used Ipe&nbsp;6 before</span></td></tr></table>
+<div data-role="content">
 <h1>10 If you have used Ipe&nbsp;6 before</h1>
 
 <p>Ipe&nbsp;7 is not very different from Ipe&nbsp;6 for the casual user, but there
 are a number of changes you need to be aware of.
 
-<h4><a name="id1">File format.</a></h4>
+<h4 id="id1">File format.</h4>
 First of all, the file format of Ipe&nbsp;7 is different, and Ipe&nbsp;7 cannot
 open files created by Ipe&nbsp;6.  To reuse an Ipe&nbsp;6 document in EPS or PDF
 format, you first need to run the new tool "ipeextract", which will
 extract the XML stream inside the document and save it as an XML
 file. An Ipe&nbsp;6 XML document can then be converted to Ipe&nbsp;7 format
 using "ipe6upgrade".
-<p>If your figure is <i>figure.pdf</i>, then the command
-<pre>
+<p>If your figure is <span class="tex-emph">figure.pdf</span>, then the command
+<pre class="tex-verbatim">
 ipeextract figure.pdf
 </pre>
-will save the XML stream as <i>figure.xml</i>.  Then run 
-<pre>
+will save the XML stream as <span class="tex-emph">figure.xml</span>.  Then run 
+<pre class="tex-verbatim">
 ipe6upgrade figure.xml
 </pre>
-which will save your document in Ipe&nbsp;7 format as <i>figure.ipe</i>.
+which will save your document in Ipe&nbsp;7 format as <span class="tex-emph">figure.ipe</span>.
 All contents of the original document should have been preserved.
 
-<h4><a name="id2">Shortcuts.</a></h4>
+<h4 id="id2">Shortcuts.</h4>
 The keyboard shortcuts of a small number of commands have changed.  Check
 the menu to find out what changes were made. (You can undo these
 changes by <a href="manual_40.html">customizing Ipe</a>.)
@@ -59,13 +88,13 @@ translate, rotate, scale, and stretch are <a href="manual_14.html">still
   available</a> by holding Control or Alt when
 pressing a mouse button.
 
-<h4><a name="id3">Absolute attributes.</a></h4>
+<h4 id="id3">Absolute attributes.</h4>
 The user interface no longer switches between displaying symbolic and
 absolute attribute values.  To select an absolute color, pen width,
 text or mark size, press the little button to the left of the selector
 box.
 
-<h4><a name="id4">Void color and pen.</a></h4>
+<h4 id="id4">Void color and pen.</h4>
 There is no longer a void color for filling, or a void pen for
 stroking. For each path object, you indicate whether you want it to be
 stroked, filled, or both.  This setting is independent of the stroke
@@ -73,7 +102,7 @@ and fill color attribute setting.  Unlike in Ipe&nbsp;6, it is no longer
 possible to have path objects that are neither stroked nor filled
 (such an object would now be stroked in black).
 
-<h4><a name="id5">Path properties.</a></h4>
+<h4 id="id5">Path properties.</h4>
 Except for the pen width, path properties are now set in the path
 property box (below the pen width).  Clicking near the ends of the
 segment turns arrows on and off, clicking at the right end will cycle
@@ -84,47 +113,47 @@ tiling menu.  A tiling will hatch the object with a line pattern, but
 only if is filled.  You can define your own arrow shapes and tiling
 patterns using a stylesheet.
 
-<h4><a name="id6">Ink tool.</a></h4>
+<h4 id="id6">Ink tool.</h4>
 There is a new tool (the one with the brush icon) for drawing path
 objects using a pen on a tablet&nbsp;PC.
 
-<h4><a name="id7">Page transition effects.</a></h4>
+<h4 id="id7">Page transition effects.</h4>
 These now need to be defined in the stylesheet.
 
-<h4><a name="id8">Ipetopng replaced by iperender.</a></h4>
+<h4 id="id8">Ipetopng replaced by iperender.</h4>
 The program "ipetopng" was replaced by a new tool "iperender,"
 which can render Ipe documents to PNG or SVG format.  The latter is
 very nice for including scalable figures in web pages.
 
-<h4><a name="id9">Customization.</a></h4>
-The <em>Preferences dialog</em> has disappeared entirely.  Ipe&nbsp;7 can only
+<h4 id="id9">Customization.</h4>
+The <span class="tex-emph">Preferences dialog</span> has disappeared entirely.  Ipe&nbsp;7 can only
 be <a href="manual_40.html">customized</a> by editing configuration files
 written in Lua.
 
-<h4><a name="id10">Mark objects.</a></h4>
-Mark objects are now simply symbols defined in a style sheet--there
+<h4 id="id10">Mark objects.</h4>
+Mark objects are now simply symbols defined in a style sheet&mdash;there
 is no actual mark object anymore.  Nevertheless, the user interface
 allows you to use them as in Ipe&nbsp;6, with the added benefit that you
 can define your own mark shapes.
 
-<h4><a name="id11">Clipping paths.</a></h4>
+<h4 id="id11">Clipping paths.</h4>
 It is now possible to add a clipping path to a group object.  The
 group will only be drawn inside this clipping path.
 
-<h4><a name="id12">Transparency.</a></h4>
+<h4 id="id12">Transparency.</h4>
 Ipe now supports transparency for text objects and path objects.  This
 feature is not available unless it is enabled in a stylesheet.
 
-<h4><a name="id13">Presentations.</a></h4>
+<h4 id="id13">Presentations.</h4>
 To make cooler presentations, Ipe now supports gradients (so you can
 draw glassy balls), and it is possible to use arbitrary Ipe objects as
 the "bullet" in <code>itemize</code> environments.
 
-<h4><a name="id14">Images on the screen.</a></h4>
+<h4 id="id14">Images on the screen.</h4>
 Images are no longer shown with reduced resolution on the
 screen. Cairo can handle images fast enough to make this unnecessary.
 
-<h4><a name="id15">Bounding boxes.</a></h4>
+<h4 id="id15">Bounding boxes.</h4>
 When a page has several views, Ipe will now compute the same bounding
 box for each view of the page.  This is what you need when you make an
 animated figure consisting of several views, for instance for use from
@@ -138,10 +167,9 @@ create a layer named "VIEWBBOX".  Any view in which this layer is
 visible will receive a bounding box computed for the objects visible
 in this view only.
 
-<h4><a name="id16">To crop or not to crop.</a></h4>
-In Ipe&nbsp;6, use of the PDF <em>CropBox</em> was set in the document
+<h4 id="id16">To crop or not to crop.</h4>
+In Ipe&nbsp;6, use of the PDF <span class="tex-emph">CropBox</span> was set in the document
 properties.  In Ipe&nbsp;7 it is determined by the layout set in the
 stylesheet (and should therefore always be right).
-<hr />
-<table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_47.html"><img border="0" alt="11 Using Ipe figures in Latex" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual.html"><img border="0" alt="Top" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>10 If you have used Ipe&nbsp;6 before</b></td></tr></table></body></html>
+</div>
+</div></body></html>

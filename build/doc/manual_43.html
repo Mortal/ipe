@@ -1,51 +1,80 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <!-- XML file produced from file: manual.tex
-     using Hyperlatex v 11.07 (c) Otfried Cheong
-     on Emacs 23.2.1, Sun Jan 15 22:56:15 2012 -->
+     using Hyperlatex v 12.09 (c) Otfried Cheong
+     on Emacs 23.4.1, Wed Jan  9 02:24:18 2013 -->
 <head>
 <title>Ipe Manual -- 9.2 The &lt;page&gt; element</title>
-
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,
+    initial-scale=1" /><link rel="stylesheet" href="manual.css" />
 <style type="text/css">
-.maketitle { text-align : center }
-div.abstract { margin-left: 20%; margin-right: 10%; }
-h3.abstract  { text-align : center }
-div.verse, div.quote, div.quotation {
+.tex-maketitle { text-align: center; }
+div.tex-abstract { margin-left: 20%; margin-right: 10%; }
+h3.tex-abstract  { text-align: center; }
+div.tex-verse, div.tex-quote, div.tex-quotation, div.tex-math {
   margin-left : 10%; 
   margin-right : 10%;
 }
+.tex-normalsize { font-size: medium; }
+.tex-large { font-size: large; }
+.tex-Large { font-size: x-large; }
+.tex-LARGE { font-size: xx-large; }
+.tex-huge { font-size: xx-large; }
+.tex-Huge { font-size: xx-large; }
+.tex-small { font-size: small; }
+.tex-footnotesize { font-size: x-small; }
+.tex-scriptsize { font-size: x-small; }
+.tex-tiny { font-size: xx-small; }
+.tex-emph { font-style: italic; }
+.tex-strong { font-weight: bold; }
+.tex-bf { font-weight: bold; }
+.tex-it { font-style: italic; }
+.tex-tt { font-family: monospace; }
+.tex-underline { text-decoration: underline; }
+.tex-sf { font: sans-serif; }
+.tex-sc { font-variant: small-caps; }
+.tex-center { text-align: center; }
+.tex-mbox { white-space: nowrap; }
+.tex-verbatim, .tex-example {
+  border-radius: 16px;
+  box-shadow: #387BBE 0px 0px 12px 0px;
+  padding: 1em 1em;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+dl.tex-description dt {
+  float: left;
+  clear: left;
+}
 </style>
 
-<link rel="stylesheet"
-        href="manual.css" type="text/css" /><meta http-equiv="Content-Type" 
-        content="text/html; charset=UTF-8" />
 </head>
 <body bgcolor="#ffffe6">
+<div data-role="page">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_44.html"><img border="0" alt="9.3 Ipe object elements" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_42.html"><img border="0" alt="9.1 The &lt;ipe&gt; element" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9.2 The <tt>&lt;page&gt;</tt> element</b></td></tr></table>
-<h2>9.2 The <tt>&lt;page&gt;</tt> element</h2>
+    <td bgcolor="#99ccff"><a href="manual_44.html"><img border="0" alt="9.3 Ipe object elements" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_42.html"><img border="0" alt="9.1 The &lt;ipe&gt; element" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><span class="tex-bf">9.2 The <span class="tex-tt">&lt;page&gt;</span> element</span></td></tr></table>
+<div data-role="content">
+<h2>9.2 The <span class="tex-tt">&lt;page&gt;</span> element</h2>
 
-<h4><a name="id1">Attributes</a></h4>
-<dl><dt><b>title</b><dd> (optional) title of this page (displayed at a fixed
+<h4 id="id1">Attributes</h4>
+<dl class="tex-description"><dt><span class="tex-bf">title</span></dt><dd> (optional) title of this page (displayed at a fixed
   location in a format specified by the style sheet),
-<dt><b>section</b><dd> (optional) Title of document section starting with this
+<dt><span class="tex-bf">section</span></dt><dd> (optional) Title of document section starting with this
   page. If the attribute is not present, this page continues the
   section of the previous page.  If the attribute is present, but its
   value is an empty string, then the contents of the <code>title</code>
   attribute is used instead.
-<dt><b>subsection</b><dd> (optional) Title of document subsection starting
+<dt><span class="tex-bf">subsection</span></dt><dd> (optional) Title of document subsection starting
   with this page. If the attribute is not present, this page continues
   the subsection of the previous page.  If the attribute is present,
   but its value is an empty string, then the contents of the
   <code>title</code> attribute is used instead.
-<dt><b>marked</b><dd> (optional) The page is marked for printing unless the
+<dt><span class="tex-bf">marked</span></dt><dd> (optional) The page is marked for printing unless the
   value of this attribute is <code>no</code>.
 </dl>
 
-<h4><a name="id2">Contents</a></h4>
-<ol><li>An optional <code>&lt;notes&gt;</code> element,
+<h4 id="id2">Contents</h4>
+<ol class="tex-enumerate"><li>An optional <code>&lt;notes&gt;</code> element,
 <li>a possibly empty sequence of <code>&lt;layer&gt;</code> elements,
 <li>a possibly empty sequence of <code>&lt;view&gt;</code> elements,
 <li>a possibly empty sequence of Ipe object elements.
@@ -55,35 +84,34 @@ layer named "alpha", visible and editable.
 <p>If a page contains no view element, a single view where all layers are
 visible is assumed.
 
-<h3><a name="id3">9.2.1 The <tt>&lt;notes&gt;</tt> element</a></h3>
+<h3 id="id3">9.2.1 The <span class="tex-tt">&lt;notes&gt;</span> element</h3>
 <p>This element has no attributes.  Its contents is plain text,
 containing notes for this page.
 
-<h3><a name="id4">9.2.2 The <tt>&lt;layer&gt;</tt> element</a></h3>
+<h3 id="id4">9.2.2 The <span class="tex-tt">&lt;layer&gt;</span> element</h3>
 
-<h4><a name="id5">Attributes</a></h4>
-<dl><dt><b>name</b><dd> (required) Name of the layer.  It must not contain white
+<h4 id="id5">Attributes</h4>
+<dl class="tex-description"><dt><span class="tex-bf">name</span></dt><dd> (required) Name of the layer.  It must not contain white
   space.
-<dt><b>edit</b><dd> (optional) The value should be <code>yes</code> or
+<dt><span class="tex-bf">edit</span></dt><dd> (optional) The value should be <code>yes</code> or
   <code>no</code> and indicates whether the user can select and modify the
   contents of the layer in the Ipe user interface (of course the user
   can always modify the setting of the attribute).
 </dl>
 <p>The layer element must be empty.
 
-<h3><a name="id6">9.2.3 The <tt>&lt;view&gt;</tt> element</a></h3>
+<h3 id="id6">9.2.3 The <span class="tex-tt">&lt;view&gt;</span> element</h3>
 
-<h4><a name="id7">Attributes</a></h4>
-<dl><dt><b>layers</b><dd> (required) The value must be a sequence of layer names
+<h4 id="id7">Attributes</h4>
+<dl class="tex-description"><dt><span class="tex-bf">layers</span></dt><dd> (required) The value must be a sequence of layer names
   defined in this page, separated by white space.
-<dt><b>active</b><dd> (required) The layer that is the active layer in this view.
-<dt><b>effect</b><dd> (optional) The symbolic name of a graphics effect to be
+<dt><span class="tex-bf">active</span></dt><dd> (required) The layer that is the active layer in this view.
+<dt><span class="tex-bf">effect</span></dt><dd> (optional) The symbolic name of a graphics effect to be
   used during the PDF page transition.  The effect must be defined in
   the style sheet.
-<dt><b>marked</b><dd> (optional) The view is marked for printing if the value
+<dt><span class="tex-bf">marked</span></dt><dd> (optional) The view is marked for printing if the value
   of this attribute is <code>yes</code>.
 </dl>
 <p>The view element must be empty.
-<hr />
-<table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><a href="manual_44.html"><img border="0" alt="9.3 Ipe object elements" src="next.png"></a></td><td bgcolor="#99ccff"><a href="manual_41.html"><img border="0" alt="9 The Ipe file format" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_42.html"><img border="0" alt="9.1 The &lt;ipe&gt; element" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>9.2 The <tt>&lt;page&gt;</tt> element</b></td></tr></table></body></html>
+</div>
+</div></body></html>

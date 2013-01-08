@@ -1,59 +1,87 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <!-- XML file produced from file: manual.tex
-     using Hyperlatex v 11.07 (c) Otfried Cheong
-     on Emacs 23.2.1, Sun Jan 15 22:56:15 2012 -->
+     using Hyperlatex v 12.09 (c) Otfried Cheong
+     on Emacs 23.4.1, Wed Jan  9 02:24:18 2013 -->
 <head>
 <title>Ipe Manual -- 12.2 Environment variables</title>
-
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,
+    initial-scale=1" /><link rel="stylesheet" href="manual.css" />
 <style type="text/css">
-.maketitle { text-align : center }
-div.abstract { margin-left: 20%; margin-right: 10%; }
-h3.abstract  { text-align : center }
-div.verse, div.quote, div.quotation {
+.tex-maketitle { text-align: center; }
+div.tex-abstract { margin-left: 20%; margin-right: 10%; }
+h3.tex-abstract  { text-align: center; }
+div.tex-verse, div.tex-quote, div.tex-quotation, div.tex-math {
   margin-left : 10%; 
   margin-right : 10%;
 }
+.tex-normalsize { font-size: medium; }
+.tex-large { font-size: large; }
+.tex-Large { font-size: x-large; }
+.tex-LARGE { font-size: xx-large; }
+.tex-huge { font-size: xx-large; }
+.tex-Huge { font-size: xx-large; }
+.tex-small { font-size: small; }
+.tex-footnotesize { font-size: x-small; }
+.tex-scriptsize { font-size: x-small; }
+.tex-tiny { font-size: xx-small; }
+.tex-emph { font-style: italic; }
+.tex-strong { font-weight: bold; }
+.tex-bf { font-weight: bold; }
+.tex-it { font-style: italic; }
+.tex-tt { font-family: monospace; }
+.tex-underline { text-decoration: underline; }
+.tex-sf { font: sans-serif; }
+.tex-sc { font-variant: small-caps; }
+.tex-center { text-align: center; }
+.tex-mbox { white-space: nowrap; }
+.tex-verbatim, .tex-example {
+  border-radius: 16px;
+  box-shadow: #387BBE 0px 0px 12px 0px;
+  padding: 1em 1em;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+dl.tex-description dt {
+  float: left;
+  clear: left;
+}
 </style>
 
-<link rel="stylesheet"
-        href="manual.css" type="text/css" /><meta http-equiv="Content-Type" 
-        content="text/html; charset=UTF-8" />
 </head>
 <body bgcolor="#ffffe6">
+<div data-role="page">
 <table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_48.html"><img border="0" alt="12 Command line options and environment variables" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_49.html"><img border="0" alt="12.1 Command line options" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>12.2 Environment variables</b></td></tr></table>
+    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_48.html"><img border="0" alt="12 Command line options and environment variables" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_49.html"><img border="0" alt="12.1 Command line options" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><span class="tex-bf">12.2 Environment variables</span></td></tr></table>
+<div data-role="content">
 <h2>12.2 Environment variables</h2>
-<p>Ipe, <em>ipetoipe</em>, and <em>iperender</em> respect the following
+<p>Ipe, <span class="tex-emph">ipetoipe</span>, and <span class="tex-emph">iperender</span> respect the following
 environment variables:
-<dl><dt><b>IPELATEXDIR</b><dd> the directory where Ipe runs Pdflatex.
-<dt><b>IPEFONTMAP</b><dd> the complete path of the font map, describing where
-  Ipe can find the 14 standard PDF fonts.
-<dt><b>IPEDEBUG</b><dd> set to 1 for debugging output.
-<dt><b>IPEANCIENTPDFTEX</b><dd> set this variable to use Pdftex versions older
+<dl class="tex-description"><dt><span class="tex-bf">IPELATEXDIR</span></dt><dd> the directory where Ipe runs Pdflatex.
+<dt><span class="tex-bf">IPEFONTMAP</span></dt><dd> the complete path of the font map, describing where
+  Ipe can find the 14 standard <span class="tex-sc">pdf</span> fonts.
+<dt><span class="tex-bf">IPEDEBUG</span></dt><dd> set to 1 for debugging output.
+<dt><span class="tex-bf">IPEANCIENTPDFTEX</span></dt><dd> set this variable to use Pdftex versions older
   than&nbsp;1.40.
 </dl>
 <p>The Ipe program uses several additional environment variables:
-<dl><dt><b>EDITOR</b><dd> external editor to use for editing text objects.
-<dt><b>IPESTYLES</b><dd> a list of directories, separated by semicolons, where
+<dl class="tex-description"><dt><span class="tex-bf">EDITOR</span></dt><dd> external editor to use for editing text objects.
+<dt><span class="tex-bf">IPESTYLES</span></dt><dd> a list of directories, separated by semicolons, where
   Ipe looks for stylesheets, for instance for the standard stylesheet
-  <i>basic.isy</i>. You can write &#95; (a single underscore) for the
+  <span class="tex-emph">basic.isy</span>. You can write &#95; (a single underscore) for the
   system-wide stylesheet directory.  If this variable is not set, the
   default consists of the system-wide stylesheet directory, plus
-  <i>~/.ipe/styles</i> on Unix, plus
-  <i>~/Library/Ipe/Styles</i> on OS&nbsp;X.
-<dt><b>IPELETPATH</b><dd> a list of directories, separated by semicolons,
+  <span class="tex-emph">~/.ipe/styles</span> on Unix, plus
+  <span class="tex-emph">~/Library/Ipe/Styles</span> on OS&nbsp;X.
+<dt><span class="tex-bf">IPELETPATH</span></dt><dd> a list of directories, separated by semicolons,
   containing ipelets. You can write &#95; (a single underscore) for the
   system-wide ipelet directory. If this variable is not set, the
   default consists of the system-wide ipelet directory, plus
-  <i>~/.ipe/ipelets</i> on Unix, plus
-  <i>~/Library/Ipe/Ipelets</i> on OS&nbsp;X.
-<dt><b>IPEICONDIR</b><dd> directory containing icons for the Ipe user interface.
-<dt><b>IPEDOCDIR</b><dd> directory containing Ipe documentation.
-<dt><b>IPELUAPATH</b><dd> path for searching for Ipe Lua code.
+  <span class="tex-emph">~/.ipe/ipelets</span> on Unix, plus
+  <span class="tex-emph">~/Library/Ipe/Ipelets</span> on OS&nbsp;X.
+<dt><span class="tex-bf">IPEICONDIR</span></dt><dd> directory containing icons for the Ipe user interface.
+<dt><span class="tex-bf">IPEDOCDIR</span></dt><dd> directory containing Ipe documentation.
+<dt><span class="tex-bf">IPELUAPATH</span></dt><dd> path for searching for Ipe Lua code.
 </dl>
-<hr />
-<table width="100%" cellpadding=0 cellspacing=2><tr>
-    <td bgcolor="#99ccff"><img alt="" src="blank.png"></td><td bgcolor="#99ccff"><a href="manual_48.html"><img border="0" alt="12 Command line options and environment variables" src="up.png"></a></td><td bgcolor="#99ccff"><a href="manual_49.html"><img border="0" alt="12.1 Command line options" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>12.2 Environment variables</b></td></tr></table></body></html>
+</div>
+</div></body></html>
