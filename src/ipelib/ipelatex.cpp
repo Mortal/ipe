@@ -153,8 +153,8 @@ int Latex::createLatexSource(Stream &stream, String preamble)
   int count = 0;
   stream << "\\pdfcompresslevel0\n"
 	 << "\\nonstopmode\n"
-	 << "\\ifx\\pdfobjcompresslevel\\relax\\else"
-	 << "\\pdfobjcompresslevel0\\fi\n";
+	 << "\\expandafter\\ifx\\csname pdfobjcompresslevel\\endcsname"
+	 << "\\relax\\else\\pdfobjcompresslevel0\\fi\n";
   if (!ancient) {
     stream << "\\ifnum\\the\\pdftexversion<140"
 	   << "\\errmessage{Pdftex is too old. "

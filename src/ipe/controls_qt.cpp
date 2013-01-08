@@ -264,7 +264,8 @@ PageSorter::PageSorter(Document *doc, int itemWidth, QWidget *parent)
     Buffer b = r.render(p, p->countViews() - 1);
     QImage bits((const uchar *) b.data(), itemWidth, r.height(),
 		QImage::Format_RGB32);
-    QIcon icon(QPixmap::fromImage(bits));
+    // need to copy bits since buffer b is temporary
+    QIcon icon(QPixmap::fromImage(bits.copy()));
 
     QString s;
     QString t = QString::fromUtf8(p->title().z());

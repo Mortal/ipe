@@ -161,8 +161,10 @@ protected:
 
   CanvasBase *iCanvas;
 
+  std::vector<int> iScalings;
   String iCoordinatesFormat;
   int iMouseIn;
+  double iMouseFactor;
 };
 
 // --------------------------------------------------------------------

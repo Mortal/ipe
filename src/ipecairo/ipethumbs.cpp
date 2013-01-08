@@ -46,7 +46,7 @@ Thumbnail::Thumbnail(const Document *doc, int width)
   Rect paper = iLayout->paper();
   iHeight = int(iWidth * paper.height() / paper.width());
   iZoom = iWidth / paper.width();
-  // ipeDebug("%g %g -> %d %d", paper.width(), paper.height(), iWidth, iHeight);
+  ipeDebug("%g %g -> %d %d", paper.width(), paper.height(), iWidth, iHeight);
 
   iFonts = Fonts::New(doc->fontPool());
 }

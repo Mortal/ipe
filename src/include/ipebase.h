@@ -74,7 +74,7 @@ namespace ipe {
 
   //! Ipelib version.
   /*! \ingroup base */
-  const int IPELIB_VERSION = 70102;
+  const int IPELIB_VERSION = 70103;
 
   //! Oldest readable file format version.
   /*! \ingroup base */

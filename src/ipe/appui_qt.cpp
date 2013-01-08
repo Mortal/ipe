@@ -251,12 +251,21 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   iModeActionGroup->setExclusive(true);
   QActionGroup *cg = new QActionGroup(this);
   cg->setExclusive(true);
+  QActionGroup *cs = new QActionGroup(this);
+  cs->setExclusive(true);
 
   buildMenus();
 
   findAction("coordinates|points")->setActionGroup(cg);
   findAction("coordinates|mm")->setActionGroup(cg);
+  findAction("coordinates|m")->setActionGroup(cg);
   findAction("coordinates|inch")->setActionGroup(cg);
+
+  for (uint i = 0; i < iScalings.size(); ++i) {
+    char action[32];
+    sprintf(action, "scaling|%d", iScalings[i]);
+    findAction(action)->setActionGroup(cs);
+  }
 
   connect(iSelectLayerMenu, SIGNAL(triggered(QAction *)),
 	  SLOT(selectLayerAction(QAction *)));
@@ -303,6 +312,7 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   iShiftKey->setCheckable(true);
   iShiftKey->setIcon(prefsIcon("shift_key"));
   iEditTools->addAction(iShiftKey);
+  iEditTools->addAction(findAction("grid_visible"));
   connect(iShiftKey, SIGNAL(triggered()), SLOT(toolbarModifiersChanged()));
 
   iPropertiesTools = new QDockWidget("Properties", this);
@@ -451,7 +461,9 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   iMouse = new QLabel(statusBar());
   findAction("coordinates|points")->setChecked(true);
   statusBar()->addPermanentWidget(iMouse, 0);
-
+  QFont font = iMouse->font();
+  font.setFamily("Monospace");
+  iMouse->setFont(font);
 
   iResolution = new QLabel(statusBar());
   statusBar()->addPermanentWidget(iResolution, 0);

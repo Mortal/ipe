@@ -51,13 +51,27 @@ AppUiBase::AppUiBase(lua_State *L0, int model)
   iModel = model;
 
   iMouseIn = 0; // points
+  iMouseFactor = 1.0;  // scale 1:1
   iCoordinatesFormat = "%g%s, %g%s";
   lua_getglobal(L, "prefs");
   lua_getfield(L, -1, "coordinates_format");
   if (lua_isstring(L, -1)) {
     iCoordinatesFormat = lua_tostring(L, -1);
   }
-  lua_pop(L, 2);
+  lua_pop(L, 1); // coordinates_format
+
+  iScalings.push_back(1);
+  lua_getfield(L, -1, "scale_factors");
+  if (lua_istable(L, -1)) {
+    int n = lua_objlen(L, -1);
+    for (int i = 1; i <= n; ++i) {
+      lua_rawgeti(L, -1, i);
+      if (lua_isnumber(L, -1))
+	iScalings.push_back(lua_tointeger(L, -1));
+      lua_pop(L, 1); // number
+    }
+  }
+  lua_pop(L, 2); // prefs, scale_factors
 }
 
 AppUiBase::~AppUiBase()
@@ -214,7 +228,22 @@ void AppUiBase::buildMenus()
   startSubMenu(EZoomMenu, "Coordinates");
   addSubItem("points", "@coordinates|points");
   addSubItem("mm", "@coordinates|mm");
+  addSubItem("m", "@coordinates|m");
   addSubItem("inch", "@coordinates|inch");
+  endSubMenu();
+
+  startSubMenu(EZoomMenu, "Coordinate scale");
+  for (uint i = 0; i < iScalings.size(); ++i) {
+    char display[32];
+    char action[32];
+    int s = iScalings[i];
+    if (s < 0)
+      sprintf(display, "%d:1", -s);
+    else
+      sprintf(display, "1:%d", s);
+    sprintf(action, "@scaling|%d", s);
+    addSubItem(display, action);
+  }
   endSubMenu();
 
   addItem(EZoomMenu);
@@ -330,15 +359,19 @@ void AppUiBase::canvasObserverToolChanged(bool hasTool)
   setActionsEnabled(!hasTool);
 }
 
-static void adjust(double &x, int mode)
+static void adjust(double &x, int mode, double factor)
 {
   if (ipe::abs(x) < 1e-12)
     x = 0.0;
+  x *= factor;
   switch (mode) {
   case 1: // mm
     x = (x / 72.0) * 25.4;
     break;
-  case 2: // in
+  case 2: // m
+    x = (x / 72000.0) * 25.4;
+    break;
+  case 3: // in
     x /= 72;
     break;
   default:
@@ -346,7 +379,7 @@ static void adjust(double &x, int mode)
   }
 }
 
-static const char * const mouse_units[] = { "", " mm", " in" };
+static const char * const mouse_units[] = { "", " mm", " m", " in" };
 
 void AppUiBase::canvasObserverPositionChanged()
 {
@@ -356,23 +389,11 @@ void AppUiBase::canvasObserverPositionChanged()
     v = v - snap.iOrigin;
     v = Linear(-snap.iDir) * v;
   }
-  adjust(v.x, iMouseIn);
-  adjust(v.y, iMouseIn);
+  adjust(v.x, iMouseIn, iMouseFactor);
+  adjust(v.y, iMouseIn, iMouseFactor);
   const char *units = mouse_units[iMouseIn];
   char s[32];
   sprintf(s, iCoordinatesFormat.z(), v.x, units, v.y, units);
-  /* TODO: if tool active, show pos relative to origin
-  if (!iFileTools->isEnabled()) {
-    IpeVector u = pos - iMouseBase;
-    if (iSnapData.iWithAxes)
-      u = IpeLinear(-iSnapData.iDir) * u;
-      Adjust(u.iX, iMouseIn);
-      Adjust(u.iY, iMouseIn);
-      QString r;
-      r.sprintf(" (%+g%s,%+g%s)", u.iX, units, u.iY, units);
-      s += r;
-    }
-  */
   setMouseIndicator(s);
 }
 
@@ -434,10 +455,19 @@ void AppUiBase::luaAction(String name)
   if (name.left(12) == "coordinates|") {
     if (name.right(2) == "mm")
       iMouseIn = 1;
-    else if (name.right(4) == "inch")
+    else if (name.right(1) == "m")
       iMouseIn = 2;
+    else if (name.right(4) == "inch")
+      iMouseIn = 3;
     else
       iMouseIn = 0;
+  } else if (name.left(8) == "scaling|") {
+    Lex lex(name.substr(8));
+    int s = lex.getInt();
+    if (s < 0)
+      iMouseFactor = 1.0 / -s;
+    else
+      iMouseFactor = s;
   } else if (name.find('|') >= 0) {
     // calls model selector
     int i = name.find('|');

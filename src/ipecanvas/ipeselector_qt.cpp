@@ -75,7 +75,8 @@ PageSelector::PageSelector(Document *doc, int page, int startIndex,
       Buffer b = r.render(p, i);
       QImage bits((const uchar *) b.data(), itemWidth, r.height(),
 		  QImage::Format_RGB32);
-      QIcon icon(QPixmap::fromImage(bits));
+      // need to copy bits since buffer b is temporary
+      QIcon icon(QPixmap::fromImage(bits.copy()));
       QString s;
       s.sprintf("View %d", i+1);
       QListWidgetItem *item = new QListWidgetItem(icon, s);
@@ -89,7 +90,8 @@ PageSelector::PageSelector(Document *doc, int page, int startIndex,
       Buffer b = r.render(p, p->countViews() - 1);
       QImage bits((const uchar *) b.data(), itemWidth, r.height(),
 		  QImage::Format_RGB32);
-      QIcon icon(QPixmap::fromImage(bits));
+      // need to copy bits since buffer b is temporary
+      QIcon icon(QPixmap::fromImage(bits.copy()));
 
       QString s;
       QString t = QString::fromUtf8(p->title().z());

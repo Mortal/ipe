@@ -11,7 +11,7 @@ ifdef COMSPEC
 endif
 ifdef MINGWCROSS
   WIN32 = 1
-  MINGLIBS ?= /opt/mingw
+  MINGLIBS ?= /sw/mingw
 endif
 ifndef WIN32
   UNAME = $(shell uname)

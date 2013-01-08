@@ -45,7 +45,11 @@ prefs.autosave_interval = 600 -- 10 minutes
 -- can contain '%s' for the filename of the current file
 -- can use 'home' for the user's home directory
 -- prefs.autosave_filename = home .. "/autosave.ipe"
-prefs.autosave_filename = home .. "/%s.autosave"
+if config.platform == "win" then
+  prefs.autosave_filename = "C:%s.autosave"
+else
+  prefs.autosave_filename = home .. "/%s.autosave"
+end
 
 -- External editor for editing text objects
 -- must contain '%s' for the temporary filename
@@ -71,7 +75,7 @@ prefs.auto_external_editor = nil
 prefs.editor_size = { 600, 400 }
 
 -- Size of main window at startup
-prefs.window_size = { 960, 600 }
+prefs.window_size = { 1000, 600 }
 
 -- Size of page sorter window
 prefs.page_sorter_size = { 960, 600 }
@@ -131,22 +135,25 @@ else
 end
 
 -- How to start onscreen keyboard
-if config.platform == "unix" then
-  prefs.keyboard = "onboard &"
-else
-  prefs.keyboard = nil
-end
+-- prefs.keyboard = "onboard &"
+prefs.keyboard = nil
 
 -- tablet mode (true or false)
 -- If tablet_mode is true, then the current selection is not highlighted
 -- when in "ink" drawing mode.
+-- All snap modes are disabled when "ink" drawing mode is started.
 prefs.tablet_mode = false
--- Extended properties menu, perhaps useful for tablets
+-- Extended properties menu, perhaps useful for tablets:
 prefs.tablet_menu = false
 
 -- format string for the coordinates in the status bar
 -- (x, unit, y, unit)
-prefs.coordinates_format = "%g%s, %g%s"
+-- prefs.coordinates_format = "%g%s, %g%s"
+prefs.coordinates_format = "[%7.3f%s, %7.3f%s]"
+
+-- possible scale factors for coordinates output
+-- must be integers. -5 means "5:1", +5 means "1:5"
+prefs.scale_factors = { -100, -5, 10, 100, 1000, 10000 }
 
 -- Auto-exporting when document is being saved
 -- if auto_export_only_if_exists is true, then the file will only
