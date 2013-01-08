@@ -1,5 +1,5 @@
-Ipe 7.1.2
-January, 2012
+Ipe 7.1.3
+January, 2013
 
                     Ipe extensible drawing editor
                     =============================
@@ -30,7 +30,7 @@ to work it out.)
 --------------------------------------------------------------------
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -57,8 +57,8 @@ to work it out.)
 Ipe uses the Zlib library (www.gzip.org/zlib), the Freetype 2 library
 (www.freetype.org), the Cairo library (www.cairographics.org), as well
 as some code from Xpdf (www.foolabs.com/xpdf).  Ipe contains the Lua
-5.1 interpreter (www.lua.org), and uses Nokia's Qt toolkit for its
-graphical user interface (qt.nokia.com).  Ipe relies on Pdflatex for
+5.1 interpreter (www.lua.org), and uses the Qt toolkit for its
+graphical user interface (qt.digia.com).  Ipe relies on Pdflatex for
 rendering text.
 
 --------------------------------------------------------------------

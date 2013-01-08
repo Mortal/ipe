@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -41,10 +41,10 @@ function MODEL:propertiesPopup()
   local sel = self:selection()
   if #sel > 1 then
     self:multiPopup(sel)
-  elseif #sel == 1 then
-    self:singlePopup(self:page():primarySelection())
-  else
+  elseif #sel == 0 then
     self:emptyPopup()
+  else
+    self:singlePopup(self:page():primarySelection())
   end
 end
 
@@ -180,8 +180,6 @@ function MODEL:properties_group(obj, m)
   if clip then
     m:add("action_remove_clipping", "Remove clipping")
     m:add("action_extract_clipping", "Extract clipping path")
-  else
-    m:add("action_add_clipping", "Add clipping path")
   end
   m:add("action_edit_as_xml", "Edit as XML")
   m:add("action_ungroup", "Ungroup")
@@ -434,6 +432,10 @@ function MODEL:multiPopup()
   end
 
   self:multiAttributes(m, typmap)
+
+  if count == 2 and typcount == 2 and typmap["group"] and typmap["path"] then
+    m:add("action_add_clipping", "Add clipping path")
+  end
 
   if typcount == 1 and ttype == 'path' then
     m:add("action_join", "Join paths")

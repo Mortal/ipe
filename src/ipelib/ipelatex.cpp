@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -153,8 +153,8 @@ int Latex::createLatexSource(Stream &stream, String preamble)
   int count = 0;
   stream << "\\pdfcompresslevel0\n"
 	 << "\\nonstopmode\n"
-	 << "\\ifx\\pdfobjcompresslevel\\relax\\else"
-	 << "\\pdfobjcompresslevel0\\fi\n";
+	 << "\\expandafter\\ifx\\csname pdfobjcompresslevel\\endcsname"
+	 << "\\relax\\else\\pdfobjcompresslevel0\\fi\n";
   if (!ancient) {
     stream << "\\ifnum\\the\\pdftexversion<140"
 	   << "\\errmessage{Pdftex is too old. "

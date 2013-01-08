@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -264,7 +264,8 @@ PageSorter::PageSorter(Document *doc, int itemWidth, QWidget *parent)
     Buffer b = r.render(p, p->countViews() - 1);
     QImage bits((const uchar *) b.data(), itemWidth, r.height(),
 		QImage::Format_RGB32);
-    QIcon icon(QPixmap::fromImage(bits));
+    // need to copy bits since buffer b is temporary
+    QIcon icon(QPixmap::fromImage(bits.copy()));
 
     QString s;
     QString t = QString::fromUtf8(p->title().z());

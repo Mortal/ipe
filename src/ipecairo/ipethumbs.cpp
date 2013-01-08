@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ Thumbnail::Thumbnail(const Document *doc, int width)
   Rect paper = iLayout->paper();
   iHeight = int(iWidth * paper.height() / paper.width());
   iZoom = iWidth / paper.width();
-  // ipeDebug("%g %g -> %d %d", paper.width(), paper.height(), iWidth, iHeight);
+  ipeDebug("%g %g -> %d %d", paper.width(), paper.height(), iWidth, iHeight);
 
   iFonts = Fonts::New(doc->fontPool());
 }

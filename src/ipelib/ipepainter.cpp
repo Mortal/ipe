@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ void Painter::untransform(TTransformations trans)
   Matrix m = matrix();
   Vector org = m.translation();
   Vector dx = Vector(m.a[0], m.a[1]);
-  Vector dy = Vector(m.a[2], m.a[3]);
+  // Vector dy = Vector(m.a[2], m.a[3]);
   Linear m1(iMatrix.front().linear());
   if (trans == ETransformationsRigidMotions) {
     // compute what direction is transformed to dx by original matrix

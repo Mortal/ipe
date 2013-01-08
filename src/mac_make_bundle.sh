@@ -16,16 +16,86 @@ mkdir -p $APPPLUGINS
 
 ## Create config files for .app bundle.
 # Info.plist
-echo '{
-	CFBundleIconFile = ipe;
-	CFBundleName = ipe;
-	CFBundleDisplayName = Ipe;
-	CFBundleIdentifier = "local.ipe";
-	CFBundleVersion = "7.1.1";
-	CFBundlePackageType = APPL;
-	CFBundleSignature = ipee;
-	CFBundleExecutable = ipe;
-}
+echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Ipe figure</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>ipe.icns</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>ipe</string>
+				<string>IPE</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Postscript document</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>ipe.icns</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>eps</string>
+				<string>EPS</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>PDF document</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>ipe.icns</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>pdf</string>
+				<string>PDF</string>
+			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/pdf</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>ipe</string>
+	<key>CFBundleIconFile</key>
+	<string>ipe.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>net.sourceforge.ipe7</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Ipe</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@VERSION@</string>
+	<key>CFBundleSignature</key>
+	<string>Ipe7</string>
+	<key>CFBundleVersion</key>
+	<string>@VERSION@</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright (C) 1993-2013  Otfried Cheong</string>
+</dict>
+</plist>
 ' > $APPDIR/Contents/Info.plist
 # ipe startup script
 echo '#! /bin/bash
@@ -99,4 +169,4 @@ find $APPPLUGINS -d -type f -exec $FIX_QTGUI {} \; &> /dev/null
 find $APPPLUGINS -d -type f -exec $FIX_QTNETWORK {} \; &> /dev/null
 
 ## Create icon
-sips -s format icns $APPLOCAL/share/ipe/7.1.1/icons/ipe.png --out $APPRESOURCES/ipe.icns
+sips -s format icns $APPLOCAL/share/ipe/7.1.3/icons/ipe.png --out $APPRESOURCES/ipe.icns

@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@
 #include "ipepainter.h"
 
 using namespace ipe;
+
+#define EPS 1e-12
 
 // --------------------------------------------------------------------
 
@@ -213,6 +215,8 @@ void SelectTool::mouseButton(int button, bool press)
     Rect r(iMouseDown, iCorner);
     if (iNonDestructive) {
       // xor selection status of objects in range
+      // last object that is not selected is made primary selection
+      int new_primary = -1;
       for (int i = 0; i < iPage->count(); ++i) {
 	Matrix id;
 	if (iPage->objectVisible(iView, i)) {
@@ -223,10 +227,19 @@ void SelectTool::mouseButton(int button, bool press)
 	    // in range
 	    if (iPage->select(i))
 	      iPage->setSelect(i, ENotSelected);
-	    else
+	    else {
+	      new_primary = i;
 	      iPage->setSelect(i, ESecondarySelected);
+	    }
 	  }
 	}
+      }
+      if (new_primary >= 0) {
+	// deselect old primary, select new primary
+	int old_primary = iPage->primarySelection();
+	if (old_primary >= 0)
+	  iPage->setSelect(old_primary, ESecondarySelected);
+	iPage->setSelect(new_primary, EPrimarySelected);
       }
     } else {
       // deselect all objects outside range,
@@ -242,8 +255,8 @@ void SelectTool::mouseButton(int button, bool press)
 	}
       }
       changed = true;  // XXX this isn't accurate
+      iPage->ensurePrimarySelection();
     }
-    iPage->ensurePrimarySelection();
   } else if (iObjs.size() > 0) {
     int index = iObjs[iCur].index;
     if (iNonDestructive) {
@@ -277,6 +290,8 @@ void SelectTool::mouseButton(int button, bool press)
     }
   }
   iCanvas->finishTool();
+  // not using right now
+  (void) changed;
 }
 
 void SelectTool::mouseMove()
@@ -427,8 +442,8 @@ void TransformTool::compute(const Vector &v1)
 		  Matrix(-iOrigin));
     break; }
   case EStretch: {
-    double xfactor = u0.x == 0.0 ? 1.0 : u1.x / u0.x;
-    double yfactor = u0.y == 0.0 ? 1.0 : u1.y / u0.y;
+    double xfactor = (abs(u0.x) < EPS) ? 1.0 : u1.x / u0.x;
+    double yfactor = (abs(u0.y) < EPS) ? 1.0 : u1.y / u0.y;
     iTransform = (Matrix(iOrigin) *
 		  Linear(xfactor, 0, 0, yfactor) *
 		  Matrix(-iOrigin));

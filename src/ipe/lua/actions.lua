@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2012  Otfried Cheong
+    Copyright (C) 1993-2013  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -49,6 +49,25 @@ function MODEL:paction(a)
   if a:sub(1,5) == "mode_" then
     self.mode = a:sub(6)
     if prefs.tablet_mode then
+      local snapmodes = {"snapvtx", "snapbd", "snapint", "snapgrid",
+			 "snapangle", "snapauto"}
+      -- disable snapping in ink mode
+      if self.mode == "ink" then
+	self.savedsnap = {}
+	for i,e in ipairs(snapmodes) do
+	  self.savedsnap[e] = self.snap[e]
+	  self.snap[e] = false
+	end
+      elseif self.savedsnap then
+	-- reenable snapping when switching back to another mode
+	for i,e in ipairs(snapmodes) do self.snap[e] = self.savedsnap[e] end
+	self.savedsnap = nil
+      end
+      for i,e in ipairs(snapmodes) do
+	self.ui:setActionState(e, self.snap[e])
+      end
+      self.ui:setSnap(self.snap)
+      self.ui:setFifiVisible(self.mode ~= "ink")
       self.ui:setSelectionVisible(self.mode ~= "ink")
       self.ui:setCursor()
     end
@@ -280,6 +299,7 @@ function MODEL:showLayerBoxPopup(v, layer)
   local p = self:page()
   local m = ipeui.Menu(self.ui:win())
   local active = p:active(self.vno)
+  m:add("checkfrom", "Check " .. layer .. " from view " .. self.vno)
   m:add("rename", "Rename " .. layer)
   m:add("delete", "Delete " .. layer)
   if layer ~= active then
@@ -316,6 +336,23 @@ function MODEL:showLayerBoxPopup(v, layer)
 end
 
 ----------------------------------------------------------------------
+
+function MODEL:layeraction_checkfrom(layer, arg)
+  local p = self:page()
+  local t = { label="make layer " .. layer .. " visible from view " .. self.vno,
+	      pno=self.pno,
+	      vno=self.vno,
+	      original=p:clone(),
+	      layer=layer,
+	      undo=revertOriginal
+	    }
+  t.redo = function (t, doc)
+	     for j = t.vno, doc[t.pno]:countViews() do
+	       doc[t.pno]:setVisible(j, t.layer, true)
+	     end
+	   end
+  self:register(t)
+end
 
 function MODEL:layeraction_select(layer, arg)
   local p = self:page()
@@ -385,9 +422,11 @@ end
 function MODEL:layeraction_move(layer, arg)
   local p = self:page()
   local target = 1
-  if arg ~= "_top_" then target = indexOf(arg, p:layers()) end
   local current = indexOf(layer, p:layers())
-  if target < current then target = target + 1 end
+  if arg ~= "_top_" then
+    target = indexOf(arg, p:layers())
+    if target < current then target = target + 1 end
+  end
   local t = { label="move layer " .. layer,
 	      pno=self.pno,
 	      vno=self.vno,
@@ -1039,6 +1078,10 @@ end
 
 function MODEL:action_delete_view()
   local p = self:page()
+  if p:countViews() < 2 then
+    self.ui:explain("cannot delete single view of a page")
+    return
+  end
   local t = { label="delete view",
 	      pno = self.pno,
 	      vno0 = self.vno,
@@ -1346,6 +1389,10 @@ end
 function MODEL:action_page_sorter()
   local arr = self.ui:pageSorter(self.doc)
   if not arr then return end -- canceled
+  if #arr == 0 then
+    self:warning("You cannot delete all pages of the document")
+    return
+  end
   -- compute reverse 'permutation'
   local rev = {}
   for i = 1,#self.doc do rev[i] = 0 end
@@ -2060,19 +2107,23 @@ end
 
 function MODEL:saction_add_clipping()
   local p = self:page()
-  local prim = p:primarySelection()
-  local obj = p[prim]
-  assert(obj:type() == "group")
   local sel = self:selection()
   if #sel ~= 2 then
-    self:warning("Must have exactly one secondary selection")
+    self:warning("Must have exactly one two selected objects")
     return
   end
-  local sec = (sel[1] ~= prim) and sel[1] or sel[2]
-  if p[sec]:type() ~= "path" then
-    self:warning("Secondary selection is not a path")
+  local prim = sel[1]
+  local sec = sel[2]
+  if p[prim]:type() ~= "group" then
+    prim = sel[2]
+    sec = sel[1]
+  end
+  local obj = p[prim]
+  if obj:type() ~= "group" or p[sec]:type() ~= "path" then
+    self:warning("Must select exactly one group and one path")
     return
   end
+
   local shape = p[sec]:shape()
   transformShape(p[sec]:matrix(), shape)
   transformShape(obj:matrix():inverse(), shape)
