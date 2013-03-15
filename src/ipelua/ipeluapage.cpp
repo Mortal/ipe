@@ -711,7 +711,7 @@ static const struct luaL_Reg page_methods[] = {
 int ipelua::open_ipepage(lua_State *L)
 {
   luaL_newmetatable(L, "Ipe.page");
-  luaL_register(L, 0, page_methods);
+  luaL_setfuncs(L, page_methods, 0);
   lua_pop(L, 1);
 
   return 0;

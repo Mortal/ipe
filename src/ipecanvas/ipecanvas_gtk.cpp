@@ -150,6 +150,11 @@ gboolean Canvas::scroll_cb(GtkWidget *widget, GdkEvent *event, Canvas *canvas)
   return TRUE;
 }
 
+void Canvas::setCursor(TCursor cursor, double w, Color *color)
+{
+  // TODO
+}
+
 // --------------------------------------------------------------------
 
 Canvas::Canvas(GtkWidget *parent)

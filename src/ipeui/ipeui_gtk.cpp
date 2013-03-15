@@ -517,7 +517,7 @@ int PMenu::add(lua_State *L)
 
     GtkWidget *sm = gtk_menu_new();
 
-    int no = lua_objlen(L, 4);
+    int no = lua_rawlen(L, 4);
     for (int i = 1; i <= no; ++i) {
       lua_rawgeti(L, 4, i);
       luaL_argcheck(L, lua_isstring(L, -1), 4, "items must be strings");
@@ -957,7 +957,8 @@ static const struct luaL_Reg ipeui_functions[] = {
 
 int luaopen_ipeui(lua_State *L)
 {
-  luaL_register(L, "ipeui", ipeui_functions);
+  luaL_newlib(L, ipeui_functions);
+  lua_setglobal(L, "ipeui");
   luaopen_ipeui_common(L);
   return 0;
 }

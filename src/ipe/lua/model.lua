@@ -31,6 +31,9 @@
 MODEL = {}
 MODEL.__index = MODEL
 
+MODEL.snapmodes = { "snapvtx", "snapbd", "snapint", "snapgrid",
+		    "snapangle", "snapauto"}
+
 function MODEL:new(fname)
   local model = {}
   setmetatable(model, MODEL)
@@ -70,15 +73,15 @@ function MODEL:init(fname)
   }
 
   self.snap = {
-    snapvtx = false,
-    snapbd = false,
-    snapint = false,
-    snapgrid = false,
-    snapangle = false,
-    snapauto = false,
+    snapvtx = prefs.snap.vertex,
+    snapbd = prefs.snap.boundary,
+    snapint = prefs.snap.intersection,
+    snapgrid = prefs.snap.grid,
+    snapangle = prefs.snap.angle,
+    snapauto = prefs.snap.autoangle,
     grid_visible = prefs.grid_visible,
     gridsize = prefs.grid_size,
-    anglesize = 45,  -- degrees
+    anglesize = prefs.angle_size,
     snap_distance = prefs.snap_distance,
     with_axes = false,
     origin = ipe.Vector(0,0),
@@ -107,6 +110,12 @@ function MODEL:init(fname)
   self.mode = "select"
   self.ui:setActionState("mode_select", true)
   self.ui:setActionState("grid_visible", self.snap.grid_visible)
+
+  for i,e in ipairs(MODEL.snapmodes) do
+    self.ui:setActionState(e, self.snap[e])
+  end
+  self.ui:setSnap(self.snap)
+  self.ui:setFifiVisible(true)
 
   self.auto_latex = prefs.auto_run_latex
   self.ui:setActionState("auto_latex", self.auto_latex)

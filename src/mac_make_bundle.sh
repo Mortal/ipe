@@ -147,12 +147,12 @@ rm -rf $APPPLUGINS/graphicssystems/libqglgraphicssystem.dylib
 rm -rf $APPPLUGINS/imageformats/libqsvg.dylib
 
 ## Copy lua library
-cp /usr/local/lib/liblua5.1.dylib $APPLOCAL/lib/
-install_name_tool -id @executable_path/../lib/liblua5.1.dylib $APPLOCAL/lib/liblua5.1.dylib
+cp /usr/local/lib/liblua52.dylib $APPLOCAL/lib/
+install_name_tool -id @executable_path/../lib/liblua52.dylib $APPLOCAL/lib/liblua52.dylib
 
 ## Build ipe
 export INSTALL_ROOT=$APPDIR/Contents/Resources/1/2/
-export LUA_LIBS="-L$APPDIR/Contents/Resources/local/lib -llua5.1 -lm"
+export LUA_LIBS="-L$APPDIR/Contents/Resources/local/lib -llua52 -lm"
 export IPEPREFIX=../../local
 export IPELIBDIRINFO=@executable_path/../lib
 
@@ -169,4 +169,4 @@ find $APPPLUGINS -d -type f -exec $FIX_QTGUI {} \; &> /dev/null
 find $APPPLUGINS -d -type f -exec $FIX_QTNETWORK {} \; &> /dev/null
 
 ## Create icon
-sips -s format icns $APPLOCAL/share/ipe/7.1.3/icons/ipe.png --out $APPRESOURCES/ipe.icns
+sips -s format icns $APPLOCAL/share/ipe/7.1.4/icons/ipe.png --out $APPRESOURCES/ipe.icns

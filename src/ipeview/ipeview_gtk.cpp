@@ -44,7 +44,7 @@ public:
 		 ENumActions = EPreviousView - 9000 };
 
   AppUi();
-  ~AppUi();
+  virtual ~AppUi();
 
   void show();
 
@@ -100,7 +100,7 @@ void AppUi::addItem(int m, int action, const char *label,
   g_object_set_data(G_OBJECT(item), "appui", this);
   gtk_menu_shell_append(menu, item);
   g_signal_connect(item, "activate", G_CALLBACK(menuitem_response),
-		   gpointer(action));
+		   GINT_TO_POINTER(action));
 
   if (shortcut) {
     guint accel_key;
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
 {
   Platform::initLib(IPELIB_VERSION);
 
-  gtk_init (&argc, &argv);
+  gtk_init(&argc, &argv);
 
   AppUi *ui = new AppUi();
   if (argc > 1 && !ui->load(argv[1]))

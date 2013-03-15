@@ -737,7 +737,7 @@ DataSource::~DataSource()
   \brief Data source for parsing from a file.
 */
 
-FileSource::FileSource(std::FILE *file)
+FileSource::FileSource(FILE *file)
   : iFile(file)
 {
   // nothing

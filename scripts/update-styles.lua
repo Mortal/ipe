@@ -15,8 +15,6 @@
 --
 ----------------------------------------------------------------------
 
-require "ipe"
-
 local ipestyles = os.getenv("IPESTYLES")
 local home = os.getenv("HOME")
 

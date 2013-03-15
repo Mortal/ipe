@@ -63,7 +63,7 @@ AppUiBase::AppUiBase(lua_State *L0, int model)
   iScalings.push_back(1);
   lua_getfield(L, -1, "scale_factors");
   if (lua_istable(L, -1)) {
-    int n = lua_objlen(L, -1);
+    int n = lua_rawlen(L, -1);
     for (int i = 1; i <= n; ++i) {
       lua_rawgeti(L, -1, i);
       if (lua_isnumber(L, -1))
@@ -310,7 +310,7 @@ void AppUiBase::buildMenus()
 
   // build Ipelet menu
   lua_getglobal(L, "ipelets");
-  int n = lua_objlen(L, -1);
+  int n = lua_rawlen(L, -1);
   for (int i = 1; i <= n; ++i) {
     lua_rawgeti(L, -1, i);
     lua_getfield(L, -1, "label");
@@ -326,7 +326,7 @@ void AppUiBase::buildMenus()
       action += name;
       addItem(EIpeletMenu, label.z(), action.z());
     } else {
-      int m = lua_objlen(L, -1);
+      int m = lua_rawlen(L, -1);
       startSubMenu(EIpeletMenu, label.z());
       for (int j = 1; j <= m; ++j) {
 	lua_rawgeti(L, -1, j);

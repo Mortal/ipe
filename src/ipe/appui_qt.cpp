@@ -146,7 +146,7 @@ void AppUi::addItem(QMenu *m, const QString &title, const char *name)
     QString tt = title + " [" + s + "]";
     a->setToolTip(tt);
   } else if (lua_istable(L, -1)) {
-    int no = lua_objlen(L, -1);
+    int no = lua_rawlen(L, -1);
     QList<QKeySequence> kl;
     QString prim;
     for (int i = 1; i <= no; ++i) {
@@ -745,7 +745,7 @@ void AppUi::comboSelector(int id)
 
 static const char * const aboutText =
 "<qt><h2>Ipe %d.%d.%d</h2>"
-"<p>Copyright (c) 1993-2012 Otfried Cheong</p>"
+"<p>Copyright (c) 1993-2013 Otfried Cheong</p>"
 "<p>The extensible drawing editor Ipe creates figures "
 "in Postscript and PDF format, "
 "using LaTeX to format the text in the figures.</p>"

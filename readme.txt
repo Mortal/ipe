@@ -1,5 +1,5 @@
-Ipe 7.1.3
-January, 2013
+Ipe 7.1.4
+March, 2013
 
                     Ipe extensible drawing editor
                     =============================
@@ -57,7 +57,7 @@ to work it out.)
 Ipe uses the Zlib library (www.gzip.org/zlib), the Freetype 2 library
 (www.freetype.org), the Cairo library (www.cairographics.org), as well
 as some code from Xpdf (www.foolabs.com/xpdf).  Ipe contains the Lua
-5.1 interpreter (www.lua.org), and uses the Qt toolkit for its
+5.2 interpreter (www.lua.org), and uses the Qt toolkit for its
 graphical user interface (qt.digia.com).  Ipe relies on Pdflatex for
 rendering text.
 

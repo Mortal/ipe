@@ -47,6 +47,9 @@ namespace ipe {
     GtkWidget *window() const { return GTK_WIDGET(iWindow); }
 
   private:
+    virtual void setCursor(TCursor cursor, double w = 1.0,
+			   Color *color = 0);
+
     virtual void invalidate();
     virtual void invalidate(int x, int y, int w, int h);
 

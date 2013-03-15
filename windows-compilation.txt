@@ -1,0 +1,63 @@
+
+Compiling Ipe under Windows
+(contributed by Daniel Beckmann)
+
+You need the following tools and libraries to compile ipe:
+
+- MinGW. 
+  From www.mingw.org, install base package into C:/MinGW/.
+  Qt requires g++ 4.4, and will not work with the default 4.7 that you
+  will get if you install g++ from the MinGW install tool,
+  so you need to download 'gcc-full-4.4.0-mingw32-bin-2.tar.lzma'
+  and unpack it into C:/MinGW as well.
+  Open a MinGW Shell and say "g++ --version" to check that you have
+  g++ 4.4 available. 
+
+
+- QT. 
+  From qt-project.org/downloads, 
+  install qt-win-opensource-4.8.4-mingw
+  into E:/Qt/4.8.4/  (or edit "common.mak" later)
+  (The Qt installation will complain if your Win32 API is not equal to
+  3.13.  It seems that ignoring this and using the Win32 API 3.17 that
+  comes with MinGW works fine.)
+  
+
+- Cairo, Freetype2, zlib, etc.
+  Precompiled binaries can be found at 
+  http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/
+
+  I used:
+
+  cairo_1.10.2-2_win32.zip  
+  cairo-dev_1.10.2-2_win32.zip
+
+  freetype_2.4.4-1_win32.zip
+  freetype-dev_2.4.4-1_win32.zip
+
+  zlib_1.2.5-2_win32.zip
+  zlib-dev_1.2.5-2_win32.zip
+
+  fontconfig_2.8.0-2_win32.zip
+  expat_2.1.0-1_win32.zip
+  libpng_1.4.12-1_win32.zip
+
+  Extract all into E:/IpeDeps  (or edit "common.mak" later)
+  
+- Lua language
+  Precompiled binaries can be found at
+  http://sourceforge.net/projects/luabinaries/
+
+  I used: lua-5.2.1_Win32_dllw4_lib.zip
+  extracted in E:/IpeDeps/lua52
+
+
+If you have used directories different from E:/Qt/4.8.4/ and 
+E:/IpeDeps, edit "common.mak" and change the setting of QTHOME and
+IPEDEPS in the "Compiling with MinGW32 under Windows" section.
+
+
+Open MinGWShell, navigate into ipe-7.x.x/src folder and say "make"
+
+All files should be compiled in ipe-7.x.x/mingw/bin folder
+
