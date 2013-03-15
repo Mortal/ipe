@@ -75,7 +75,7 @@ DLL_CFLAGS = -fPIC
 #
 # Installing Ipe:
 #
-IPEVERS = 7.0.13
+IPEVERS = 7.0.14
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.

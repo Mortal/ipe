@@ -27,7 +27,7 @@ ipetoipe: ipelib
 ipelets/kgon: ipelib
 ipelets/image: ipelib
 ipelets/qvoronoi: ipelib
-ipe6update: ipelib
+ipe6upgrade: ipelib
 ipeextract: ipelib
 ipecairo: ipelib
 iperender: ipelib ipecairo

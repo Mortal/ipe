@@ -101,11 +101,11 @@ function moveCP(shape, spno, segno, cpno, v)
       local alpha = u:angle()
       local m = (sp[1] * ipe.Matrix(radius, 0, 0, radius, 0, 0)
 	       * ipe.Rotation(alpha))
-      sp[1] = m
+      if not m:isSingular() then sp[1] = m end
     elseif cpno == 2 then -- minor
       local u = sp[1]:inverse() * v
       local m = sp[1] * ipe.Matrix(1, 0, u.x, u.y, 0, 0)
-      sp[1] = m
+      if not m:isSingular() then sp[1] = m end
     end
   else -- curve
     local seg = sp[segno]

@@ -527,9 +527,11 @@ static int appui_setNumbers(lua_State *L)
   String pno;
   if (!lua_isnil(L, 2))
     vno = luaL_checkstring(L, 2);
-  if (!lua_isnil(L, 3))
-    pno = luaL_checkstring(L, 3);
-  (*ui)->setNumbers(vno, pno);
+  bool vm = lua_toboolean(L, 3);
+  if (!lua_isnil(L, 4))
+    pno = luaL_checkstring(L, 4);
+  bool pm = lua_toboolean(L, 5);
+  (*ui)->setNumbers(vno, vm, pno, pm);
   return 0;
 }
 
@@ -572,6 +574,13 @@ static int appui_explain(lua_State *L)
   return 0;
 }
 
+static int appui_checkbox(lua_State *L)
+{
+  AppUi **ui = check_appui(L, 1);
+  lua_pushboolean(L, (*ui)->checkbox(L));
+  return 1;
+}
+
 // --------------------------------------------------------------------
 
 static void get_page_sorter_size(lua_State *L, int &width, int &height,
@@ -612,10 +621,19 @@ static int appui_selectPage(lua_State *L)
 		  3, "invalid page number");
   }
 
+  int startIndex = 1;
+  if (lua_isnumber(L, 4)) {
+    startIndex = lua_tointeger(L, 4);
+    int maxIndex = (page < 0) ? (*doc)->countPages() :
+      (*doc)->page(page-1)->countViews();
+    luaL_argcheck(L, 1 <= startIndex && startIndex <= maxIndex,
+		  4, "invalid start index");
+  }
+
   int width, height, thumbWidth;
   get_page_sorter_size(L, width, height, thumbWidth);
 
-  int sel = PageSelector::selectPageOrView(*doc, page - 1,
+  int sel = PageSelector::selectPageOrView(*doc, page - 1, startIndex - 1,
 					   thumbWidth, width, height);
   if (sel >= 0) {
     lua_pushinteger(L, sel + 1);
@@ -698,6 +716,7 @@ static const struct luaL_Reg appui_methods[] = {
   { "setActionState", appui_setActionState },
   { "actionState", appui_actionState },
   { "explain", appui_explain },
+  { "checkbox", appui_checkbox },
   { "setWindowTitle", appui_setWindowTitle },
   { "setupSymbolicNames", appui_setupSymbolicNames },
   { "setAttributes", appui_setAttributes },
@@ -733,29 +752,45 @@ static int appui_constructor(lua_State *L)
   style.classicGrid = false;
   style.thinLine = 0.2;
   style.thickLine = 0.9;
+  style.thinStep = 1;
+  style.thickStep = 4;
   style.paperClip = false;
   style.numberPages = false;
 
   lua_getglobal(L, "prefs");
 
-  lua_getfield(L, -1, "paper_color");
-  if (!lua_isnil(L, -1))
-    style.paperColor = check_color(L, lua_gettop(L));
-  lua_pop(L, 1); // paper_color
+  lua_getfield(L, -1, "canvas_style");
+  if (!lua_isnil(L, -1)) {
+    lua_getfield(L, -1, "paper_color");
+    if (!lua_isnil(L, -1))
+      style.paperColor = check_color(L, lua_gettop(L));
+    lua_pop(L, 1); // paper_color
 
-  lua_getfield(L, -1, "classic_grid");
-  style.classicGrid = lua_toboolean(L, -1);
-  lua_pop(L, 1); // classic_grid
+    lua_getfield(L, -1, "classic_grid");
+    style.classicGrid = lua_toboolean(L, -1);
+    lua_pop(L, 1); // classic_grid
 
-  lua_getfield(L, -1, "thin_grid_line");
-  if (lua_isnumber(L, -1))
-    style.thinLine = lua_tonumber(L, -1);
-  lua_pop(L, 1); // thin_grid_line
+    lua_getfield(L, -1, "thin_grid_line");
+    if (lua_isnumber(L, -1))
+      style.thinLine = lua_tonumber(L, -1);
+    lua_pop(L, 1); // thin_grid_line
 
-  lua_getfield(L, -1, "thick_grid_line");
-  if (lua_isnumber(L, -1))
-    style.thickLine = lua_tonumber(L, -1);
-  lua_pop(L, 1); // thick_grid_line
+    lua_getfield(L, -1, "thick_grid_line");
+    if (lua_isnumber(L, -1))
+      style.thickLine = lua_tonumber(L, -1);
+    lua_pop(L, 1); // thick_grid_line
+
+    lua_getfield(L, -1, "thin_step");
+    if (lua_isnumber(L, -1))
+      style.thinStep = lua_tointeger(L, -1);
+    lua_pop(L, 1); // thin_step
+
+    lua_getfield(L, -1, "thick_step");
+    if (lua_isnumber(L, -1))
+      style.thickStep = lua_tointeger(L, -1);
+    lua_pop(L, 1); // thick_step
+  }
+  lua_pop(L, 1); // canvas_style
 
   int width = -1, height = -1;
   lua_getfield(L, -1, "window_size");

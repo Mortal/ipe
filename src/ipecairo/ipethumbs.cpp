@@ -58,12 +58,12 @@ Thumbnail::~Thumbnail()
 
 Buffer Thumbnail::render(const Page *page, int view)
 {
-  unsigned long *data = new unsigned long[iWidth * iHeight];
+  Buffer buffer(iWidth * iHeight * 4);
+  memset(buffer.data(), 0xff, iWidth * iHeight * 4);
 
-  for (unsigned long *p = data; p < data + iWidth * iHeight; )
-    *p++ = 0xffffffff;
   cairo_surface_t* surface =
-    cairo_image_surface_create_for_data((uchar *) data, CAIRO_FORMAT_ARGB32,
+    cairo_image_surface_create_for_data((uchar *) buffer.data(),
+					CAIRO_FORMAT_ARGB32,
 					iWidth, iHeight, iWidth * 4);
   cairo_t *cc = cairo_create(surface);
   cairo_scale(cc, iZoom, -iZoom);
@@ -82,7 +82,7 @@ Buffer Thumbnail::render(const Page *page, int view)
   cairo_destroy(cc);
   cairo_surface_destroy(surface);
 
-  return Buffer(((const char *) data), iWidth * iHeight * 4);
+  return buffer;
 }
 
 // --------------------------------------------------------------------

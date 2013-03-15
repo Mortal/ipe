@@ -222,6 +222,7 @@ namespace ipe {
   class Repository {
   public:
     static Repository *get();
+    static void cleanup();
     String toString(int index) const;
     int toIndex(String str);
     // int getIndex(String str) const;

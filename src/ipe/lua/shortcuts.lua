@@ -126,6 +126,9 @@ shortcuts = {
   delete_page = nil,
   edit_title = "Ctrl+P",
   edit_notes = "Ctrl+N",
+  page_sorter = nil,
+  jump_view = "V",
+  jump_page = "J",
   ipelet_1_goodies = nil, -- Mirror horizontal
   ipelet_2_goodies = nil, -- Mirror vertical
   ipelet_3_goodies = nil, -- Mirror at x-axis
@@ -140,6 +143,7 @@ shortcuts = {
   ipelet_12_goodies = nil, -- Mark circle center
   ipelet_13_goodies = nil, -- Make parabolas
   ipelet_14_goodies = nil, -- Regular k-gon
+  ipelet_2_symbols = "Alt+Y", -- Use current symbol
 }
 
 -- These are the shortcuts for the lines/polylines, polygons and splines

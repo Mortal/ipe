@@ -232,6 +232,13 @@ int Repository::toIndex(String str)
   return iStrings.size() - 1;
 }
 
+//! Destroy repository object.
+void Repository::cleanup()
+{
+  delete singleton;
+  singleton = 0;
+}
+
 // --------------------------------------------------------------------
 
 /*! \class ipe::Attribute

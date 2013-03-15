@@ -77,7 +77,7 @@ namespace ipe {
       ESaveNormal = 0, //!< Nothing special
       EExport = 1,     //!< Don't include Ipe markup
       ENoZip = 2,      //!< Do not compress streams
-      ELastView = 4,   //!< Create last view of each page only
+      EMarkedView = 4, //!< Create marked views only
       ENoColor = 8,    //!< No color commands in EPS output
     };
 

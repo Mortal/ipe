@@ -60,19 +60,16 @@ static void render(TargetFormat fm, const char *dst, const Document *doc,
   int wid = int(bbox.width() * zoom + 1);
   int ht = int(bbox.height() * zoom + 1);
 
-  unsigned long *data = 0;
+  ipe::Buffer data;
   cairo_surface_t* surface = 0;
 
   if (fm == EPNG) {
-    data = new unsigned long[wid * ht];
-    if (transparent) {
-      for (unsigned long *p = data; p < data + wid * ht; )
-	*p++ = 0x00000000;
-    } else {
-      for (unsigned long *p = data; p < data + wid * ht; )
-	*p++ = 0xffffffff;
-    }
-    surface = cairo_image_surface_create_for_data((uchar *) data,
+    data = ipe::Buffer(wid * ht * 4);
+    if (transparent)
+      memset(data.data(), 0x00, wid * ht * 4);
+    else
+      memset(data.data(), 0xff, wid * ht * 4);
+    surface = cairo_image_surface_create_for_data((uchar *) data.data(),
 						  CAIRO_FORMAT_ARGB32,
 						  wid, ht, wid * 4);
   } else if (fm == ESVG) {
@@ -109,7 +106,6 @@ static void render(TargetFormat fm, const char *dst, const Document *doc,
 
   cairo_destroy(cc);
   cairo_surface_destroy(surface);
-  delete [] data;
 }
 
 // --------------------------------------------------------------------

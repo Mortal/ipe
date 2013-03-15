@@ -191,7 +191,7 @@ static int document_pages(lua_State *L)
   return 3;
 }
 
-// "export", "nozip", "lastview", "nocolor"
+// "export", "nozip", "markedview", "nocolor"
 static uint check_flags(lua_State *L, int index)
 {
   if (lua_isnoneornil(L, index))
@@ -206,9 +206,9 @@ static uint check_flags(lua_State *L, int index)
   if (lua_toboolean(L, -1))
     flags |= Document::ENoZip;
   lua_pop(L, 1);
-  lua_getfield(L, index, "lastview");
+  lua_getfield(L, index, "markedview");
   if (lua_toboolean(L, -1))
-    flags |= Document::ELastView;
+    flags |= Document::EMarkedView;
   lua_pop(L, 1);
   lua_getfield(L, index, "nocolor");
   if (lua_toboolean(L, -1))
