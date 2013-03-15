@@ -955,7 +955,7 @@ static const struct luaL_Reg arc_methods[] = {
 int ipelua::open_ipegeo(lua_State *L)
 {
   luaL_newmetatable(L, "Ipe.vector");
-  luaL_register(L, 0, vector_methods);
+  luaL_setfuncs(L, vector_methods, 0);
   lua_pop(L, 1);
 
   make_metatable(L, "Ipe.matrix", matrix_methods);

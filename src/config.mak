@@ -39,33 +39,28 @@ ifndef MACOS
 # directly.  You don't have to worry about the UI libraries you
 # haven't selected above.
 #
+# The name of the Lua package (it could be "lua", "lua52", or "lua5.2")
+#
+LUA_PACKAGE   ?= lua5.2
+#
 ZLIB_CFLAGS   ?=
 ZLIB_LIBS     ?= -lz
 FREETYPE_CFLAGS ?= $(shell pkg-config --cflags freetype2)
 FREETYPE_LIBS ?= $(shell pkg-config --libs freetype2)
 CAIRO_CFLAGS  ?= $(shell pkg-config --cflags cairo)
 CAIRO_LIBS    ?= $(shell pkg-config --libs cairo)
-# The lua package might be called "lua" or "lua5.1"
-luatest = $(shell pkg-config --modversion --silence-errors lua)
-ifneq "$(luatest)" ""
-  LUA_CFLAGS  ?= $(shell pkg-config --cflags lua)
-  LUA_LIBS    ?= $(shell pkg-config --libs lua)
-else
-  LUA_CFLAGS  ?= $(shell pkg-config --cflags lua5.1)
-  LUA_LIBS    ?= $(shell pkg-config --libs lua5.1)
-endif
+LUA_CFLAGS    ?= $(shell pkg-config --cflags $(LUA_PACKAGE))
+LUA_LIBS      ?= $(shell pkg-config --libs $(LUA_PACKAGE))
 GTK_CFLAGS    ?= $(shell pkg-config --cflags gtk+-2.0)
 GTK_LIBS      ?= $(shell pkg-config --libs gtk+-2.0)
 QT_CFLAGS     ?= $(shell pkg-config --cflags QtGui QtCore)
 QT_LIBS	      ?= $(shell pkg-config --libs QtGui QtCore)
 #
-# MOC is the Qt meta-object compiler.  On Debian/Ubuntu, it is
-# installed as "moc-qt4" to resolve the name conflict with Qt3's
-# "moc".  If that is not right for your system (i.e. "moc-qt4" does
-# not exist), change it to "moc".
+# MOC is the Qt meta-object compiler.
+# If you have different Qt versions installed, you may have to change
+# this to "moc-qt4" if the default is Qt3's "moc".
 #
-MOC	      ?= moc-qt4
-#MOC	      ?= moc
+MOC	      ?= moc
 #
 else
 #
@@ -81,7 +76,7 @@ CAIRO_CFLAGS  ?= -I/usr/X11/include/cairo -I/usr/X11/include/pixman-1 \
 	 -I/usr/X11/include/libpng12
 CAIRO_LIBS ?= -L/usr/X11/lib -lcairo
 LUA_CFLAGS ?= -I/usr/local/include
-LUA_LIBS   ?= -L/usr/local/lib -llua5.1 -lm
+LUA_LIBS   ?= -L/usr/local/lib -llua52 -lm
 QT_CFLAGS  ?= -I/Library/Frameworks/QtCore.framework/Versions/4/Headers \
 	      -I/Library/Frameworks/QtGui.framework/Versions/4/Headers
 QT_LIBS    ?= -F/Library/Frameworks -L/Library/Frameworks \
@@ -107,7 +102,7 @@ DLL_CFLAGS = -fpic
 #
 # Installing Ipe:
 #
-IPEVERS = 7.1.3
+IPEVERS = 7.1.4
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.

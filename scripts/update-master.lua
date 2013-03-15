@@ -27,8 +27,6 @@
 --
 ----------------------------------------------------------------------
 
-require "ipe"
-
 if #argv == 0 then
   io.stderr:write("Usage: ipescript update-master <texfile> [ <figures> ]\n")
   return
@@ -72,11 +70,11 @@ for _,figname in ipairs(fignames) do
   end
   if index then
     io.stderr:write("Found 'master-preamble' stylesheet, updating it.\n")
-    doc:sheets():insert(index, nsheet)
+    doc:sheets():insert(index, nsheet:clone())
     doc:sheets():remove(index + 1) -- remove old copy
   else
     io.stderr:write("Adding 'master-preamble' stylesheet.\n")
-    doc:sheets():insert(1, nsheet)
+    doc:sheets():insert(1, nsheet:clone())
   end
   if figname:sub(-4) ~= ".ipe" and figname:sub(-4) ~= ".xml" then
     assert(doc:runLatex())

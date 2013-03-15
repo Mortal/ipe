@@ -10,8 +10,6 @@
 --
 ----------------------------------------------------------------------
 
-require "ipe"
-
 if #argv ~= 2 then
   io.stderr:write("Usage: ipescript add-style <sheet.isy> <figure>\n")
   return

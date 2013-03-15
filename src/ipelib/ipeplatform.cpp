@@ -34,6 +34,7 @@
 #ifdef WIN32
 #include <windows.h>
 #include <shlobj.h>
+#include <direct.h>
 #else
 #include <sys/wait.h>
 #endif

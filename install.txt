@@ -10,7 +10,7 @@ steps will install the necessary libraries and tools:
 
     sudo apt-get install checkinstall zlib1g-dev libqt4-dev
     sudo apt-get install libfreetype6-dev libcairo2-dev 
-    sudo apt-get install liblua5.1-0-dev gsfonts
+    sudo apt-get install liblua5.2-dev gsfonts
 
 On Fedora, use the following steps instead:
 
@@ -62,10 +62,11 @@ as follows:
 
    Download the prebuild binaries from 
       http://luabinaries.sourceforge.net/download.html
-   You need the "lib" package only.  Copy the header files ("lua.h"
-   and other ".h" files into "/usr/local/include".  Copy
-   "liblua5.1.dylib" and "liblua5.1.so" into "/usr/local/lib".  
-   DO NOT install "liblua5.1.a" on your system.
+   You need the "lua-5.2.1_MacOS107_lib.tar.gz" package only.  Copy
+   the header files ("lua.h" and other ".h" files) into
+      "/usr/local/include".  
+   Copy "liblua52.dylib" into "/usr/local/lib".  
+   DO NOT install "liblua52.a" on your system.
 
  * Now you can either manually compile and install Ipe, or you can
    build a MacOS application bundle (which you can then install on
@@ -156,16 +157,15 @@ and libraries:
    You can also install from sources at "www.cairographics.org".  If
    you compile Cairo yourself, note that you only need the image and
    svg surfaces (backends).  You also need freetype support, but no
-   fontconfig (Cairo 1.8 does not support freetype without fontconfig,
-   but 1.10 does).  Since Ipe does not need any platform-dependent
-   backends, Cairo should compile fine on any platform.  
+   fontconfig.  Since Ipe does not need any platform-dependent
+   backends, Cairo should compile fine on any platform.
 
- * The Lua language
+ * The Lua language (version 5.2)
 
    Lua is an embeddable scripting language. On Debian/Ubuntu, install
-   "liblua5.1-0-dev".  Or compile from source at "www.lua.org" - the
-   sources are ANSI C and compile very easily.  Ipe requires Lua 5.1,
-   and does not currently work with Lua 5.2.
+   "liblua5.2-dev".  Or compile from source at "www.lua.org" - the
+   sources are ANSI C and compile very easily.  Ipe requires Lua 5.2,
+   and will not work with Lua 5.1.
 
    Make sure that you build a DYNAMIC library.  Ipe will not work if
    Lua is linked statically (linking statically would include three
@@ -255,7 +255,13 @@ just give the definitions on the make command line, see below).
 
 You first have to indicate the location of the required components
 listed above.  On Linux, you probably have a correctly working
-'pkg-config' script, and the default settings should work.
+'pkg-config' script, and the default settings should work.  
+
+You'll have to check that the Lua package name is correct - try saying
+
+     pkg-config --modversion lua5.2
+
+If the package isn't found, try 'lua' or 'lua52'.
 
 Second, you have to define the Ipe directory structure.  Normally, you
 would only need to define IPEPREFIX properly, depending on where you

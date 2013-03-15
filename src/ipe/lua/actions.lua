@@ -49,21 +49,21 @@ function MODEL:paction(a)
   if a:sub(1,5) == "mode_" then
     self.mode = a:sub(6)
     if prefs.tablet_mode then
-      local snapmodes = {"snapvtx", "snapbd", "snapint", "snapgrid",
-			 "snapangle", "snapauto"}
       -- disable snapping in ink mode
       if self.mode == "ink" then
 	self.savedsnap = {}
-	for i,e in ipairs(snapmodes) do
+	for i,e in ipairs(MODEL.snapmodes) do
 	  self.savedsnap[e] = self.snap[e]
 	  self.snap[e] = false
 	end
       elseif self.savedsnap then
 	-- reenable snapping when switching back to another mode
-	for i,e in ipairs(snapmodes) do self.snap[e] = self.savedsnap[e] end
+	for i,e in ipairs(MODEL.snapmodes) do
+	  self.snap[e] = self.savedsnap[e]
+	end
 	self.savedsnap = nil
       end
-      for i,e in ipairs(snapmodes) do
+      for i,e in ipairs(MODEL.snapmodes) do
 	self.ui:setActionState(e, self.snap[e])
       end
       self.ui:setSnap(self.snap)

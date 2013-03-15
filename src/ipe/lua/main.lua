@@ -303,7 +303,6 @@ for _,w in ipairs(config.ipeletDirs) do
   if ipe.fileExists(w) then
     for f in lfs.dir(w) do
       if f:sub(-4) == ".lua" then
-	ff = assert(loadfile(w .. "/" .. f))
 	ft = {}
 	ft._G = _G
 	ft.ipe = ipe
@@ -314,6 +313,7 @@ for _,w in ipairs(config.ipeletDirs) do
 	ft.assert = assert
 	ft.shortcuts = shortcuts
 	ft.prefs = prefs
+	ft.mouse = mouse
 	ft.ipairs = ipairs
 	ft.pairs = pairs
 	ft.print = print
@@ -321,7 +321,8 @@ for _,w in ipairs(config.ipeletDirs) do
 	ft.tostring = tostring
 	ft.name = f:sub(1,-5)
 	ft.dllname = w .. "/" .. ft.name
-	setfenv(ff, ft)
+	ff = assert(loadfile(w .. "/" .. f, "bt", ft))
+	-- setfenv(ff, ft)
 	ff()
 	-- if it has no label, then running it once was all
 	if ft.label then

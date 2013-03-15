@@ -380,7 +380,7 @@ static int shapetool_setmarks(lua_State *L)
 {
   ShapeTool *tool = (ShapeTool *) lua_touserdata(L, lua_upvalueindex(1));
   luaL_argcheck(L, lua_istable(L, 1), 1, "argument is not a table");
-  int no = lua_objlen(L, 1);
+  int no = lua_rawlen(L, 1);
   tool->clearMarks();
   for (int i = 1; i + 1 <= no; i += 2) {
     lua_rawgeti(L, 1, i);
@@ -542,7 +542,7 @@ static int appui_setBookmarks(lua_State *L)
 {
   AppUiBase **ui = check_appui(L, 1);
   luaL_argcheck(L, lua_istable(L, 2), 2, "argument is not a table");
-  int no = lua_objlen(L, 2);
+  int no = lua_rawlen(L, 2);
   std::vector<String> bm;
   for (int i = 1; i <= no; ++i) {
     lua_rawgeti(L, 2, i);

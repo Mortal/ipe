@@ -316,7 +316,7 @@ void Dialog::addTextEdit(lua_State *L, SElement &m)
 
 void Dialog::setListItems(lua_State *L, int index, SElement &m)
 {
-  int no = lua_objlen(L, index);
+  int no = lua_rawlen(L, index);
   m.minWidth = 48;
   for (int i = 1; i <= no; ++i) {
     lua_rawgeti(L, index, i);
@@ -727,7 +727,7 @@ static void make_metatable(lua_State *L, const char *name,
   lua_pushstring(L, "__index");
   lua_pushvalue(L, -2);  /* pushes the metatable */
   lua_settable(L, -3);   /* metatable.__index = metatable */
-  luaL_register(L, 0, methods);
+  luaL_setfuncs(L, methods, 0);
   lua_pop(L, 1);
 }
 

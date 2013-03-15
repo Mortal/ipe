@@ -372,7 +372,7 @@ int ipelua::group_constructor(lua_State *L)
   Group *g = new Group();
   // make sure Lua will collect it if exception happens
   push_object(L, g);
-  int no = lua_objlen(L, 1);
+  int no = lua_rawlen(L, 1);
   for (int i = 1; i <= no; ++i) {
     lua_rawgeti(L, 1, i);
     luaL_argcheck(L, is_type(L, -1, "Ipe.object"), 1,

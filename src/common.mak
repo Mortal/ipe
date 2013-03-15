@@ -4,16 +4,14 @@
 # Building Ipe --- common definitions
 #
 # --------------------------------------------------------------------
-# Are we compiling for Windows?
+# Are we compiling for Windows?  For Mac OS X?
 ifdef COMSPEC
-  WIN32	=  1
-  MINGLIBS ?= c:/Home/Devel/mingw
-endif
-ifdef MINGWCROSS
+  WIN32	=  1   
+else ifdef IPEMXE
   WIN32 = 1
-  MINGLIBS ?= /sw/mingw
-endif
-ifndef WIN32
+else ifdef MINGWCROSS
+  WIN32 = 1
+else
   UNAME = $(shell uname)
   ifeq "$(UNAME)" "Darwin"
     MACOS = 1
@@ -36,7 +34,7 @@ endif
 # --------------------------------------------------------------------
 
 ifdef WIN32
-  IPEUI := WIN32
+  IPEUI ?= QT
   IPE_USE_ICONV :=
   BUILDDIR = $(IPESRCDIR)/../mingw
 else
@@ -47,8 +45,8 @@ endif
 ifeq ($(IPEUI),QT)
 CPPFLAGS += -DIPEUI_QT
 IPEUI_QT := 1
-UI_CFLAGS := $(QT_CFLAGS)
-UI_LIBS := $(QT_LIBS)
+UI_CFLAGS = $(QT_CFLAGS)
+UI_LIBS = $(QT_LIBS)
 moc_sources = $(addprefix moc_, $(subst .h,.cpp,$(moc_headers)))
 all_sources = $(sources) $(qt_sources)
 objects = $(addprefix $(OBJDIR)/, $(subst .cpp,.o,$(all_sources) \
@@ -65,8 +63,8 @@ else
 ifeq ($(IPEUI), GTK)
 CPPFLAGS += -DIPEUI_GTK
 IPEUI_GTK := 1
-UI_CFLAGS := $(GTK_CFLAGS)
-UI_LIBS := $(GTK_LIBS)
+UI_CFLAGS = $(GTK_CFLAGS)
+UI_LIBS = $(GTK_LIBS)
 all_sources = $(sources) $(gtk_sources)
 BUILDDIR = $(IPESRCDIR)/../build-gtk
 objects = $(addprefix $(OBJDIR)/, $(subst .cpp,.o,$(all_sources)))
@@ -99,32 +97,56 @@ ifdef WIN32
   install_symlinks = 
   ipelet_target = $(BUILDDIR)/ipelets/$1.dll
 
-  ZLIB_CFLAGS   := -I$(MINGLIBS)/include
-  ZLIB_LIBS     := $(MINGLIBS)/bin/zlib1.dll
-  FREETYPE_CFLAGS := -I$(MINGLIBS)/include/freetype2 \
-	-I$(MINGLIBS)/include
-  FREETYPE_LIBS := $(MINGLIBS)/bin/freetype6.dll
-  CAIRO_CFLAGS  := -I$(MINGLIBS)/include/cairo
-  CAIRO_LIBS    := $(MINGLIBS)/bin/libcairo-2.dll
-  LUA_CFLAGS    := -I$(MINGLIBS)/include/lua
-  LUA_LIBS      := $(MINGLIBS)/bin/lua51.dll
 
-ifdef MINGWCROSS
+ifdef IPEMXE
+  # --------------- Cross compiling with MXE ---------------
+  CXXFLAGS	+= -g -O2
+  CXX = i686-pc-mingw32-g++
+  CC = i686-pc-mingw32-gcc
+  STRIP_TARGET  = i686-pc-mingw32-strip $(TARGET)
+  WINDRES	= i686-pc-mingw32-windres
+
+  IPEDEPS	:= /sw/mingw
+
+  QT_CFLAGS := -I/sw/mxe/usr/i686-pc-mingw32/include/QtGui \
+	-I/sw/mxe/usr/i686-pc-mingw32/include/QtCore \
+	-I/sw/mxe/usr/i686-pc-mingw32/include/Qt
+  QT_LIBS := /sw/mxe/usr/i686-pc-mingw32/lib/QtCore4.dll \
+	/sw/mxe/usr/i686-pc-mingw32/lib/QtGui4.dll
+  MOC	      	?= i686-pc-mingw32-moc
+else ifdef MINGWCROSS
   # --------------- Cross compiling with MinGW32 ---------------
   CXXFLAGS	+= -g -O2
   CXX = i586-mingw32msvc-g++
   CC = i586-mingw32msvc-gcc
   STRIP_TARGET  = i586-mingw32msvc-strip $(TARGET)
   WINDRES	= i586-mingw32msvc-windres
-  LDFLAGS	+= -enable-stdcall-fixup \
-	-Wl,--enable-runtime-pseudo-reloc -Wl,-enable-auto-import 
+
+  IPEDEPS	:= /sw/mingw
 else
   # --------------- Compiling with MinGW32 under Windows ---------------
-  WINDRES	= windres
+  WINDRES	= C:/MinGW/bin/windres.exe
   CXXFLAGS	+= -g -O2
-  LDFLAGS	+= -enable-stdcall-fixup \
-	-Wl,--enable-runtime-pseudo-reloc -Wl,-enable-auto-import 
+
+  QTHOME	:= E:/Qt/4.8.4
+  IPEDEPS	:= E:/IpeDeps
+
+  QT_CFLAGS := -I$(QTHOME)/include/QtGui \
+	-I$(QTHOME)/include/QtCore \
+	-I$(QTHOME)/include
+  QT_LIBS := $(QTHOME)/bin/QtCore4.dll $(QTHOME)/bin/QtGui4.dll
+  MOC	      	?= $(QTHOME)/bin/moc.exe
 endif
+
+  ZLIB_CFLAGS   := -I$(IPEDEPS)/include
+  ZLIB_LIBS     := $(IPEDEPS)/bin/zlib1.dll
+  FREETYPE_CFLAGS := -I$(IPEDEPS)/include/freetype2 \
+       -I$(IPEDEPS)/include
+  FREETYPE_LIBS := $(IPEDEPS)/bin/freetype6.dll
+  CAIRO_CFLAGS  := -I$(IPEDEPS)/include/cairo
+  CAIRO_LIBS    := $(IPEDEPS)/bin/libcairo-2.dll
+  LUA_CFLAGS    := -I$(IPEDEPS)/lua52/include
+  LUA_LIBS      := $(IPEDEPS)/lua52/lua52.dll
 
 else
   # -------------------- Unix --------------------

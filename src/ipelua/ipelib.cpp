@@ -48,7 +48,7 @@ void ipelua::make_metatable(lua_State *L, const char *name,
   lua_pushstring(L, "__index");
   lua_pushvalue(L, -2);  /* pushes the metatable */
   lua_settable(L, -3);   /* metatable.__index = metatable */
-  luaL_register(L, 0, methods);
+  luaL_setfuncs(L, methods, 0);
   lua_pop(L, 1);
 }
 
@@ -536,7 +536,7 @@ static int ipe_splinetobeziers(lua_State *L)
 {
   luaL_argcheck(L, lua_istable(L, 1), 1, "argument is not a table");
   std::vector<Vector> v;
-  int no = lua_objlen(L, 1);
+  int no = lua_rawlen(L, 1);
   for (int i = 1; i <= no; ++i) {
     lua_rawgeti(L, 1, i);
     luaL_argcheck(L, is_type(L, -1, "Ipe.vector"), 1,
@@ -617,10 +617,11 @@ extern "C" int luaopen_ipe(lua_State *L)
   open_ipelets(L);
 
   luaL_newmetatable(L, "Ipe.document");
-  luaL_register(L, 0, document_methods);
+  luaL_setfuncs(L, document_methods, 0);
   lua_pop(L, 1);
 
-  luaL_register(L, "ipe", ipelib_functions);
+  luaL_newlib(L, ipelib_functions);
+  lua_setglobal(L, "ipe");
   return 1;
 }
 

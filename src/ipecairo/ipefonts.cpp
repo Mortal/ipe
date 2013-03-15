@@ -36,6 +36,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#undef CAIRO_HAS_FC_FONT
 #include <cairo-ft.h>
 
 #ifdef WIN32XX

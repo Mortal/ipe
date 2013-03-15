@@ -101,6 +101,14 @@ prefs.canvas_style = {
 -- Should the grid be visible when Ipe starts? (true or false)
 prefs.grid_visible = true
 
+-- Snap modes active when Ipe starts:
+prefs.snap = { vertex = false,
+	       boundary = false,
+	       intersection = false,
+	       grid = true,
+	       angle = false,
+	       autoangle = false }
+
 -- Initial grid size and angle
 prefs.grid_size = 16     -- points
 prefs.angle_size = 45    -- degrees
