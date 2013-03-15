@@ -31,7 +31,7 @@ ifndef MACOS
 #
 # The name of the Lua package (it could be "lua", "lua52", or "lua5.2")
 #
-LUA_PACKAGE   ?= lua5.2
+LUA_PACKAGE   ?= lua
 #
 ZLIB_CFLAGS   ?=
 ZLIB_LIBS     ?= -lz
@@ -57,7 +57,7 @@ DL_LIBS       ?= -ldl
 # If you have different Qt versions installed, you may have to change
 # this to "moc-qt4" if the default is Qt3's "moc".
 #
-MOC	      ?= moc
+MOC	      ?= moc-qt4
 #
 else
 #
@@ -76,13 +76,13 @@ CAIRO_CFLAGS  ?= -I/usr/X11/include/cairo -I/usr/X11/include/pixman-1 \
 	 -I/usr/X11/include/libpng12
 CAIRO_LIBS ?= -L/usr/X11/lib -lcairo
 LUA_CFLAGS ?= -I/usr/local/include
-LUA_LIBS   ?= -L/usr/local/lib -llua52 -lm
+LUA_LIBS   ?= -L/usr/local/lib -llua -lm
 QT_CFLAGS  ?= -I/Library/Frameworks/QtCore.framework/Versions/4/Headers \
 	      -I/Library/Frameworks/QtGui.framework/Versions/4/Headers
 QT_LIBS    ?= -F/Library/Frameworks -L/Library/Frameworks \
 	      -framework QtCore -framework ApplicationServices \
 	      -framework QtGui -framework AppKit -framework Cocoa -lz -lm
-MOC	   ?= moc
+MOC	   ?= moc-qt4
 endif
 #
 # --------------------------------------------------------------------
