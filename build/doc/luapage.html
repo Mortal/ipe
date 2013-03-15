@@ -89,6 +89,8 @@ p:setActive(view, layer)
 p:insertView(view, layer)
 p:removeView(view)
 p:clearViews()
+f = p:viewMarked(view) -- return true/false
+p:setViewMarked(view, f)
 </pre></div><p>The following methods act on the <b>layers</b> of a page. Note that layers are always accessed by name, not by index as in C++. </p>
 <div class="fragment"><pre class="fragment">
 p:countLayers()
@@ -144,6 +146,10 @@ p:setTitles(t)
 -- n is a string
 n = p:notes()
 p:setNotes(n)
+
+-- f is true/false
+f = p:marked()
+p:setMarked(f)
 
 -- misc:
 rect = p:textBox(sheets)   -- box for next text box

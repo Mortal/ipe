@@ -62,10 +62,13 @@
 <li>void <a class="el" href="classipe_1_1_page.html#a62dfb2c33f5145395db665df3b5f775a">removeLayer</a> (<a class="el" href="classipe_1_1_string.html">String</a> name)
 <li>void <a class="el" href="classipe_1_1_page.html#a99558afd694fd4e6965f6b2170fc894e">renameLayer</a> (<a class="el" href="classipe_1_1_string.html">String</a> oldName, <a class="el" href="classipe_1_1_string.html">String</a> newName)
 <li>int <a class="el" href="classipe_1_1_page.html#adcc7b16eca9a9dd96a7eb33de30cd7b9">countViews</a> () const 
+<li>int <a class="el" href="classipe_1_1_page.html#ad789982d004669011c10abb42eb3af24">countMarkedViews</a> () const 
 <li><a class="el" href="classipe_1_1_attribute.html">Attribute</a> <a class="el" href="classipe_1_1_page.html#a8e75e69b10cea0e12be85c1f8b5fca05">effect</a> (int index) const 
 <li>void <a class="el" href="classipe_1_1_page.html#aae95d30666cbf8d5e4c9565d4ab84ee4">setEffect</a> (int index, <a class="el" href="classipe_1_1_attribute.html">Attribute</a> sym)
 <li><a class="el" href="classipe_1_1_string.html">String</a> <a class="el" href="classipe_1_1_page.html#a6a184ecc2d9f8f9a5d581ded43ae1c31">active</a> (int index) const 
 <li>void <a class="el" href="classipe_1_1_page.html#aed47cc76b56066e28d34b9355558a01c">setActive</a> (int index, <a class="el" href="classipe_1_1_string.html">String</a> name)
+<li>bool <a class="el" href="classipe_1_1_page.html#a6cd0be51e8f0b0a32c2a739c73319228">markedView</a> (int index) const 
+<li>void <a class="el" href="classipe_1_1_page.html#a26dc7f8e7e50110eaae49513a4c54808">setMarkedView</a> (int index, bool marked)
 <li>void <a class="el" href="classipe_1_1_page.html#a51e67478f7a3b685dc4317178d6d9cc1">insertView</a> (int i, <a class="el" href="classipe_1_1_string.html">String</a> active)
 <li>void <a class="el" href="classipe_1_1_page.html#abcf414093ea6496bce20dd904e88dce3">removeView</a> (int i)
 <li>void <a class="el" href="classipe_1_1_page.html#af2f612f8b175111a401db22baca543e8">clearViews</a> ()
@@ -80,6 +83,8 @@
 <li>bool <a class="el" href="classipe_1_1_page.html#a6ee96a5c003dfe4ddace77ce8d9ffd32">sectionUsesTitle</a> (int level) const 
 <li>const <a class="el" href="classipe_1_1_text.html">Text</a> * <a class="el" href="classipe_1_1_page.html#a4d1fc5aff6eaba89a26b974c524b3ab4">titleText</a> () const 
 <li>void <a class="el" href="classipe_1_1_page.html#a36a0201acdacd739bbeb58866368beea">applyTitleStyle</a> (const <a class="el" href="classipe_1_1_cascade.html">Cascade</a> *sheet)
+<li>bool <a class="el" href="classipe_1_1_page.html#a4412ccd47dd8c5976446d27138ca05a1">marked</a> () const 
+<li>void <a class="el" href="classipe_1_1_page.html#afeafaa17436889f5c3b8617a3a125c56">setMarked</a> (bool marked)
 <li><a class="el" href="classipe_1_1_string.html">String</a> <a class="el" href="classipe_1_1_page.html#ae941c30941aa78834a68c53b10034679">notes</a> () const 
 <li>void <a class="el" href="classipe_1_1_page.html#a8fb40d212ab8c19e8812420c0974d15e">setNotes</a> (<a class="el" href="classipe_1_1_string.html">String</a> notes)
 <li>int <a class="el" href="classipe_1_1_page.html#aa99fd3d4193f734ea2ab43bba1eade72">count</a> () const 
@@ -491,6 +496,23 @@
 
 </div>
 </div>
+<a class="anchor" id="ad789982d004669011c10abb42eb3af24"></a><!-- doxytag: member="ipe::Page::countMarkedViews" ref="ad789982d004669011c10abb42eb3af24" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Page::countMarkedViews </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a8e75e69b10cea0e12be85c1f8b5fca05"></a><!-- doxytag: member="ipe::Page::effect" ref="a8e75e69b10cea0e12be85c1f8b5fca05" args="(int index) const " -->
 <div class="memitem">
 <div class="memproto">
@@ -587,6 +609,55 @@
 <div class="memdoc">
 
 <p>Set active layer of view. </p>
+
+</div>
+</div>
+<a class="anchor" id="a6cd0be51e8f0b0a32c2a739c73319228"></a><!-- doxytag: member="ipe::Page::markedView" ref="a6cd0be51e8f0b0a32c2a739c73319228" args="(int index) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ipe::Page::markedView </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>index</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inline]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Return if view is marked. </p>
+
+</div>
+</div>
+<a class="anchor" id="a26dc7f8e7e50110eaae49513a4c54808"></a><!-- doxytag: member="ipe::Page::setMarkedView" ref="a26dc7f8e7e50110eaae49513a4c54808" args="(int index, bool marked)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Page::setMarkedView </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&nbsp;</td>
+          <td class="paramname"> <em>marked</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Set if view is marked. </p>
 
 </div>
 </div>
@@ -928,6 +999,45 @@
 <div class="memdoc">
 
 <p>Apply styling to title text object. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4412ccd47dd8c5976446d27138ca05a1"></a><!-- doxytag: member="ipe::Page::marked" ref="a4412ccd47dd8c5976446d27138ca05a1" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ipe::Page::marked </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inline]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Return if page is marked for printing. </p>
+
+</div>
+</div>
+<a class="anchor" id="afeafaa17436889f5c3b8617a3a125c56"></a><!-- doxytag: member="ipe::Page::setMarked" ref="afeafaa17436889f5c3b8617a3a125c56" args="(bool marked)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Page::setMarked </td>
+          <td>(</td>
+          <td class="paramtype">bool&nbsp;</td>
+          <td class="paramname"> <em>marked</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Set if page is marked for printing. </p>
 
 </div>
 </div>

@@ -112,6 +112,9 @@
 <li>checkSymbol()
 : <a class="el" href="classipe_1_1_object.html#a83de0580562bac965e328514b66176f4">ipe::Object</a>
 </li>
+<li>cleanup()
+: <a class="el" href="classipe_1_1_repository.html#a6c603aeb66886fbf58d4503e81456332">ipe::Repository</a>
+</li>
 <li>clear()
 : <a class="el" href="classipe_1_1_rect.html#a763ff674b3510b450ceb97fccdf3108c">ipe::Rect</a>
 , <a class="el" href="classipe_1_1_xml_attributes.html#a5602fe7fd576bd4ddfbf58006cfd9190">ipe::XmlAttributes</a>
@@ -126,12 +129,12 @@
 : <a class="el" href="classipe_1_1_rect.html#a6ee45fba04de1d4f88ab379e4cd1ea55">ipe::Rect</a>
 </li>
 <li>clone()
-: <a class="el" href="classipe_1_1_text.html#a17710aeabf1f2920e3dcd0865f2c4a77">ipe::Text</a>
+: <a class="el" href="classipe_1_1_reference.html#afca18834683841a1c12e46054c2faed5">ipe::Reference</a>
+, <a class="el" href="classipe_1_1_text.html#a17710aeabf1f2920e3dcd0865f2c4a77">ipe::Text</a>
 , <a class="el" href="classipe_1_1_group.html#a4f39ec2694152406368547cd0f54665a">ipe::Group</a>
 , <a class="el" href="classipe_1_1_image.html#a8fcf42a34de550d3f8303c5f9daca5f7">ipe::Image</a>
 , <a class="el" href="classipe_1_1_object.html#ac6289d8762c8cfad2526d7e299ee4829">ipe::Object</a>
 , <a class="el" href="classipe_1_1_path.html#adf3bd9a6f977ad5b6e78564820303372">ipe::Path</a>
-, <a class="el" href="classipe_1_1_reference.html#afca18834683841a1c12e46054c2faed5">ipe::Reference</a>
 </li>
 <li>close()
 : <a class="el" href="classipe_1_1_stream.html#af5c69562d890aa81c8c8e24280bfa9e0">ipe::Stream</a>
@@ -155,11 +158,11 @@
 <li>closingSegment()
 : <a class="el" href="classipe_1_1_curve.html#a43076f4f28bdc6685ce9cd8f4e805e94">ipe::Curve</a>
 </li>
-<li>Color()
-: <a class="el" href="classipe_1_1_color.html#a42366d3ca6e9a2936c95b26e9d658d14">ipe::Color</a>
-</li>
 <li>color()
 : <a class="el" href="classipe_1_1_attribute.html#a585441870cee664ba79decaf454f3a3b">ipe::Attribute</a>
+</li>
+<li>Color()
+: <a class="el" href="classipe_1_1_color.html#a42366d3ca6e9a2936c95b26e9d658d14">ipe::Color</a>
 </li>
 <li>colorKey()
 : <a class="el" href="classipe_1_1_bitmap.html#a0445f8a52ae410ceb3623f659d3fe3ca">ipe::Bitmap</a>
@@ -180,17 +183,20 @@
 : <a class="el" href="classipe_1_1_rect.html#aa8c1da5702a40c2a1c4c0d577de84ad5">ipe::Rect</a>
 </li>
 <li>count()
-: <a class="el" href="classipe_1_1_group.html#a156df72f3a06310902ae81245e3174b8">ipe::Group</a>
-, <a class="el" href="classipe_1_1_pdf_dict.html#a094829d232a6b7cdd4a56b31554407cc">ipe::PdfDict</a>
-, <a class="el" href="classipe_1_1_pdf_array.html#a35771ada1625f4b73fcf6fdc521768c6">ipe::PdfArray</a>
-, <a class="el" href="classipe_1_1_cascade.html#af9e8f89db64e3e50b9d7745be3833b00">ipe::Cascade</a>
+: <a class="el" href="classipe_1_1_cascade.html#af9e8f89db64e3e50b9d7745be3833b00">ipe::Cascade</a>
+, <a class="el" href="classipe_1_1_group.html#a156df72f3a06310902ae81245e3174b8">ipe::Group</a>
 , <a class="el" href="classipe_1_1_page.html#aa99fd3d4193f734ea2ab43bba1eade72">ipe::Page</a>
+, <a class="el" href="classipe_1_1_pdf_array.html#a35771ada1625f4b73fcf6fdc521768c6">ipe::PdfArray</a>
+, <a class="el" href="classipe_1_1_pdf_dict.html#a094829d232a6b7cdd4a56b31554407cc">ipe::PdfDict</a>
 </li>
 <li>countCP()
 : <a class="el" href="classipe_1_1_curve_segment.html#a2403462fcec72502723e69920f236b40">ipe::CurveSegment</a>
 </li>
 <li>countLayers()
 : <a class="el" href="classipe_1_1_page.html#a15e6a6e26337e12c8ca23641d8f031a7">ipe::Page</a>
+</li>
+<li>countMarkedViews()
+: <a class="el" href="classipe_1_1_page.html#ad789982d004669011c10abb42eb3af24">ipe::Page</a>
 </li>
 <li>countPages()
 : <a class="el" href="classipe_1_1_document.html#a491cab0f20eebdc074511bc3bb5a0194">ipe::Document</a>
@@ -236,8 +242,8 @@
 , <a class="el" href="classipe_1_1_ps_writer.html#aa39a48dec294932fc6554acdf797e2b8">ipe::PsWriter</a>
 </li>
 <li>createTrailer()
-: <a class="el" href="classipe_1_1_ps_writer.html#a708829ba9523322bfa1323c471b66dbd">ipe::PsWriter</a>
-, <a class="el" href="classipe_1_1_pdf_writer.html#af946225090b30c26b35fd8f3309bf23d">ipe::PdfWriter</a>
+: <a class="el" href="classipe_1_1_pdf_writer.html#af946225090b30c26b35fd8f3309bf23d">ipe::PdfWriter</a>
+, <a class="el" href="classipe_1_1_ps_writer.html#a708829ba9523322bfa1323c471b66dbd">ipe::PsWriter</a>
 </li>
 <li>createXml()
 : <a class="el" href="classipe_1_1_ps_writer.html#abf22bc8604e2c1cafbb9dcd70bbecf60">ipe::PsWriter</a>

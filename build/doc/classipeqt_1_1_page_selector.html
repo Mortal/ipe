@@ -44,17 +44,17 @@
 </ul>
 <h2>Public Member Functions</h2>
 <ul>
-<li><a class="el" href="classipeqt_1_1_page_selector.html#abcfc0f9a4b8968861ccf990a7ad1f56e">PageSelector</a> (<a class="el" href="classipe_1_1_document.html">Document</a> *doc, int page, int width, QWidget *parent=0)
+<li><a class="el" href="classipeqt_1_1_page_selector.html#ad109e96e264320a24550fdb39daa279f">PageSelector</a> (<a class="el" href="classipe_1_1_document.html">Document</a> *doc, int page, int startIndex, int width, QWidget *parent=0)
 <li>int <a class="el" href="classipeqt_1_1_page_selector.html#a757d91705a757bfad8354c6bb846f945">selectedIndex</a> () const 
 </ul>
 <h2>Static Public Member Functions</h2>
 <ul>
-<li>static int <a class="el" href="classipeqt_1_1_page_selector.html#a511c92652242f0043a047ab126b211c1">selectPageOrView</a> (<a class="el" href="classipe_1_1_document.html">Document</a> *doc, int page=-1, int pageWidth=240, int width=600, int height=480)
+<li>static int <a class="el" href="classipeqt_1_1_page_selector.html#ab0684da5c1196365f5f19c7d0b9ecfed">selectPageOrView</a> (<a class="el" href="classipe_1_1_document.html">Document</a> *doc, int page=-1, int startIndex=0, int pageWidth=240, int width=600, int height=480)
 </ul>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>A Qt widget that displays a list of Ipe pages. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="abcfc0f9a4b8968861ccf990a7ad1f56e"></a><!-- doxytag: member="ipeqt::PageSelector::PageSelector" ref="abcfc0f9a4b8968861ccf990a7ad1f56e" args="(Document *doc, int page, int width, QWidget *parent=0)" -->
+<a class="anchor" id="ad109e96e264320a24550fdb39daa279f"></a><!-- doxytag: member="ipeqt::PageSelector::PageSelector" ref="ad109e96e264320a24550fdb39daa279f" args="(Document *doc, int page, int startIndex, int width, QWidget *parent=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -69,6 +69,12 @@
           <td></td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>page</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>startIndex</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -112,11 +118,9 @@
 </div>
 <div class="memdoc">
 
-<p>Return index of selected view or page. </p>
-
 </div>
 </div>
-<a class="anchor" id="a511c92652242f0043a047ab126b211c1"></a><!-- doxytag: member="ipeqt::PageSelector::selectPageOrView" ref="a511c92652242f0043a047ab126b211c1" args="(Document *doc, int page=&#45;1, int pageWidth=240, int width=600, int height=480)" -->
+<a class="anchor" id="ab0684da5c1196365f5f19c7d0b9ecfed"></a><!-- doxytag: member="ipeqt::PageSelector::selectPageOrView" ref="ab0684da5c1196365f5f19c7d0b9ecfed" args="(Document *doc, int page=&#45;1, int startIndex=0, int pageWidth=240, int width=600, int height=480)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -131,6 +135,12 @@
           <td></td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>page</em> = <code>-1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>startIndex</em> = <code>0</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

@@ -42,7 +42,8 @@ obj:get(property)                -- see below
 obj:xml()                        -- return XML representation
 obj:matrix()
 obj:setMatrix(m)
-obj:addToBBox(r, m)
+obj:addToBBox(r, m)              -- including control points
+obj:addToBBox(r, m, false)       -- without control points
 
 -- text and reference objects only:
 v = obj:position()
