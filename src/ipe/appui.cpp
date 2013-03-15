@@ -138,8 +138,23 @@ void LayerBox::layerChanged(QListWidgetItem *item)
 void LayerBox::set(const Page *page, int view)
 {
   iInSet = true;
-  clear();
+  // find ordering of layers <first_view, layer>
+  std::vector<std::pair<int,int> > idx(page->countLayers());
   for (int i = 0; i < page->countLayers(); ++i) {
+    int first = page->countViews();
+    for (int j = 0; j < page->countViews(); ++j) {
+      if (page->visible(j, i)) {
+	first = j;
+	break;
+      }
+    }
+    idx[i] = std::pair<int,int>(first, i);
+  }
+  std::sort(idx.begin(), idx.end());
+
+  clear();
+  for (int j = 0; j < page->countLayers(); ++j) {
+    int i = idx[j].second;
     QListWidgetItem *item = new QListWidgetItem(QIpe(page->layer(i)), this);
     item->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
     item->setCheckState(page->visible(view, i) ? Qt::Checked : Qt::Unchecked);
@@ -548,6 +563,7 @@ void AppUi::buildMenus()
   addItem(EZoomMenu, "Zoom out", "zoom_out");
   addItem(EZoomMenu, "Normal size", "normal_size");
   addItem(EZoomMenu, "Fit page", "fit_page");
+  addItem(EZoomMenu, "Fit width", "fit_width");
   addItem(EZoomMenu, "Fit objects", "fit_objects");
   addItem(EZoomMenu, "Fit selection", "fit_selection");
   iMenu[EZoomMenu]->addSeparator();
@@ -587,6 +603,8 @@ void AppUi::buildMenus()
   iMenu[EPageMenu]->addSeparator();
   addItem(EPageMenu, "Edit title && sections", "edit_title");
   addItem(EPageMenu, "Edit notes", "edit_notes");
+  addItem(EPageMenu, "Page sorter", "page_sorter");
+  iMenu[EPageMenu]->addSeparator();
 
   addItem(EHelpMenu, "Ipe &manual", "manual");
   addItem(EHelpMenu, "Onscreen keyboard", "keyboard");
@@ -697,6 +715,7 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   addEdit("zoom_out");
   addEdit("fit_objects");
   addEdit("fit_page");
+  addEdit("fit_width");
   addEdit("keyboard");
   iShiftKey = new QAction("shift_key", this);
   iShiftKey->setCheckable(true);
@@ -848,6 +867,14 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   findAction("coordinates|points")->setChecked(true);
   statusBar()->addPermanentWidget(iMouse, 0);
 
+  iCoordinatesFormat = "%g%s, %g%s";
+  lua_getglobal(L, "prefs");
+  lua_getfield(L, -1, "coordinates_format");
+  if (lua_isstring(L, -1)) {
+    iCoordinatesFormat = lua_tostring(L, -1);
+  }
+  lua_pop(L, 2);
+
   iResolution = new QLabel(statusBar());
   statusBar()->addPermanentWidget(iResolution, 0);
 
@@ -953,7 +980,7 @@ void AppUi::positionChanged()
   adjust(v.y, iMouseIn);
   const char *units = mouse_units[iMouseIn];
   QString s;
-  s.sprintf("%g%s, %g%s", v.x, units, v.y, units);
+  s.sprintf(iCoordinatesFormat.z(), v.x, units, v.y, units);
   /* TODO: if tool active, show pos relative to origin
   if (!iFileTools->isEnabled()) {
     IpeVector u = pos - iMouseBase;

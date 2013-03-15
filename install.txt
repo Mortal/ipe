@@ -5,16 +5,14 @@
 Quickstart
 ----------
 
-If you have a recent Ubuntu or Debian system, the following steps
-should compile and install Ipe into /usr/local:
-(Note that Ubuntu 8.04 Hardy is NOT recent, and you'll need to compile
-recent versions of Cairo and Qt to get Ipe to work on Hardy.)
+If you have a recent Ubuntu (at least 09.04) or Debian system, the
+following steps should compile and install Ipe into /usr/local:
 
     sudo apt-get install zlib1g-dev libqt4-dev
     sudo apt-get install libfreetype6-dev libcairo2-dev 
     sudo apt-get install liblua5.1-0-dev gsfonts
     cd src
-    make IPEPREFIX=/usr/local
+    make IPEPREFIX=/usr/local IPE_USE_ICONV=-DIPE_USE_ICONV
     sudo make install IPEPREFIX=/usr/local
     sudo cp ../fontmaps/gsfonts-fontmap.xml \
     	    /usr/local/share/ipe/7.x.y/fontmap.xml
@@ -107,7 +105,7 @@ and libraries:
    only (e.g. "d" for "duplicate") do not work.  Ipe does not compile
    with Qt 4.3 or earlier.
 
-   On MacOS 10.6, install Qt 4.6 cocoa binaries.  You will need the
+   On MacOS 10.6, install Qt 4.6 Cocoa binaries.  You will need the
    64-bit Qt Cocoa binaries, to be compatible with MacPorts (which is
    64-bit by default), and you only need the "Qt Framework only"
    libraries. 

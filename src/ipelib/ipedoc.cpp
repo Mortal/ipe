@@ -817,6 +817,8 @@ int Document::runLatex(String &texLog)
 
   std::remove(logFile.z());
 
+  String encoding = cascade()->findEncoding();
+
 #ifdef IPE_USE_ICONV
   String utf8;
   StringStream stream(utf8);
@@ -824,7 +826,6 @@ int Document::runLatex(String &texLog)
   if (err < 0)
     return ErrWritingSource;
 
-  String encoding = cascade()->findEncoding();
   if (encoding.empty()) {
     std::FILE *file = std::fopen(texFile.z(), "wb");
     if (!file)
@@ -863,6 +864,9 @@ int Document::runLatex(String &texLog)
     std::fclose(file);
   }
 #else
+  if (!encoding.empty())
+    return ErrNoIconv;
+
   std::FILE *file = std::fopen(texFile.z(), "wb");
   if (!file)
     return ErrWritingSource;
@@ -934,6 +938,11 @@ int Document::runLatex()
     return 1;
   case ErrLatexOutput:
     fprintf(stderr, "There was an error reading the Pdflatex output.\n");
+    return 1;
+  case ErrNoIconv:
+    fprintf(stderr,
+	    "This document needs charset conversion to run Pdflatex,\n"
+	    "but Ipe is compiled without this feature.\n");
     return 1;
   case ErrNone:
   default:

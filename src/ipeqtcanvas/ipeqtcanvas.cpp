@@ -167,6 +167,7 @@ Canvas::Canvas(QWidget* parent, Qt::WFlags f)
   iStyle.thinLine = 0.2;
   iStyle.thickLine = 0.9;
   iStyle.paperClip = false;
+  iStyle.numberPages = false;
 
   iSnap.iSnap = 0;
   iSnap.iGridVisible = false;
@@ -204,10 +205,13 @@ void Canvas::setFontPool(const FontPool *fontPool)
 // --------------------------------------------------------------------
 
 //! Set the page to be displayed.
-/*! Doesn't take ownership of any argument. */
-void Canvas::setPage(const Page *page, int view, const Cascade *sheet)
+/*! Doesn't take ownership of any argument.
+  The page number \a pno is only needed if page numbering is turned on.
+*/
+void Canvas::setPage(const Page *page, int pno, int view, const Cascade *sheet)
 {
   iPage = page;
+  iPageNumber = pno;
   iView = view;
   iCascade = sheet;
 }
@@ -450,6 +454,28 @@ void Canvas::drawObjects(cairo_t *cc)
   if (background && iPage->findLayer("BACKGROUND") < 0)
     background->iObject->draw(painter);
 
+  if (iStyle.numberPages) {
+    const StyleSheet::PageNumberStyle *pns =
+      iCascade->findPageNumberStyle();
+    cairo_save(cc);
+    cairo_set_source_rgb(cc, pns->iColor.iRed.toDouble(),
+			 pns->iColor.iGreen.toDouble(),
+			 pns->iColor.iBlue.toDouble());
+    cairo_select_font_face(cc, "sans-serif",
+			   CAIRO_FONT_SLANT_NORMAL,
+			   CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cc, pns->iFontSize);
+    cairo_move_to(cc, pns->iPos.x, pns->iPos.y);
+    cairo_scale(cc, 1.0, -1.0);
+    char buf[20];
+    if (iPage->countViews() > 0)
+      sprintf(buf, "%d-%d", iPageNumber + 1, iView + 1);
+    else
+      sprintf(buf, "%d", iPageNumber + 1);
+    cairo_show_text(cc, buf);
+    cairo_restore(cc);
+  }
+
   const Text *title = iPage->titleText();
   if (title)
     title->draw(painter);
@@ -654,11 +680,11 @@ void Canvas::tabletEvent(QTabletEvent *ev)
 
   switch (ev->type()) {
   case QEvent::TabletPress:
-    if (ev->pointerType() == QTabletEvent::Eraser)
-      return; // not yet implemented
     iGlobalPos = globalPos;
     computeFifi(hiPos.x(), hiPos.y());
-    if (iTool)
+    if (ev->pointerType() == QTabletEvent::Eraser)
+      emit mouseAction(Qt::MidButton | iAdditionalModifiers);
+    else if (iTool)
       iTool->mouseButton(Qt::LeftButton | iAdditionalModifiers, true);
     else
       emit mouseAction(Qt::LeftButton | iAdditionalModifiers);

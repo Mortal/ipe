@@ -248,7 +248,7 @@ function LINESTOOL:explain()
   if #self.v > 2 and self.t[#self.t - 1] == VERTEX then
     s = s .. " | " .. shortcuts_linestool.set_axis ..": set axis"
   end
-  self.model.ui:explain(s)
+  self.model.ui:explain(s, 0)
 end
 
 function LINESTOOL:key(code, modifiers, text)
@@ -389,7 +389,7 @@ end
 
 function SPLINEGONTOOL:explain()
   local s = "Left: Add vertex | Right: Add final vertex | Del: Delete vertex"
-  self.model.ui:explain(s)
+  self.model.ui:explain(s, 0)
 end
 
 function SPLINEGONTOOL:mouseButton(button, modifiers, press)
@@ -611,7 +611,10 @@ function INKTOOL:new(model)
   local v = model.ui:pos()
   tool.v = { v }
   model.ui:shapeTool(tool)
-  tool.setColor(1.0, 0, 0)
+  local s = model.doc:sheets():find("color", model.attributes.stroke)
+  tool.setColor(s.r, s.g, s.b)
+  local w = model.doc:sheets():find("pen", model.attributes.pen)
+  model.ui:setCursor(w, s.r, s.g, s.b)
   return tool
 end
 
@@ -626,8 +629,18 @@ end
 function INKTOOL:mouseButton(button, modifiers, press)
   self.model.ui:finishTool()
   if self.shape then
-    local obj = ipe.Path(self.model.attributes, { self.shape })
-    self.model:creation("create ink path", obj)
+     local obj = ipe.Path(self.model.attributes, { self.shape })
+     -- round linecaps are prettier for handwriting
+     obj:set("linecap", "round")
+     self.model:creation("create ink path", obj)
+  else
+     -- mouse was pressed and released without movement
+     local shape = { type="curve", closed=false,
+		     { type="segment", self.v[1], self.v[1] } }
+     local obj = ipe.Path(self.model.attributes, { shape })
+     -- must make round linecap, otherwise it will be invisible
+     obj:set("linecap", "round")
+     self.model:creation("create ink dot", obj)
   end
 end
 

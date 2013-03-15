@@ -35,16 +35,26 @@ extern "C" {
 #include "lfs.h"
 }
 
+#include "ipeselector.h"
+
 #include "appui.h"
 #include "tools.h"
+#include "pagesorter.h"
 
 #include "ipelua.h"
+
+#include "pagesorter.h"
 
 #include <cstdio>
 #include <cstdlib>
 
 #include <QApplication>
 #include <QStatusBar>
+#include <QPainter>
+
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
 
 using namespace ipe;
 using namespace ipeqt;
@@ -86,9 +96,10 @@ static int appui_setPage(lua_State *L)
 {
   AppUi **ui = check_appui(L, 1);
   Page *page = check_page(L, 2)->page;
-  int view = check_viewno(L, 3, page);
-  Cascade *sheets = check_cascade(L, 4)->cascade;
-  (*ui)->canvas()->setPage(page, view, sheets);
+  int pno = luaL_checkinteger(L, 3) - 1;
+  int view = check_viewno(L, 4, page);
+  Cascade *sheets = check_cascade(L, 5)->cascade;
+  (*ui)->canvas()->setPage(page, pno, view, sheets);
   return 0;
 }
 
@@ -252,6 +263,56 @@ static int appui_canvasSize(lua_State *L)
   return 1;
 }
 
+static void check_rgb(lua_State *L, int i, int &r, int &g, int &b)
+{
+  r = int(1000 * luaL_checknumber(L, i) + 0.5);
+  g = int(1000 * luaL_checknumber(L, i+1) + 0.5);
+  b = int(1000 * luaL_checknumber(L, i+2) + 0.5);
+  luaL_argcheck(L, (0 <= r && r <= 1000 &&
+		    0 <= g && g <= 1000 &&
+		    0 <= b && b <= 1000), 2,
+		"color components must be between 0.0 and 1.0");
+}
+
+static int appui_setCursor(lua_State *L)
+{
+  Canvas *canvas = check_canvas(L, 1);
+  if (lua_isnumber(L, 2)) {
+    double s = lua_tonumber(L, 2);
+    int r, g, b;
+    check_rgb(L, 3, r, g, b);
+    QPixmap p(32, 32);
+    p.fill(QColor(255, 255, 255, 0));
+    QPainter painter(&p);
+    s = 0.5 * s * canvas->zoom();
+    if (s < 1.0)
+      s = 1.0;
+    if (s > 10.0)
+      s = 10.0;
+    r = 255 * r / 1000;
+    g = 255 * g / 1000;
+    b = 255 * b / 1000;
+    painter.setBrush(QColor(r, g, b));
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(QRectF(16.0 - s, 16.0 - s, 2 * s, 2 * s));
+    painter.end();
+    QCursor cursor(p);
+    canvas->setCursor(cursor);
+  } else
+    canvas->unsetCursor();
+  return 0;
+}
+
+static int appui_setNumbering(lua_State *L)
+{
+  Canvas *canvas = check_canvas(L, 1);
+  bool t = lua_toboolean(L, 2);
+  Canvas::Style s = canvas->canvasStyle();
+  s.numberPages = t;
+  canvas->setCanvasStyle(s);
+  return 0;
+}
+
 // --------------------------------------------------------------------
 
 static int appui_pantool(lua_State *L)
@@ -304,13 +365,8 @@ static int appui_transformtool(lua_State *L)
 static int luatool_setcolor(lua_State *L)
 {
   LuaTool *tool = (LuaTool *) lua_touserdata(L, lua_upvalueindex(1));
-  int r = int(1000 * luaL_checknumber(L, 1) + 0.5);
-  int g = int(1000 * luaL_checknumber(L, 2) + 0.5);
-  int b = int(1000 * luaL_checknumber(L, 3) + 0.5);
-  luaL_argcheck(L, (0 <= r && r <= 1000 &&
-		    0 <= g && g <= 1000 &&
-		    0 <= b && b <= 1000), 2,
-		"color components must be between 0.0 and 1.0");
+  int r, g, b;
+  check_rgb(L, 1, r, g, b);
   tool->setColor(Color(r, g, b));
   return 0;
 }
@@ -509,8 +565,102 @@ static int appui_explain(lua_State *L)
 {
   AppUi **ui = check_appui(L, 1);
   const char *s = luaL_checkstring(L, 2);
-  (*ui)->statusBar()->showMessage(QString::fromUtf8(s), 4000);
+  int t = 4000;
+  if (lua_isnumber(L, 3))
+    t = lua_tointeger(L, 3);
+  (*ui)->statusBar()->showMessage(QString::fromUtf8(s), t);
   return 0;
+}
+
+// --------------------------------------------------------------------
+
+static void get_page_sorter_size(lua_State *L, int &width, int &height,
+				 int &thumbWidth)
+{
+  thumbWidth = 300;
+  width = 600;
+  height = 480;
+
+  lua_getglobal(L, "prefs");
+  lua_getfield(L, -1, "page_sorter_size");
+  if (lua_istable(L, -1)) {
+    lua_rawgeti(L, -1, 1);
+    if (lua_isnumber(L, -1))
+      width = lua_tointeger(L, -1);
+    lua_rawgeti(L, -2, 2);
+    if (lua_isnumber(L, -1))
+      height = lua_tointeger(L, -1);
+    lua_pop(L, 2);
+  }
+  lua_pop(L, 1); // page_sorter_size
+
+  lua_getfield(L, -1, "thumbnail_width");
+  if (lua_isnumber(L, -1))
+    thumbWidth = lua_tointeger(L, -1);
+  lua_pop(L, 1); // thumbnail_width, prefs
+}
+
+static int appui_selectPage(lua_State *L)
+{
+  AppUi **ui = check_appui(L, 1);
+  (void) ui;  // not actually used now
+  Document **doc = check_document(L, 2);
+  int page = -1;
+  if (lua_isnumber(L, 3)) {
+    page = lua_tointeger(L, 3);
+    luaL_argcheck(L, 1 <= page && page <= (*doc)->countPages(),
+		  3, "invalid page number");
+  }
+
+  int width, height, thumbWidth;
+  get_page_sorter_size(L, width, height, thumbWidth);
+
+  int sel = PageSelector::selectPageOrView(*doc, page - 1,
+					   thumbWidth, width, height);
+  if (sel >= 0) {
+    lua_pushinteger(L, sel + 1);
+    return 1;
+  } else
+    return 0;
+}
+
+static int appui_pageSorter(lua_State *L)
+{
+  AppUi **ui = check_appui(L, 1);
+  (void) ui;  // not actually used now
+  Document **doc = check_document(L, 2);
+
+  int width, height, thumbWidth;
+  get_page_sorter_size(L, width, height, thumbWidth);
+
+  QDialog *d = new QDialog();
+  d->setWindowTitle("Ipe Page Sorter");
+
+  QLayout *lo = new QVBoxLayout;
+  PageSorter *p = new PageSorter(*doc, thumbWidth);
+  QDialogButtonBox *buttonBox =
+    new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+  lo->addWidget(p);
+  lo->addWidget(buttonBox);
+  d->setLayout(lo);
+
+  d->connect(buttonBox, SIGNAL(accepted()), SLOT(accept()));
+  d->connect(buttonBox, SIGNAL(rejected()), SLOT(reject()));
+
+  d->resize(width, height);
+
+  if (d->exec() == QDialog::Rejected) {
+    delete d;
+    return 0;
+  }
+
+  lua_createtable(L, p->count(), 0);
+  for (int i = 1; i <= p->count(); ++i) {
+    lua_pushinteger(L, p->pageAt(i-1) + 1);
+    lua_rawseti(L, -2, i);
+  }
+  delete d;
+  return 1;
 }
 
 // --------------------------------------------------------------------
@@ -535,6 +685,8 @@ static const struct luaL_Reg appui_methods[] = {
   { "update", appui_update},
   { "finishTool", appui_finishTool},
   { "canvasSize", appui_canvasSize },
+  { "setCursor", appui_setCursor },
+  { "setNumbering", appui_setNumbering },
   // --------------------------------------------------------------------
   { "panTool", appui_pantool },
   { "selectTool", appui_selecttool },
@@ -555,7 +707,9 @@ static const struct luaL_Reg appui_methods[] = {
   { "setBookmarks", appui_setBookmarks },
   { "setNotes", appui_setNotes },
   { "showTool", appui_showTool },
-   { 0, 0},
+  { "selectPage", appui_selectPage },
+  { "pageSorter", appui_pageSorter },
+  { 0, 0},
 };
 
 // --------------------------------------------------------------------
@@ -580,6 +734,7 @@ static int appui_constructor(lua_State *L)
   style.thinLine = 0.2;
   style.thickLine = 0.9;
   style.paperClip = false;
+  style.numberPages = false;
 
   lua_getglobal(L, "prefs");
 

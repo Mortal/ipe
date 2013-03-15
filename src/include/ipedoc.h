@@ -149,7 +149,8 @@ namespace ipe {
 
     //! Error codes returned by RunLatex.
     enum { ErrNone, ErrNoText, ErrNoDir, ErrWritingSource,
-	   ErrOldPdfLatex, ErrRunLatex, ErrLatex, ErrLatexOutput };
+	   ErrOldPdfLatex, ErrRunLatex, ErrLatex, ErrLatexOutput,
+	   ErrNoIconv };
     int runLatex(String &logFile);
     int runLatex();
 

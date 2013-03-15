@@ -16,8 +16,8 @@ CXXFLAGS += $(DLL_CFLAGS)
 
 all: $(TARGET)
 
-sources	= ipeqtcanvas.cpp ipetool.cpp
-moc_headers = ipeqtcanvas.h
+sources	= ipeqtcanvas.cpp ipetool.cpp ipeselector.cpp
+moc_headers = ipeqtcanvas.h ipeselector.h
 
 $(TARGET): $(objects)
 	$(MAKE_LIBDIR)
@@ -37,6 +37,7 @@ install: $(TARGET)
 	$(INSTALL_PROGRAMS) $(TARGET) $(INSTALL_ROOT)$(IPELIBDIR)
 	$(INSTALL_FILES) ipeqtcanvas.h $(INSTALL_ROOT)$(IPEHEADERDIR)
 	$(INSTALL_FILES) ipetool.h $(INSTALL_ROOT)$(IPEHEADERDIR)
+	$(INSTALL_FILES) ipeselector.h $(INSTALL_ROOT)$(IPEHEADERDIR)
 	$(INSTALL_SYMLINKS)
 
 # --------------------------------------------------------------------

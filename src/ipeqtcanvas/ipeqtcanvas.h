@@ -98,12 +98,13 @@ namespace ipeqt {
       double thinLine;
       double thickLine;
       bool paperClip;
+      bool numberPages;
     };
 
     Canvas(QWidget* parent, Qt::WFlags f=0);
     ~Canvas();
 
-    void setPage(const Page *page, int view, const Cascade *sheet);
+    void setPage(const Page *page, int pno, int view, const Cascade *sheet);
     void setFontPool(const FontPool *fontPool);
 
     //! Return current pan.
@@ -178,6 +179,7 @@ namespace ipeqt {
   protected:
     Tool *iTool;
     const Page *iPage;
+    int iPageNumber;
     int iView;
     const Cascade *iCascade;
 
