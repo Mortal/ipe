@@ -238,6 +238,7 @@ private:
   LayerBox *iLayerList;
   QTextEdit *iPageNotes;
 
+  String iCoordinatesFormat;
   int iMouseIn;
   QLabel *iMouse;
   QLabel *iResolution;

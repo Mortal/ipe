@@ -1,5 +1,50 @@
 --------------------------------------------------------------------
 
+Ipe 7.0.13 (2010-11-26) SVN 466
+
+ * Error message when document requires charset conversion but iconv
+   is not compiled in.
+
+ * Fixed selection of invisible objects.
+
+ * New dialog for jumping to a page or view, showing thumbnails of the
+   pages/ views.
+   This is implemented using a new widget and function in
+   libipeqtcanvas so that it can be reused easily:
+   int pno = ipeqt::PageSelector::selectPageOrView(doc)
+
+ * When using the ink tool, actual stroke color is used while
+   handwriting. 
+
+ * Pressing the eraser end of a pen should generate a middle button
+   event.
+
+ * New action: "fit to page width" 
+
+ * In handwriting mode, cursor is a dot.
+
+ * New preference: prefs.coordinates_format
+
+ * Feedback in status line for line and spline tools now permanent.
+
+ * Pressing the pen without movement in ink tool now makes a dot.
+
+ * Handwriting now creates paths with round line cap, regardless of
+   current setting (but that can still be changed afterwards).
+
+ * Safety check for reasonable locale on startup.
+
+ * Layers now shown in the order in which they appear in views of the
+   page. 
+
+ * Page sorter that lets you rearrange the pages of the document.
+
+ * ipeqt::Canvas can now show page numbers, and Ipe will display page
+   numbers on screen as in the PDF output if page numbering is
+   enabled. 
+
+--------------------------------------------------------------------
+
 Ipe 7.0.12 (2010-11-21) SVN 452
 
  * Fixed several small bugs in 7.0.11 release.

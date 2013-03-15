@@ -20,8 +20,8 @@ CPPFLAGS += -DIPESTYLES=\"$(IPESTYLES)\"
 
 all: $(TARGET)
 
-sources	= main.cpp appui.cpp tools.cpp lfs.cpp uilua.cpp
-moc_headers = appui.h
+sources	= main.cpp appui.cpp tools.cpp lfs.cpp uilua.cpp pagesorter.cpp
+moc_headers = appui.h pagesorter.h
 
 ifdef WIN32
 CXXFLAGS += -mwindows

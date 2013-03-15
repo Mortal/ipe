@@ -19,7 +19,8 @@ all: $(TARGET)
 sources	= \
 	ipecairopainter.cpp \
 	ipefonts.cpp	\
-	ipestdfonts.cpp	   
+	ipestdfonts.cpp	\
+	ipethumbs.cpp
 
 $(TARGET): $(objects)
 	$(MAKE_LIBDIR)

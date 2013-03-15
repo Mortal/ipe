@@ -93,9 +93,6 @@ static void setup_config(lua_State *L, const char *var,
 int main(int argc, char *argv[])
 {
   Platform::initLib(IPELIB_VERSION);
-  const char *qts = getenv("IPEQTSTYLE");
-  if (qts)
-    QApplication::setStyle(qts);
   QApplication a(argc, argv);
   setlocale(LC_NUMERIC, "C");
   a.setQuitOnLastWindowClosed(true);

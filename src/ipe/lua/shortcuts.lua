@@ -100,6 +100,7 @@ shortcuts = {
   zoom_in = "Ctrl+PgUp",
   zoom_out = "Ctrl+PgDown",
   fit_page = "\\",
+  fit_width = "-",
   fit_objects = "=",
   fit_selection = "@",
   pan_here = "x",

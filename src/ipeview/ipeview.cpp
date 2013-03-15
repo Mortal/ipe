@@ -30,6 +30,7 @@
 
 #include "ipeview.h"
 #include "ipetool.h"
+#include "ipeselector.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -168,9 +169,20 @@ bool AppUi::load(const char *fname)
   iPageNo = 0;
   iViewNo = 0;
 
+  if (iDoc->countPages() > 1) {
+    int p = PageSelector::selectPageOrView(iDoc);
+    if (p >= 0)
+      iPageNo = p;
+    if (iDoc->page(iPageNo)->countViews() > 1) {
+      int v = PageSelector::selectPageOrView(iDoc, iPageNo);
+      if (v >= 0)
+	iViewNo = v;
+    }
+  }
+
   // iDoc->page(iPageNo)->setSelect(0, EPrimarySelected);
   iCanvas->setFontPool(iDoc->fontPool());
-  iCanvas->setPage(iDoc->page(iPageNo), iViewNo, iDoc->cascade());
+  iCanvas->setPage(iDoc->page(iPageNo), iPageNo, iViewNo, iDoc->cascade());
   iCanvas->setPan(Vector(300, 400));
   iCanvas->update();
 
@@ -242,7 +254,7 @@ void AppUi::nextView(int delta)
   } else
     // at beginning or end of sequence
     return;
-  iCanvas->setPage(iDoc->page(iPageNo), iViewNo, iDoc->cascade());
+  iCanvas->setPage(iDoc->page(iPageNo), iPageNo, iViewNo, iDoc->cascade());
   iCanvas->update();
   updateLabel();
 }

@@ -29,7 +29,7 @@
 --]]
 
 -- main entry point to all actions
--- (except layeraction, mouseaction, selector)
+-- (except mouseaction, selector)
 
 -- protects call, then distributes to action_xxx method or
 -- saction_xxx methods (the latter are only called if a selection exists)
@@ -167,15 +167,13 @@ function MODEL:absoluteButton(button)
       self:set_absolute(button, d)
     end
   elseif button == "view" then
-    local d = ipeui.getInt(self.ui, "Select view", "View number:",
-			   self.vno, 1, self:page():countViews(), 1)
+    local d = self.ui:selectPage(self.doc, self.pno)
     if d then
       self.vno = d
       self:setPage()
     end
   elseif button == "page" then
-    local d = ipeui.getInt(self.ui, "Select page", "Page number:",
-			   self.pno, 1, #self.doc, 1)
+    local d = self.ui:selectPage(self.doc)
     if d then
       self.pno = d
       self.vno = 1
@@ -289,6 +287,7 @@ function MODEL:layeraction_select(layer, arg)
 	     doc[t.pno]:setVisible(t.vno, t.layer, t.visible)
 	   end
   self:register(t)
+  self:deselectNotInView()
 end
 
 function MODEL:layeraction_lock(layer, arg)
@@ -805,8 +804,17 @@ end
 function MODEL:action_fit_page()
   local layout = self.doc:sheets():find("layout")
   local box = ipe.Rect()
-  box:add(-layout.origin)
-  box:add(-layout.origin + layout.papersize)
+  box:add(-layout.origin - V(2,2))
+  box:add(-layout.origin + layout.papersize + V(2,2))
+  self:fitBox(box);
+end
+
+function MODEL:action_fit_width()
+  local layout = self.doc:sheets():find("layout")
+  local box = ipe.Rect()
+  local y0 = self.ui:pan().y
+  box:add(V(-layout.origin.x - 2, y0 - 2))
+  box:add(V(-layout.origin.x + layout.papersize.x + 2, y0 + 2))
   self:fitBox(box);
 end
 
@@ -1181,6 +1189,56 @@ function MODEL:action_edit_notes()
 	   end
   t.redo = function (t, doc)
 	     doc[t.pno]:setNotes(t.final)
+	   end
+  self:register(t)
+end
+
+-- rearrange pages of document
+-- new order is given by arr
+-- 0 entries in arr are taken from newpages
+-- returns list of pages that remained unused
+function arrange_pages(doc, arr, newpages)
+  -- take all pages from document
+  local pg = {}
+  while #doc > 0 do
+    pg[#pg+1] = doc:remove(1)
+  end
+  -- insert pages again in new order
+  for i = 1,#arr do
+    local no = arr[i]
+    if no > 0 then
+      doc:append(pg[no])  -- clones the page
+      pg[no] = nil        -- mark as used
+    else
+      doc:append(table.remove(newpages, 1))
+    end
+  end
+  -- return unused pages
+  local unused = {}
+  for i = 1,#pg do
+    if pg[i] then unused[#unused+1] = pg[i] end
+  end
+  return unused
+end
+
+function MODEL:action_page_sorter()
+  local arr = self.ui:pageSorter(self.doc)
+  if not arr then return end -- canceled
+  -- compute reverse 'permutation'
+  local rev = {}
+  for i = 1,#self.doc do rev[i] = 0 end
+  for i = 1,#arr do rev[arr[i]] = i end
+  local t = { label="rearrangement of pages",
+	      pno = 1,
+	      vno = 1,
+	      arr = arr,
+	      rev = rev,
+	    }
+  t.undo = function (t, doc)
+	     arrange_pages(doc, t.rev, t.deleted)
+	   end
+  t.redo = function (t, doc)
+	     t.deleted = arrange_pages(doc, t.arr, {})
 	   end
   self:register(t)
 end

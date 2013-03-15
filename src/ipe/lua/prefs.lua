@@ -68,6 +68,12 @@ prefs.editor_size = { 600, 400 }
 -- Size of main window at startup
 prefs.window_size = { 960, 600 }
 
+-- Size of page sorter window
+prefs.page_sorter_size = { 960, 600 }
+
+-- Width of page thumbnails (height is computed automatically)
+prefs.thumbnail_width = 300
+
 -- Canvas customization:
 prefs.paper_color = { r = 1.0, g = 1.0, b = 1.0 }  -- white
 -- prefs.paper_color = { r = 1.0, g = 1.0, b = 0.5 }  -- classic Ipe 6 yellow
@@ -115,6 +121,10 @@ if config.platform == "unix" then
 else
   prefs.keyboard = nil
 end
+
+-- format string for the coordinates in the status bar
+-- (x, unit, y, unit)
+prefs.coordinates_format = "%g%s, %g%s"
 
 -- Auto-exporting when document is being saved
 -- if auto_export_only_if_exists is true, then the file will only

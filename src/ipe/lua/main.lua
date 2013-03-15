@@ -161,6 +161,22 @@ local function usage()
   io.stderr:write("or:    ipe --help\n")
 end
 
+-- check locale
+test1 = string.format("%g", 1.5)
+test2 = string.format("%s", tonumber("1.5"))
+if test1 ~= "1.5" or test2 ~= "1.5" then
+   m = "<qt>Formatting the number <code>1.5</code> results in '"
+      .. test1 .. "'. "
+      .. "Reading '1.5' results in <code>" .. test2 .. "</code><br />"
+      .. "Therefore Ipe will not work correctly when loading or saving files. "
+      .. "<em>Please report this problem.</em><br />"
+      .. "As a workaround, you can start Ipe from the commandline like this: "
+      .. "<pre>export LANG=C\nexport LC_NUMERIC=C\nipe</pre></qt>"
+   ipeui.messageBox(nil, "critical",
+		    "Ipe is running with an incorrect locale", m)
+   return
+end
+
 config.ipeletDirs = {}
 for w in string.gmatch(config.ipelets, "[^;]+") do
   config.ipeletDirs[#config.ipeletDirs + 1] = w

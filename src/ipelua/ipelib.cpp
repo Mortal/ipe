@@ -360,6 +360,11 @@ static int document_runLatex(lua_State *L)
       lua_pushliteral(L, "There was an error reading the Pdflatex output");
       lua_pushliteral(L, "latexoutput");
       break;
+    case Document::ErrNoIconv:
+      lua_pushliteral(L, "This document needs charset conversion to run "
+		      "Pdflatex, but Ipe is compiled without this feature");
+      lua_pushliteral(L, "noiconv");
+      break;
     }
   }
   push_string(L, log);
@@ -395,16 +400,14 @@ static int document_insert(lua_State *L)
   int no = check_pageno(L, 2, *d, 1);
   SPage *p = check_page(L, 3);
   (*d)->insert(no, new Page(*p->page));
-  p->owned = false;
   return 0;
 }
 
 static int document_append(lua_State *L)
 {
   Document **d = check_document(L, 1);
-  SPage *p = check_page(L, 3);
+  SPage *p = check_page(L, 2);
   (*d)->push_back(new Page(*p->page));
-  p->owned = false;
   return 0;
 }
 

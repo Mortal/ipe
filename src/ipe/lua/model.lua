@@ -200,8 +200,9 @@ end
 
 -- Set canvas to current page
 function MODEL:setPage()
-  self.ui:setPage(self.doc[self.pno], self.vno, self.doc:sheets())
+  self.ui:setPage(self.doc[self.pno], self.pno, self.vno, self.doc:sheets())
   self.ui:setLayers(self:page(), self.vno)
+  self.ui:setNumbering(self.doc:properties().numberpages)
   self.ui:update()
   self:setCaption()
   self:setBookmarks()
@@ -297,10 +298,10 @@ function MODEL:updateCloseSelection(primaryOnly)
   -- current selection is not close enough: find closest object
   local closest
   for i,obj,sel,layer in p:objects() do
-    if (p:visible(self.vno, i) and not p:isLocked(layer)) then
-      local d = p:distance(i, pos, bound)
-      if d < bound then closest = i; bound = d end
-    end
+     if p:visible(self.vno, i) and not p:isLocked(layer) then
+	local d = p:distance(i, pos, bound)
+	if d < bound then closest = i; bound = d end
+     end
   end
 
   if closest then

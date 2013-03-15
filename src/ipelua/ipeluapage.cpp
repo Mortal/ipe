@@ -94,7 +94,7 @@ int ipelua::page_constructor(lua_State *L)
 static int page_destructor(lua_State *L)
 {
   SPage *p = check_page(L, 1);
-  if (p->owned && p->page)
+  if (p->owned)
     delete p->page;
   p->page = 0;
   return 0;
@@ -131,7 +131,7 @@ static int page_len(lua_State *L)
 static int page_clone(lua_State *L)
 {
   Page *p = check_page(L, 1)->page;
-  push_page(L, new Page(*p), true);
+  push_page(L, new Page(*p));
   return 1;
 }
 
