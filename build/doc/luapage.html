@@ -170,10 +170,10 @@ for i, p in doc:pages() do
   print("Page number",  i, p)
 end
 
-doc:set(no, page)     -- replace with a clone of page, returns old page
+doc:set(no, page)         -- replace with a clone of page, returns old page
 doc:insert(no, page)
 doc:append(page)
-doc:remove(no)
+doc:remove(no)            -- returns page and removes from document
 doc:countTotalViews()
 doc:sheets()              -- returns style sheet cascade
 old = doc:replaceSheets(sheets)  -- replace and return old cascade

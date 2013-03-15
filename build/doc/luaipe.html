@@ -59,9 +59,14 @@ ui:setLayers(page, view)
 
 ui:setActionState(action_name, true_or_false)
 state = ui:actionState(action_name)
+
+-- select one page and return page number (or nil if canceled)
+pno = ui:selectPage(doc) 
+-- select one view and return view number (or nil if canceled)
+vno = ui:selectPage(doc, page_no)
 </pre></div><p>The following methods work on the canvas inside the UI:</p>
 <div class="fragment"><pre class="fragment">
-ui:setPage(page, view, styleSheet)  -- set page shown on canvas
+ui:setPage(page, pgno, view, styleSheet) -- set page shown on canvas
 ui:setSnap(snap)                    -- for 'snap' table see below
 ui:setFontPool(p)       -- an opaque object obtained from an ipe.Document
 

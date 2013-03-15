@@ -53,7 +53,7 @@
 <ul>
 <li><a class="el" href="classipeqt_1_1_canvas.html#ad2a06da20f18e2c325cbf34b4bed82b0">Canvas</a> (QWidget *parent, Qt::WFlags f=0)
 <li><a class="el" href="classipeqt_1_1_canvas.html#a237c4549ad2e27c729cd1f71e89f0fd9">~Canvas</a> ()
-<li>void <a class="el" href="classipeqt_1_1_canvas.html#af2fb34572ddcc98e9ea0398023598e19">setPage</a> (const <a class="el" href="classipe_1_1_page.html">Page</a> *page, int view, const <a class="el" href="classipe_1_1_cascade.html">Cascade</a> *sheet)
+<li>void <a class="el" href="classipeqt_1_1_canvas.html#aed627a438ea3cc828238d08510805637">setPage</a> (const <a class="el" href="classipe_1_1_page.html">Page</a> *page, int pno, int view, const <a class="el" href="classipe_1_1_cascade.html">Cascade</a> *sheet)
 <li>void <a class="el" href="classipeqt_1_1_canvas.html#ac7f63b96436daa7df7e5a4f7b1b5ebea">setFontPool</a> (const FontPool *fontPool)
 <li><a class="el" href="classipe_1_1_vector.html">Vector</a> <a class="el" href="classipeqt_1_1_canvas.html#aec1eee233e66b484b97034a2e8f768f0">pan</a> () const 
 <li>double <a class="el" href="classipeqt_1_1_canvas.html#ac2f31bfe901df94640497262618f3230">zoom</a> () const 
@@ -105,6 +105,7 @@
 <ul>
 <li><a class="el" href="classipeqt_1_1_tool.html">Tool</a> * <a class="el" href="classipeqt_1_1_canvas.html#aa15179398f4ecc36d078a06da1c578db">iTool</a>
 <li>const <a class="el" href="classipe_1_1_page.html">Page</a> * <a class="el" href="classipeqt_1_1_canvas.html#a7cc46f48d5557748c7be238b053e2ccb">iPage</a>
+<li>int <a class="el" href="classipeqt_1_1_canvas.html#a49d5e382200f8a4bacdca0d2a56390f8">iPageNumber</a>
 <li>int <a class="el" href="classipeqt_1_1_canvas.html#a9c2cd1a86aa9c5d8652d6b23a325d2d1">iView</a>
 <li>const <a class="el" href="classipe_1_1_cascade.html">Cascade</a> * <a class="el" href="classipeqt_1_1_canvas.html#a3c72de4bb6e62e35665f17181f537602">iCascade</a>
 <li><a class="el" href="structipeqt_1_1_canvas_1_1_style.html">Style</a> <a class="el" href="classipeqt_1_1_canvas.html#aa0d5b77ed21fa3bc6ca0f44701b8e120">iStyle</a>
@@ -178,7 +179,7 @@
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="af2fb34572ddcc98e9ea0398023598e19"></a><!-- doxytag: member="ipeqt::Canvas::setPage" ref="af2fb34572ddcc98e9ea0398023598e19" args="(const Page *page, int view, const Cascade *sheet)" -->
+<a class="anchor" id="aed627a438ea3cc828238d08510805637"></a><!-- doxytag: member="ipeqt::Canvas::setPage" ref="aed627a438ea3cc828238d08510805637" args="(const Page *page, int pno, int view, const Cascade *sheet)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -187,6 +188,12 @@
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classipe_1_1_page.html">Page</a> *&nbsp;</td>
           <td class="paramname"> <em>page</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>pno</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -210,7 +217,7 @@
 <div class="memdoc">
 
 <p>Set the page to be displayed. </p>
-<p>Doesn't take ownership of any argument. </p>
+<p>Doesn't take ownership of any argument. The page number <em>pno</em> is only needed if page numbering is turned on. </p>
 
 </div>
 </div>
@@ -1134,6 +1141,19 @@
       <table class="memname">
         <tr>
           <td class="memname">const <a class="el" href="classipe_1_1_page.html">Page</a>* <a class="el" href="classipeqt_1_1_canvas.html#a7cc46f48d5557748c7be238b053e2ccb">ipeqt::Canvas::iPage</a><code> [protected]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a49d5e382200f8a4bacdca0d2a56390f8"></a><!-- doxytag: member="ipeqt::Canvas::iPageNumber" ref="a49d5e382200f8a4bacdca0d2a56390f8" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="classipeqt_1_1_canvas.html#a49d5e382200f8a4bacdca0d2a56390f8">ipeqt::Canvas::iPageNumber</a><code> [protected]</code></td>
         </tr>
       </table>
 </div>
