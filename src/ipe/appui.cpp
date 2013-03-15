@@ -588,6 +588,7 @@ void AppUi::buildMenus()
   addItem(EViewMenu, "New view", "new_view");
   addItem(EViewMenu, "Delete view", "delete_view");
   iMenu[EViewMenu]->addSeparator();
+  addItem(EViewMenu, "Jump to view", "jump_view");
   addItem(EViewMenu, "Edit effects", "edit_effects");
 
   addItem(EPageMenu, "Next page", "next_page");
@@ -601,6 +602,7 @@ void AppUi::buildMenus()
   addItem(EPageMenu, "Paste page", "paste_page");
   addItem(EPageMenu, "Delete page", "delete_page");
   iMenu[EPageMenu]->addSeparator();
+  addItem(EPageMenu, "Jump to page", "jump_page");
   addItem(EPageMenu, "Edit title && sections", "edit_title");
   addItem(EPageMenu, "Edit notes", "edit_notes");
   addItem(EPageMenu, "Page sorter", "page_sorter");
@@ -825,11 +827,19 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   iViewNumber->setToolTip("Current view number");
   iPageNumber->setText("Page 1/1");
   iPageNumber->setToolTip("Current page number");
+  iViewMarked = new QCheckBox();
+  iPageMarked = new QCheckBox();
+  iViewMarked->setFocusPolicy(Qt::NoFocus);
+  iPageMarked->setFocusPolicy(Qt::NoFocus);
   bg->addButton(iViewNumber, EUiView);
   bg->addButton(iPageNumber, EUiPage);
+  bg->addButton(iViewMarked, EUiViewMarked);
+  bg->addButton(iPageMarked, EUiPageMarked);
   hol->setSpacing(0);
+  hol->addWidget(iViewMarked);
   hol->addWidget(iViewNumber);
   hol->addStretch(1);
+  hol->addWidget(iPageMarked);
   hol->addWidget(iPageNumber);
   lo->addLayout(hol, EUiSymbolSize + 2, 0, 1, -1);
 
@@ -1146,19 +1156,25 @@ void AppUi::setGridAngleSize(Attribute abs_grid, Attribute abs_angle)
   }
 }
 
-void AppUi::setNumbers(String vno, String pno)
+void AppUi::setNumbers(String vno, bool vm, String pno, bool pm)
 {
   if (vno.isEmpty()) {
     iViewNumber->hide();
+    iViewMarked->hide();
   } else {
     iViewNumber->setText(QIpe(vno));
     iViewNumber->show();
+    iViewMarked->setCheckState(vm ? Qt::Checked : Qt::Unchecked);
+    iViewMarked->show();
   }
   if (pno.isEmpty()) {
     iPageNumber->hide();
+    iPageMarked->hide();
   } else {
     iPageNumber->show();
+    iPageMarked->show();
     iPageNumber->setText(QIpe(pno));
+    iPageMarked->setCheckState(pm ? Qt::Checked : Qt::Unchecked);
   }
 }
 
@@ -1322,7 +1338,21 @@ void AppUi::callSelector(const char *name, double scalar)
 
 static const char * const selector_name[] =
   { "stroke", "fill", "pen", "textsize", "markshape",
-    "symbolsize", "gridsize", "anglesize", "view", "page" };
+    "symbolsize", "gridsize", "anglesize", "view", "page",
+    "viewmarked", "pagemarked" };
+
+bool AppUi::checkbox(lua_State *L)
+{
+  int id = luaL_checkoption(L, 2, 0, selector_name);
+  switch (id) {
+  case EUiViewMarked:
+    return (iViewMarked->checkState() == Qt::Checked);
+  case EUiPageMarked:
+    return (iPageMarked->checkState() == Qt::Checked);
+  default:
+    return false;
+  }
+}
 
 void AppUi::absoluteButton(int id)
 {

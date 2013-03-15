@@ -1025,15 +1025,26 @@ function PASTETOOL:new(model, elements, pos)
   tool.start = model.ui:pos()
   if pos then tool.start = pos end
   local obj = ipe.Group(elements)
+  tool.pinned = obj:get("pinned")
   model.ui:pasteTool(obj, tool)
   tool.setColor(1.0, 0, 0)
-  tool.translation = model.ui:pos() - tool.start
+  tool:computeTranslation()
   tool.setMatrix(ipe.Translation(tool.translation))
   return tool
 end
 
-function PASTETOOL:mouseButton(button, modifiers, press)
+function PASTETOOL:computeTranslation()
   self.translation = self.model.ui:pos() - self.start
+  if self.pinned == "horizontal" or self.pinned == "fixed" then
+    self.translation = V(0, self.translation.y)
+  end
+  if self.pinned == "vertical" or self.pinned == "fixed" then
+    self.translation = V(self.translation.x, 0)
+  end
+end
+
+function PASTETOOL:mouseButton(button, modifiers, press)
+  self:computeTranslation()
   self.model.ui:finishTool()
   local t = { label="paste objects at cursor",
 	      pno = self.model.pno,
@@ -1059,7 +1070,7 @@ function PASTETOOL:mouseButton(button, modifiers, press)
 end
 
 function PASTETOOL:mouseMove(button, modifiers)
-  self.translation = self.model.ui:pos() - self.start
+  self:computeTranslation()
   self.setMatrix(ipe.Translation(self.translation))
   self.model.ui:update(false) -- update tool
 end

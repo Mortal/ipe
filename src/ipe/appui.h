@@ -36,6 +36,7 @@
 
 #include <QMainWindow>
 #include <QAction>
+#include <QCheckBox>
 #include <QToolBar>
 #include <QDockWidget>
 #include <QActionGroup>
@@ -138,7 +139,7 @@ public:
   // change list in front of AppUi::selector if enum changes
   enum { EUiStroke, EUiFill, EUiPen, EUiTextSize, EUiMarkShape,
 	 EUiSymbolSize, EUiGridSize, EUiAngleSize, EUiNum,
-	 EUiView = EUiNum, EUiPage };
+	 EUiView = EUiNum, EUiPage, EUiViewMarked, EUiPageMarked };
 
 public:
   AppUi(lua_State *L0, int model, Qt::WFlags f=0);
@@ -152,8 +153,9 @@ public:
   void setZoom(double zoom);
   void setActionsEnabled(bool mode);
   QAction *findAction(const char *name) const;
-  void setNumbers(String vno, String pno);
+  void setNumbers(String vno, bool vm, String pno, bool pm);
   void setNotes(String notes);
+  bool checkbox(lua_State *L);
 
   // direct Lua methods
   int setBookmarks(lua_State *L);
@@ -220,6 +222,9 @@ private:
 
   QToolButton *iViewNumber;
   QToolButton *iPageNumber;
+
+  QCheckBox *iViewMarked;
+  QCheckBox *iPageMarked;
 
   QToolBar *iSnapTools;
   QToolBar *iEditTools;

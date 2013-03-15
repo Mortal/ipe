@@ -200,22 +200,23 @@ end
 
 -- Set canvas to current page
 function MODEL:setPage()
-  self.ui:setPage(self.doc[self.pno], self.pno, self.vno, self.doc:sheets())
-  self.ui:setLayers(self:page(), self.vno)
+  local p = self:page()
+  self.ui:setPage(p, self.pno, self.vno, self.doc:sheets())
+  self.ui:setLayers(p, self.vno)
   self.ui:setNumbering(self.doc:properties().numberpages)
   self.ui:update()
   self:setCaption()
   self:setBookmarks()
-  self.ui:setNotes(self:page():notes())
+  self.ui:setNotes(p:notes())
   local vno
-  if self:page():countViews() > 1 then
-    vno = string.format("View %d/%d", self.vno, self:page():countViews())
+  if p:countViews() > 1 then
+    vno = string.format("View %d/%d", self.vno, p:countViews())
   end
   local pno
   if #self.doc > 1 then
     pno = string.format("Page %d/%d", self.pno, #self.doc)
   end
-  self.ui:setNumbers(vno, pno)
+  self.ui:setNumbers(vno, p:markedView(self.vno), pno, p:marked())
 end
 
 function MODEL:getBookmarks()
@@ -281,7 +282,7 @@ end
 -- If primaryOnly is true, the primary selection has to be close enough,
 -- otherwise it'll be replaced as above.
 function MODEL:updateCloseSelection(primaryOnly)
-  local bound = prefs.select_distance
+  local bound = prefs.close_distance
   local pos = self.ui:unsnappedPos()
   local p = self:page()
 

@@ -52,7 +52,7 @@ using namespace ipeqt;
   is computed automatically).
 */
 
-PageSelector::PageSelector(Document *doc, int page,
+PageSelector::PageSelector(Document *doc, int page, int startIndex,
 			   int itemWidth, QWidget *parent)
   : QListWidget(parent)
 {
@@ -106,13 +106,13 @@ PageSelector::PageSelector(Document *doc, int page,
       addItem(item);
     }
   }
-  connect(this, SIGNAL(clicked(const QModelIndex &)),
-	  SLOT(pageSelected(const QModelIndex &)));
+  setCurrentRow(startIndex);
+  connect(this, SIGNAL(itemActivated(QListWidgetItem *)),
+	  SLOT(pageSelected(QListWidgetItem *)));
 }
 
-void PageSelector::pageSelected(const QModelIndex &index)
+void PageSelector::pageSelected(QListWidgetItem *item)
 {
-  iSelectedPage = index.row();
   emit selectionMade();
 }
 
@@ -126,14 +126,14 @@ void PageSelector::pageSelected(const QModelIndex &index)
 
     If \a page is non-negative, all views of this page are shown, and
     the selected view number is returned. */
-int PageSelector::selectPageOrView(Document *doc, int page,
+int PageSelector::selectPageOrView(Document *doc, int page, int startIndex,
 				   int pageWidth, int width, int height)
 {
   QDialog *d = new QDialog();
   d->setWindowTitle("Select page");
 
   QLayout *lo = new QVBoxLayout;
-  PageSelector *p = new PageSelector(doc, page, pageWidth);
+  PageSelector *p = new PageSelector(doc, page, startIndex, pageWidth);
   lo->addWidget(p);
   d->setLayout(lo);
 

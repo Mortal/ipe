@@ -97,6 +97,8 @@ namespace ipeqt {
       bool classicGrid;
       double thinLine;
       double thickLine;
+      int thinStep;
+      int thickStep;
       bool paperClip;
       bool numberPages;
     };

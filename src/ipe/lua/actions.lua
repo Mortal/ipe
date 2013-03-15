@@ -167,21 +167,64 @@ function MODEL:absoluteButton(button)
       self:set_absolute(button, d)
     end
   elseif button == "view" then
-    local d = self.ui:selectPage(self.doc, self.pno)
-    if d then
-      self.vno = d
-      self:setPage()
-    end
+    self:action_jump_view()
   elseif button == "page" then
-    local d = self.ui:selectPage(self.doc)
-    if d then
-      self.pno = d
-      self.vno = 1
-      self:setPage()
-    end
+    self:action_jump_page()
+  elseif button == "viewmarked" then
+    self:action_mark_view(self.ui:checkbox(button))
+  elseif button == "pagemarked" then
+    self:action_mark_page(self.ui:checkbox(button))
   else
     print("Unknown button: ", button)
   end
+end
+
+function MODEL:action_jump_view()
+  local d = self.ui:selectPage(self.doc, self.pno, self.vno)
+  if d then
+    self.vno = d
+    self:setPage()
+  end
+end
+
+function MODEL:action_jump_page()
+  local d = self.ui:selectPage(self.doc, nil, self.pno)
+  if d then
+    self.pno = d
+    self.vno = 1
+    self:setPage()
+  end
+end
+
+function MODEL:action_mark_view(m)
+  local t = { label="set view mark to " .. tostring(m),
+	      pno=self.pno,
+	      vno=self.vno,
+	      original=self:page():markedView(self.vno),
+	      final=m,
+	    }
+  t.undo = function (t, doc)
+	     doc[t.pno]:setMarkedView(t.vno, t.original)
+	   end
+  t.redo = function (t, doc)
+	     doc[t.pno]:setMarkedView(t.vno, t.final)
+	   end
+  self:register(t)
+end
+
+function MODEL:action_mark_page(m)
+  local t = { label="set page mark to " .. tostring(m),
+	      pno=self.pno,
+	      original=self:page():marked(),
+	      final=m,
+	    }
+  t.undo = function (t, doc)
+	     doc[t.pno]:setMarked(t.original)
+	   end
+  t.redo = function (t, doc)
+	     doc[t.pno]:setMarked(t.final)
+	   end
+  self:register(t)
 end
 
 ----------------------------------------------------------------------
@@ -820,20 +863,20 @@ end
 
 function MODEL:action_fit_objects()
   local box = ipe.Rect()
+  local m = ipe.Matrix()
   local p = self:page()
   for i,obj,_,layer in p:objects() do
-    if p:visible(self.vno, i) then
-      box:add(p:bbox(i))
-    end
+    if p:visible(self.vno, i) then obj:addToBBox(box, m, false) end
   end
   self:fitBox(box);
 end
 
 function MODEL:saction_fit_selection()
   local box = ipe.Rect()
+  local m = ipe.Matrix()
   local p = self:page()
   for i,obj,sel,_ in p:objects() do
-    if sel then box:add(p:bbox(i)) end
+    if sel then obj:addToBBox(box, m, false) end
   end
   self:fitBox(box);
 end

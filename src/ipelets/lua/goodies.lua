@@ -187,18 +187,24 @@ function checkPrimaryIsCircle(model)
   local obj = p[prim]
   if obj:type() == "path" then
     local shape = obj:shape()
-    if #shape == 1 and shape[1].type == "ellipse" then
-      return prim, obj, shape
+    if #shape == 1 then
+      local s = shape[1]
+      if s.type == "ellipse" then
+	return prim, obj, s[1]:translation()
+      end
+      if s.type == "curve" and #s == 1 and s[1].type == "arc" then
+	return prim, obj, s[1].arc:matrix():translation()
+      end
     end
   end
-  model:warning("Primary selection is not a circle or ellipse")
+  model:warning("Primary selection is not an arc, a circle, or an ellipse")
 end
 
 function markCircleCenter(model)
-  local prim, obj, shape = checkPrimaryIsCircle(model)
+  local prim, obj, pos = checkPrimaryIsCircle(model)
   if not prim then return end
-  local pos = obj:matrix() * shape[1][1]:translation()
-  local obj = ipe.Reference(model.attributes, model.attributes.markshape, pos)
+  local obj = ipe.Reference(model.attributes, model.attributes.markshape,
+			    obj:matrix() * pos)
   model:creation("mark circle center", obj)
 end
 

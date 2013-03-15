@@ -29,6 +29,7 @@
 */
 
 #include "ipebase.h"
+#include "ipeattributes.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -77,6 +78,11 @@ static void debugHandlerImpl(const char *msg)
   }
 }
 
+static void cleanup_repository()
+{
+  Repository::cleanup();
+}
+
 //! Initialize Ipelib.
 /*! This method must be called before Ipelib is used.
 
@@ -96,6 +102,7 @@ void Platform::initLib(int version)
   if (getenv("IPEDEBUG") != 0)
     showDebug = true;
   debugHandler = debugHandlerImpl;
+  atexit(cleanup_repository);
   if (version == IPELIB_VERSION)
     return;
   fprintf(stderr,

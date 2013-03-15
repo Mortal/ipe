@@ -1,4 +1,46 @@
 --------------------------------------------------------------------
+ 
+Ipe 7.0.14 (2010-01-27) SVN 474 Australia edition
+
+ * Fixed saving of <pagenumberstyle> (bug #7).
+
+ * Fixed iperender and thumbnails on 64-bit platforms.
+
+ * Pressing Enter in view/page selector now jumps to the view/page
+   (feature #24).  Shortcuts for view/page selector.  Original
+   view/page highlighted in selector.
+
+ * Background no longer hides page number in PDF output (bug #8).
+
+ * Mark circle center now also works for arcs (bug #3).
+
+ * Fit to selection/objects now fits to visible object, not including
+   control points (bug #2).
+
+ * Grid now only drawn inside page's frame area, drawn grid can be
+   coarser than grid resolution, thick lines drawn at configurable
+   steps (see prefs.lua)  (feature #17).
+
+ * Correctly render Latex text inside symbols (bug #18).
+
+ * matrix:inverse() no longer crashes on singular matrix.
+
+ * Circle to ellipse transformation no longer crashes on singular
+   ellipse (bug #21).
+
+ * Easier to use symbols by remembering current symbol, which can then
+   be inserted with one function key (Alt+Y) (feature #19).
+
+ * Introduced pref.close_distance.
+
+ * Paste at cursor now correctly observes pinning of the object.
+
+ * Fixed serious memory leak in group object.
+
+ * Implemented marking of pages and views for printing in Ipe, and
+   selecting those in ipetoipe.
+
+--------------------------------------------------------------------
 
 Ipe 7.0.13 (2010-11-26) SVN 466
 
@@ -251,8 +293,7 @@ Ipe 7.0.5 (2009-10-22) SVN 357
 
  * Made Lua interface for attribute values more robust - interface now
    checks that attributes have correct type before passing them to
-   Ipelib.  This fixes opacity names starting with digits. 
-   (Bug #2880502)
+   Ipelib.  This fixes opacity names starting with digits. (Bug #288)
 
  * #define to enable use of ancient pdftex versions ( < 130).
    Bug #309.

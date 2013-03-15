@@ -39,6 +39,7 @@ This ipelet is part of Ipe.
 ]]
 
 V = ipe.Vector
+current_symbol = nil
 
 ----------------------------------------------------------------------
 
@@ -85,7 +86,7 @@ end
 
 ----------------------------------------------------------------------
 
-function use_symbol(model, num)
+function select_symbol(model)
   local s = model.doc:sheets():allNames("symbol")
   local d = ipeui.Dialog(model.ui, "Use symbol")
   d:add("label", "label", { label = "Select symbol" }, 1, 1, 1, 3)
@@ -94,13 +95,32 @@ function use_symbol(model, num)
   d:add("cancel", "button", { label="&Cancel", action="reject" }, 3, 2)
   d:setStretch("column", 1, 1)
   if not d:execute() then return end
-  local name = s[d:get("select")]
+  return s[d:get("select")]
+end
+
+function use_symbol(model, num)
+  local name = select_symbol(model)
+  if not name then return end
   if num == 1 then
     PASTETOOL:new(model, name)
   else -- clone symbol
     local obj = model.doc:sheets():find("symbol", name)
     model:creation("clone symbol", obj)
   end
+end
+
+function use_current_symbol(model, num)
+  if not current_symbol then
+    model.ui:explain("current symbol has not been set")
+  else
+    PASTETOOL:new(model, current_symbol)
+  end
+end
+
+function select_current_symbol(model, num)
+  local name = select_symbol(model)
+  if not name then return end
+  current_symbol = name
 end
 
 ----------------------------------------------------------------------
@@ -157,9 +177,11 @@ end
 
 methods = {
   { label = "use symbol", run = use_symbol },
+  { label = "use current symbol", run = use_current_symbol },
   { label = "create symbol (in new style sheet)", run = create_symbol },
   { label = "create symbol (in top style sheet)", run = create_symbol },
   { label = "clone symbol", run = use_symbol },
+  { label = "select current symbol", run = select_current_symbol }
 }
 
 ----------------------------------------------------------------------

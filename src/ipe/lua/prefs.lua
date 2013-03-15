@@ -75,14 +75,19 @@ prefs.page_sorter_size = { 960, 600 }
 prefs.thumbnail_width = 300
 
 -- Canvas customization:
-prefs.paper_color = { r = 1.0, g = 1.0, b = 1.0 }  -- white
--- prefs.paper_color = { r = 1.0, g = 1.0, b = 0.5 }  -- classic Ipe 6 yellow
--- classic grid uses dots instead of lines
-prefs.classic_grid = false
--- line width of grid lines
--- if classic_grid is true, then thin_grid_lines is size of grid dots
-prefs.thin_grid_line = 0.1
-prefs.thick_grid_line = 0.3
+prefs.canvas_style = {
+  paper_color = { r = 1.0, g = 1.0, b = 1.0 },  -- white
+  -- paper_color = { r = 1.0, g = 1.0, b = 0.5 }  -- classic Ipe 6 yellow
+  -- classic grid uses dots instead of lines
+  classic_grid = false,
+  -- line width of grid lines
+  -- if classic_grid is true, then thin_grid_lines is size of grid dots
+  thin_grid_line = 0.1,
+  thick_grid_line = 0.3,
+  -- steps indicate multiples of grid distance where grid lines are drawn
+  thin_step = 1, thick_step = 4,
+  -- e.g. try this: thin_step = 2, thick_step = 5
+}
 
 -- Should the grid be visible when Ipe starts? (true or false)
 prefs.grid_visible = true
@@ -94,6 +99,9 @@ prefs.angle_size = 45    -- degrees
 -- Maximum distance in pixels selecting/snapping
 prefs.select_distance = 36
 prefs.snap_distance = 16
+-- When transforming objects, if currently select object is further than
+-- this distance, the closest object is selected instead
+prefs.close_distance = 48
 
 -- Minimal and maximal possible zoom
 prefs.min_zoom = 0.1

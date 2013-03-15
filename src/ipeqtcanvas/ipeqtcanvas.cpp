@@ -166,6 +166,8 @@ Canvas::Canvas(QWidget* parent, Qt::WFlags f)
   iStyle.classicGrid = false;
   iStyle.thinLine = 0.2;
   iStyle.thickLine = 0.9;
+  iStyle.thinStep = 1;
+  iStyle.thickStep = 4;
   iStyle.paperClip = false;
   iStyle.numberPages = false;
 
@@ -335,17 +337,16 @@ void Canvas::drawAxes(cairo_t *cc)
 
 void Canvas::drawGrid(cairo_t *cc)
 {
-  int step = iSnap.iGridSize;
+  int step = iSnap.iGridSize * iStyle.thinStep;
   double pixstep = step * iZoom;
   if (pixstep < 3.0)
     return;
 
-  int vfactor = 1;
-  int vstep = step * vfactor;
-
-  Rect paper = iCascade->findLayout()->paper();
-  Vector ll = paper.bottomLeft();
-  Vector ur = paper.topRight();
+  // Rect paper = iCascade->findLayout()->paper();
+  // Vector ll = paper.bottomLeft();
+  // Vector ur = paper.topRight();
+  Vector ll = Vector::ZERO;
+  Vector ur = iCascade->findLayout()->iFrameSize;
 
   int left = step * int(ll.x / step);
   if (left < ll.x)
@@ -364,9 +365,9 @@ void Canvas::drawGrid(cairo_t *cc)
   if (iStyle.classicGrid) {
     double lw = iStyle.thinLine / iZoom;
     cairo_set_line_width(cc, lw);
-    for (int y = bottom; y < ur.y; y += vstep) {
+    for (int y = bottom; y < ur.y; y += step) {
       if (screenLR.y <= y && y <= screenUL.y) {
-	for (int x = left; x < ur.x; x += vstep) {
+	for (int x = left; x < ur.x; x += step) {
 	  if (screenUL.x <= x && x <= screenLR.x) {
 	    cairo_move_to(cc, x, y - 0.5 * lw);
 	    cairo_line_to(cc, x, y + 0.5 * lw);
@@ -378,10 +379,10 @@ void Canvas::drawGrid(cairo_t *cc)
   } else {
     double thinLine = iStyle.thinLine / iZoom;
     double thickLine = iStyle.thickLine / iZoom;
-    int thickStep = 4 * step;
+    int thickStep = iStyle.thickStep * step;
 
     // draw horizontal lines
-    for (int y = bottom; y < ur.y; y += vstep) {
+    for (int y = bottom; y < ur.y; y += step) {
       if (screenLR.y <= y && y <= screenUL.y) {
 	cairo_set_line_width(cc, (y % thickStep) ? thinLine : thickLine);
 	cairo_move_to(cc, ll.x, y);
@@ -391,7 +392,7 @@ void Canvas::drawGrid(cairo_t *cc)
     }
 
     // draw vertical lines
-    for (int x = left; x < ur.x; x += vstep) {
+    for (int x = left; x < ur.x; x += step) {
       if (screenUL.x <= x && x <= screenLR.x) {
 	cairo_set_line_width(cc, (x % thickStep) ? thinLine : thickLine);
 	cairo_move_to(cc, x, ll.y);

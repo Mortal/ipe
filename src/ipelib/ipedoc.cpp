@@ -42,6 +42,10 @@
 
 #include <errno.h>
 
+#ifdef IPE_USE_ICONV
+#include <iconv.h>
+#endif
+
 using namespace ipe;
 
 // --------------------------------------------------------------------
@@ -440,7 +444,7 @@ bool Document::save(TellStream &stream, TFormat format, uint flags) const
     compresslevel = 0;
 
   if (format == EPdf) {
-    PdfWriter writer(stream, this, iFontPool, (flags & ELastView),
+    PdfWriter writer(stream, this, iFontPool, (flags & EMarkedView),
 		     0, -1, compresslevel);
     writer.createPages();
     writer.createBookmarks();
@@ -507,7 +511,7 @@ bool Document::exportView(const char *fname, TFormat format, uint flags,
   FileStream stream(fd);
 
   if (format == EPdf) {
-    PdfWriter writer(stream, this, iFontPool, (flags & ELastView),
+    PdfWriter writer(stream, this, iFontPool, (flags & EMarkedView),
 		     pno, pno, compresslevel);
     writer.createPageView(pno, vno);
     writer.createTrailer();
@@ -536,7 +540,7 @@ bool Document::exportPages(const char *fname, uint flags,
   if (!fd)
     return false;
   FileStream stream(fd);
-  PdfWriter writer(stream, this, iFontPool, (flags & ELastView),
+  PdfWriter writer(stream, this, iFontPool, (flags & EMarkedView),
 		   fromPage, toPage, compresslevel);
   writer.createPages();
   writer.createTrailer();
@@ -795,10 +799,14 @@ int Document::runLatex(String &texLog)
   texLog = "";
   Latex converter(cascade());
 
-  const Symbol *background =
-    cascade()->findSymbol(Attribute::BACKGROUND());
-  if (background)
-    converter.scanObject(background->iObject);
+  AttributeSeq seq;
+  cascade()->allNames(ESymbol, seq);
+
+  for (AttributeSeq::iterator it = seq.begin(); it != seq.end(); ++it) {
+    const Symbol *sym = cascade()->findSymbol(*it);
+    if (sym)
+      converter.scanObject(sym->iObject);
+  }
 
   int count = 0;
   for (int i = 0; i < countPages(); ++i)

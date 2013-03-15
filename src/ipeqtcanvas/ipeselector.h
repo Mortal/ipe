@@ -46,12 +46,13 @@ namespace ipeqt {
     Q_OBJECT
 
   public:
-    PageSelector(Document *doc, int page, int width, QWidget *parent = 0);
+    PageSelector(Document *doc, int page, int startIndex,
+		 int width, QWidget *parent = 0);
 
-    //! Return index of selected view or page.
-    int selectedIndex() const { return iSelectedPage; }
+    int selectedIndex() const { return currentRow(); }
 
     static int selectPageOrView(Document *doc, int page = -1,
+				int startIndex = 0,
 				int pageWidth = 240,
 				int width = 600, int height = 480);
 
@@ -59,11 +60,10 @@ namespace ipeqt {
     void selectionMade();
 
   private slots:
-    void pageSelected(const QModelIndex &index);
+    void pageSelected(QListWidgetItem *item);
 
   private:
     Document *iDoc;
-    int iSelectedPage;
   };
 
 } // namespace
