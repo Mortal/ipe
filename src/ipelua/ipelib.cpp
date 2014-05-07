@@ -103,6 +103,9 @@ static int document_constructor(lua_State *L)
     case Document::EFileOpenError:
       lua_pushfstring(L, "Error opening file: %s", strerror(errno));
       break;
+    case Document::ENotAnIpeFile:
+      lua_pushliteral(L, "The document was not created by Ipe");
+      break;
     default:
       lua_pushfstring(L, "Parsing error at position %d", reason);
       break;

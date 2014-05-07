@@ -1,5 +1,56 @@
 --------------------------------------------------------------------
  
+Ipe 7.1.5 (2014-05-07)
+
+ * Enabled automatic shortcuts on MacOS X.  The shortcuts Alt+Letter
+   for menu items and dialog buttons should now also work on Macs
+   (thanks Sascha).
+
+ * Included Voronoi ipelet in Windows binaries
+
+ * New -nocrop option in iperender.
+
+ * prefs.editor_size setting now works in Qt build (bug #140).
+
+ * prefs.docks to choose left/right dock side and prefs.hide_docks to
+   select which docks should be visible when Ipe starts.
+
+ * prefs.editor_closes_dialog to make editing dialog close immediately
+   when user exits external editor
+
+ * Fixed crash when Ipe file named on command line exists but cannot
+   be loaded.
+
+ * Fixed error message when trying to open PDF file that was not
+   created by Ipe.
+
+ * Iperender will now include the page background if used with
+   -nocrop.
+
+ * Fix compilation on MacOS X 10.9 (bug #145).
+
+ * Del key on Mac keyboard now works to delete last vertex (bug
+   #149).  
+
+ * Bitmaps are now displayed on screen with better quality (thanks
+   Dmitriy).
+
+ * Link to IpePresenter in Ipe manual and on the webpage.
+   IpePresenter executable included in Windows binary package.
+
+ * Layer names with non-ASCII characters now work and no longer cause
+   a crash (bugs #137 and #132).
+
+ * Using libturbojpeg for decoding embedded JPEG images.  It's faster
+   and fixes bug #125.
+
+ * "Insert text box" now computes position of new textbox based on the
+   position of the visible text only (feature #141).
+
+ * When text size is changed, Latex is automatically run.
+
+--------------------------------------------------------------------
+ 
 Ipe 7.1.4 (2013-3-15) 
 
  * Windows binaries provided again.

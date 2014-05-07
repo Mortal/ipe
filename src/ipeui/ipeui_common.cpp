@@ -291,6 +291,10 @@ void Dialog::addInput(lua_State *L, SElement &m)
 {
   m.minHeight = 12;
   m.minWidth = 100;
+  lua_getfield(L, 4, "select_all");
+  if (lua_toboolean(L, -1))
+    m.flags |= ESelectAll;
+  lua_pop(L, 1);
 }
 
 void Dialog::addTextEdit(lua_State *L, SElement &m)
@@ -298,6 +302,9 @@ void Dialog::addTextEdit(lua_State *L, SElement &m)
   lua_getfield(L, 4, "read_only");
   if (lua_toboolean(L, -1))
     m.flags |= EReadOnly;
+  lua_getfield(L, 4, "select_all");
+  if (lua_toboolean(L, -1))
+    m.flags |= ESelectAll;
   lua_getfield(L, 4, "syntax");
   if (!lua_isnil(L, -1)) {
     const char *s = lua_tostring(L, -1);
@@ -309,7 +316,7 @@ void Dialog::addTextEdit(lua_State *L, SElement &m)
     } else
       luaL_argerror(L, 4, "unknown syntax");
   }
-  lua_pop(L, 2); // syntax, read_only
+  lua_pop(L, 3); // syntax, select_all, read_only
   m.minHeight = 48;
   m.minWidth = 100;
 }
@@ -553,6 +560,13 @@ static int dialog_setEnabled(lua_State *L)
   return (*dlg)->setEnabled(L);
 }
 
+static int dialog_accept(lua_State *L)
+{
+  Dialog **dlg = check_dialog(L, 1);
+  (*dlg)->accept(L);
+  return 0;
+}
+
 // --------------------------------------------------------------------
 
 static const struct luaL_Reg dialog_methods[] = {
@@ -565,6 +579,7 @@ static const struct luaL_Reg dialog_methods[] = {
   { "set", dialog_set },
   { "get", dialog_get },
   { "setEnabled", dialog_setEnabled },
+  { "accept", dialog_accept },
   { 0, 0 }
 };
 

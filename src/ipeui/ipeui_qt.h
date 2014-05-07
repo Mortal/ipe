@@ -107,6 +107,7 @@ protected:
   virtual bool buildAndRun(int w, int h);
   virtual void retrieveValues();
   virtual void enableItem(int idx, bool value);
+  virtual void accept(lua_State *L);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *e);

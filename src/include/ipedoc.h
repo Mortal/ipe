@@ -86,6 +86,7 @@ namespace ipe {
       EVersionTooOld = -1,    //!< The version of the file is too old.
       EVersionTooRecent = -2, //!< The file version is newer than this Ipelib.
       EFileOpenError = -3,    //!< Error opening the file
+      ENotAnIpeFile = -4,     //!< The file was not created by Ipe.
     };
 
     Document();

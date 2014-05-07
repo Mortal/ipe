@@ -8,7 +8,7 @@ include ../common.mak
 TARGET = $(call exe_target,ipescript)
 
 CPPFLAGS += -I../include -I../ipelua $(LUA_CFLAGS) 
-LIBS += -L$(buildlib) -lipelua -lipe $(LUA_LIBS)
+LIBS += -L$(buildlib) -lipelua -lipe $(LUA_LIBS) $(DL_LIBS)
 
 CPPFLAGS += -DIPELETDIR=\"$(IPELETDIR)\"
 CPPFLAGS += -DIPESTYLEDIR=\"$(IPESTYLEDIR)\"

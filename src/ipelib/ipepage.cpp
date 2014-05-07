@@ -548,38 +548,6 @@ bool Page::setAttribute(int i, Property prop, Attribute value,
 
 // --------------------------------------------------------------------
 
-class TextBoxVisitor : public Visitor {
-public:
-  virtual void visitText(const Text *obj);
-public:
-  double iY;
-};
-
-void TextBoxVisitor::visitText(const Text *t)
-{
-  double bottom = (t->matrix() * t->position()).y - t->totalHeight();
-  if (bottom < iY)
-    iY = bottom;
-}
-
-//! Computes text box.
-/*! Takes into account frame size and text objects already
-  on the page .*/
-Rect Page::textBox(const Cascade *sheet) const
-{
-  const Layout *l = sheet->findLayout();
-  TextBoxVisitor vis;
-  vis.iY = l->iFrameSize.y;
-  for (ObjSeq::const_iterator it = iObjects.begin();
-       it != iObjects.end(); ++it)
-    it->iObject->accept(vis);
-  if (vis.iY < l->iFrameSize.y)
-    return Rect(Vector::ZERO,
-		Vector(l->iFrameSize.x, vis.iY - l->iParagraphSkip));
-  else
-    return Rect(Vector::ZERO, l->iFrameSize);
-}
-
 //! Return section title at \a level.
 /*! Level 0 is the section, level 1 the subsection. */
 String Page::section(int level) const

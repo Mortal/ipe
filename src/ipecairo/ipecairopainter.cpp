@@ -336,7 +336,7 @@ void CairoPainter::doDrawBitmap(Bitmap bitmap)
   matrix.y0 = tf.a[5];
   cairo_transform(iCairo, &matrix);
   cairo_set_source_surface(iCairo, image, 0, 0);
-  cairo_pattern_set_filter(cairo_get_source(iCairo), CAIRO_FILTER_NEAREST);
+  cairo_pattern_set_filter(cairo_get_source(iCairo), CAIRO_FILTER_BEST);
   cairo_paint(iCairo);
   cairo_restore(iCairo);
 }

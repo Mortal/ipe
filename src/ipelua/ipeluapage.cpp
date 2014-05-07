@@ -449,14 +449,6 @@ static int page_ensurePrimarySelection(lua_State *L)
   return 0;
 }
 
-static int page_textBox(lua_State *L)
-{
-  Page *p = check_page(L, 1)->page;
-  Cascade *sheets = check_cascade(L, 2)->cascade;
-  push_rect(L, p->textBox(sheets));
-  return 1;
-}
-
 static int page_titles(lua_State *L)
 {
   Page *p = check_page(L, 1)->page;
@@ -702,7 +694,6 @@ static const struct luaL_Reg page_methods[] = {
   { "setNotes", page_setNotes },
   { "marked", page_marked },
   { "setMarked", page_setMarked },
-  { "textBox", page_textBox },
   { 0, 0 }
 };
 

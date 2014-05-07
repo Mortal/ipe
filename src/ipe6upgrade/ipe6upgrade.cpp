@@ -30,6 +30,7 @@
 
 #include "ipexml.h"
 #include "ipeattributes.h"
+#include <cstdlib>
 
 using namespace ipe;
 

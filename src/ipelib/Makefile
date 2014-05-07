@@ -14,9 +14,9 @@ CPPFLAGS += -I../include
 ifndef WIN32
 CPPFLAGS += -DIPEFONTMAP=\"$(IPEFONTMAP)\"
 endif
-CPPFLAGS += $(IPE_USE_ICONV) $(ZLIB_CFLAGS) $(ICONV_CFLAGS)
+CPPFLAGS += $(IPE_USE_ICONV) $(ZLIB_CFLAGS) $(ICONV_CFLAGS) $(JPEG_CFLAGS)
 CXXFLAGS += $(DLL_CFLAGS)
-LIBS += $(ZLIB_LIBS) $(ICONV_LIBS)
+LIBS += $(JPEG_LIBS) $(ZLIB_LIBS) $(ICONV_LIBS)
 
 all: $(TARGET)
 
@@ -27,7 +27,6 @@ sources	= \
 	ipexml.cpp \
 	ipeattributes.cpp \
 	ipebitmap.cpp \
-	ipedct.cpp \
 	ipeshape.cpp \
 	ipegroup.cpp \
 	ipeimage.cpp \

@@ -10,8 +10,8 @@ DEPEND = $(OBJDIR)/qvoronoi.depend
 include ../../common.mak
 
 ifdef WIN32
-QHULL_CFLAGS = -I../../../../qhull2002.1/src
-QHULL_LIBS = -L../../../../qhull2002.1 -lqhull
+QHULL_CFLAGS = -I/sw/mingw/include/libqhull
+QHULL_LIBS = /sw/mingw/bin/qhull.dll
 else
 QHULL_CFLAGS = -I/usr/include/qhull
 QHULL_LIBS = -lqhull

@@ -49,6 +49,12 @@ local first_model = nil
 
 ----------------------------------------------------------------------
 
+function printTable(t)
+  for k in pairs(t) do
+    print(k, t[k])
+  end
+end
+
 function formatFromFileName(fname)
   local s = string.lower(fname:sub(-4))
   if s == ".xml" or s == ".ipe" then return "xml" end

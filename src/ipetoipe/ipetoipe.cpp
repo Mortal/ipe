@@ -29,6 +29,7 @@
 */
 
 #include "ipedoc.h"
+#include <cstdlib>
 
 using ipe::Document;
 using ipe::String;

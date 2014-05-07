@@ -40,6 +40,9 @@ function externalEditor(d, field)
   f:close()
   os.remove(fname)
   d:set(field, text)
+  if prefs.editor_closes_dialog then
+    d:accept(true)
+  end
 end
 
 function addEditorField(d, field)
@@ -254,7 +257,7 @@ function LINESTOOL:explain()
 end
 
 function LINESTOOL:key(code, modifiers, text)
-  if text == "\127" then  -- Delete
+  if text == prefs.delete_key then  -- Delete
     if #self.v > 2 then
       table.remove(self.v)
       table.remove(self.t)
@@ -417,7 +420,7 @@ function SPLINEGONTOOL:mouseMove()
 end
 
 function SPLINEGONTOOL:key(code, modifiers, text)
-  if text == "\127" then  -- Delete
+  if text == prefs.delete_key then  -- Delete
     if #self.v > 2 then
       table.remove(self.v)
       self:compute()
@@ -724,8 +727,8 @@ function MODEL:createText(mode)
   if prefs.auto_external_editor then
     externalEditor(d, "text")
   end
-  local r = d:execute(prefs.editor_size)
-  if r then
+  if ((prefs.auto_external_editor and prefs.editor_closes_dialog)
+    or d:execute(prefs.editor_size)) then
     local t = d:get("text")
     if mode == "math" then
       t = "$" .. t .. "$"
@@ -761,8 +764,8 @@ function MODEL:createParagraph(pos, width, pinned)
   if prefs.auto_external_editor then
     externalEditor(d, "text")
   end
-  local r = d:execute(prefs.editor_size)
-  if r then
+  if ((prefs.auto_external_editor and prefs.editor_closes_dialog)
+    or d:execute(prefs.editor_size)) then
     local t = d:get("text")
     local style = styles[d:get("style")]
     local size = sizes[d:get("size")]
@@ -778,8 +781,20 @@ function MODEL:createParagraph(pos, width, pinned)
 end
 
 function MODEL:action_insert_text_box()
-  local r = self:page():textBox(self.doc:sheets())
-  self:createParagraph(r:topLeft(), r:width(), true)
+  local layout = self.doc:sheets():find("layout")
+  local p = self:page()
+  local r = ipe.Rect()
+  local m = ipe.Matrix()
+  for i, obj, sel, layer in p:objects() do
+    if p:visible(self.vno, i) and obj:type() == "text" then
+      obj:addToBBox(r, m)
+    end
+  end
+  local y = layout.framesize.y
+  if not r:isEmpty() and r:bottom() < layout.framesize.y then
+    y = r:bottom() - layout.paragraph_skip
+  end
+  self:createParagraph(ipe.Vector(0, y), layout.framesize.x, true)
 end
 
 ----------------------------------------------------------------------
@@ -1045,9 +1060,11 @@ function MODEL:action_edit_text(prim, obj)
   if prefs.auto_external_editor then
     externalEditor(d, "text")
   end
-  local r = d:execute(prefs.editor_size)
-  if not r or string.match(d:get("text"), "^%s*$") then return end
-  apply_text_edit(d, data, self.auto_latex)
+  if ((prefs.auto_external_editor and prefs.editor_closes_dialog)
+    or d:execute(prefs.editor_size)) then
+    if string.match(d:get("text"), "^%s*$") then return end
+    apply_text_edit(d, data, self.auto_latex)
+  end
 end
 
 function MODEL:action_edit()

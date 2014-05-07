@@ -408,6 +408,6 @@ shortcuts.ipelet_4_align = "Shift+R"
 shortcuts.ipelet_5_align = "Shift+C"
 shortcuts.ipelet_6_align = "Shift+H"
 shortcuts.ipelet_7_align = "Shift+V"
-shortcuts.ipelet_8_align = nil
+shortcuts.ipelet_15_align = "Shift+Alt+V"
 
 ----------------------------------------------------------------------

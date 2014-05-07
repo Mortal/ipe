@@ -59,11 +59,30 @@ end
 if os.getenv("EDITOR") then
   prefs.external_editor = os.getenv("EDITOR") .. " %s"
 elseif config.platform == "unix" then
-  prefs.external_editor = "gedit %s"
+  prefs.external_editor = "pluma %s"
   -- prefs.external_editor = "emacsclient %s"
 else
   prefs.external_editor = nil
 end
+
+if config.platform == "apple" then
+  prefs.delete_key = "\8"
+else
+  prefs.delete_key = "\127"
+end
+
+-- Where the tools should be put: Left or right?
+prefs.docks = {
+  properties = "left",
+  bookmarks = "right",
+  notes = "right",
+  layers = "left",
+}
+
+-- Which docks should be hidden when Ipe starts?
+prefs.hide_docks = {
+  "bookmarks", "notes"
+}
 
 -- Should LaTeX be run automatically every time text has changed?
 prefs.auto_run_latex = true
@@ -71,8 +90,11 @@ prefs.auto_run_latex = true
 -- Should the external editor be called automatically?
 prefs.auto_external_editor = nil
 
--- Size of dialog window for creating/editing text objects
-prefs.editor_size = { 600, 400 }
+-- Should closing the external editor immediately close the editing dialog?
+prefs.editor_closes_dialog = nil
+
+-- Minimum size of dialog window for creating/editing text objects
+prefs.editor_size = { 0, 0 }
 
 -- Size of main window at startup
 prefs.window_size = { 1000, 600 }

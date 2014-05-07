@@ -10,7 +10,7 @@ TARGET = $(call exe_target,ipe)
 CPPFLAGS += -I../include -I../ipecanvas -I../ipecairo -I../ipelua \
 	$(LUA_CFLAGS) $(UI_CFLAGS) $(CAIRO_CFLAGS) $(ZLIB_CFLAGS)
 LIBS += -L$(buildlib) -lipecanvas -lipecairo -lipelua -lipe -lipeui \
-	$(LUA_LIBS) $(UI_LIBS) $(CAIRO_LIBS) $(ZLIB_LIBS)
+	$(LUA_LIBS) $(UI_LIBS) $(CAIRO_LIBS) $(ZLIB_LIBS) $(DL_LIBS)
 
 CPPFLAGS += -DIPELETDIR=\"$(IPELETDIR)\"
 CPPFLAGS += -DIPELUADIR=\"$(IPELUADIR)\"

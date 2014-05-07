@@ -34,6 +34,7 @@
 
 #include "ipefontpool.h"
 #include "ipelatex.h"
+#include <cstdlib>
 
 using namespace ipe;
 

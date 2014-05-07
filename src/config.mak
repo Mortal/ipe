@@ -5,15 +5,6 @@
 #
 # --------------------------------------------------------------------
 #
-# Which user interface library shall we use?
-#
-# Currently, the choice is between the Win32 API and Qt 4.
-# Choose one of "WIN32", or "QT".  Unless you compile for Microsoft
-# Windows, you will want "QT" (so the default will be fine).
-# (In fact, WIN32 doesn't work yet.)
-#
-IPEUI 	     ?= QT
-#
 # Do you wish to enable the use of alternative text encodings
 # for Latex conversion?  (Useful for Japanese, Korean, Russian, etc.)
 # If so, uncomment the following line:
@@ -36,8 +27,7 @@ ifndef MACOS
 #
 # We just query "pkg-config" for the correct flags.  If this doesn't
 # work on your system, enter the correct linker flags and directories
-# directly.  You don't have to worry about the UI libraries you
-# haven't selected above.
+# directly.  Don't worry about the GTK libraries (they are not used).
 #
 # The name of the Lua package (it could be "lua", "lua52", or "lua5.2")
 #
@@ -45,6 +35,8 @@ LUA_PACKAGE   ?= lua5.2
 #
 ZLIB_CFLAGS   ?=
 ZLIB_LIBS     ?= -lz
+JPEG_CFLAGS   ?= 
+JPEG_LIBS     ?= -lturbojpeg
 FREETYPE_CFLAGS ?= $(shell pkg-config --cflags freetype2)
 FREETYPE_LIBS ?= $(shell pkg-config --libs freetype2)
 CAIRO_CFLAGS  ?= $(shell pkg-config --cflags cairo)
@@ -55,6 +47,11 @@ GTK_CFLAGS    ?= $(shell pkg-config --cflags gtk+-2.0)
 GTK_LIBS      ?= $(shell pkg-config --libs gtk+-2.0)
 QT_CFLAGS     ?= $(shell pkg-config --cflags QtGui QtCore)
 QT_LIBS	      ?= $(shell pkg-config --libs QtGui QtCore)
+#
+# Library needed to use dlopen/dlsym/dlclose calls
+#
+DL_LIBS       ?= -ldl
+#
 #
 # MOC is the Qt meta-object compiler.
 # If you have different Qt versions installed, you may have to change
@@ -67,8 +64,11 @@ else
 # Settings for Mac OS 10.6
 #
 CONFIG     += x86_64
+DL_LIBS       ?= -ldl
 ZLIB_CFLAGS   ?=
 ZLIB_LIBS     ?= -lz
+JPEG_CFLAGS   ?= 
+JPEG_LIBS     ?= -lturbojpeg
 FREETYPE_CFLAGS ?= -I/usr/X11/include/freetype2 -I/usr/X11/include
 FREETYPE_LIBS ?= -L/usr/X11/lib -lfreetype
 CAIRO_CFLAGS  ?= -I/usr/X11/include/cairo -I/usr/X11/include/pixman-1 \
@@ -102,7 +102,7 @@ DLL_CFLAGS = -fpic
 #
 # Installing Ipe:
 #
-IPEVERS = 7.1.4
+IPEVERS = 7.1.5
 #
 # IPEPREFIX is the global prefix for the Ipe directory structure, which
 # you can override individually for any of the specific directories.

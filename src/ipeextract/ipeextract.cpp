@@ -31,6 +31,7 @@
 #include "ipexml.h"
 #include "ipeutils.h"
 #include "ipepdfparser.h"
+#include <cstdlib>
 
 using namespace ipe;
 
@@ -309,7 +310,7 @@ static bool extractPdf(DataSource &source, std::FILE *out)
 {
   PdfFile loader;
   if (!loader.parse(source)) {
-    fprintf(stderr, "Error parsing PDF file\n");
+    fprintf(stderr, "Error parsing PDF file - probably not an Ipe file.\n");
     return false;
   }
 

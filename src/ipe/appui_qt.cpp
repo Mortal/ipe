@@ -225,7 +225,28 @@ MENUHANDLE AppUi::endSubMenu()
   return submenu;
 }
 
+Qt::DockWidgetArea getDockSide(lua_State *L, const char *name,
+			       Qt::DockWidgetArea deflt)
+{
+  Qt::DockWidgetArea r = deflt;
+  lua_getglobal(L, "prefs");
+  lua_getfield(L, -1, "docks");
+  if (lua_istable(L, -1)) {
+    lua_getfield(L, -1, name);
+    const char *s = lua_tolstring(L, -1, 0);
+    if (!strcmp(s, "left"))
+      r = Qt::LeftDockWidgetArea;
+    else if (!strcmp(s, "right"))
+      r = Qt::RightDockWidgetArea;
+    lua_pop(L, 1); // left or right
+  }
+  lua_pop(L, 2); // prefs, docks
+  return r;
+}
+
 // --------------------------------------------------------------------
+
+extern void qt_set_sequence_auto_mnemonic(bool b);
 
 AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   : QMainWindow(0, f), AppUiBase(L0, model)
@@ -233,6 +254,9 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   setWindowIcon(prefsIcon("ipe"));
   QMainWindow::setAttribute(Qt::WA_DeleteOnClose);
   setDockOptions(AnimatedDocks); // do not allow stacking properties and layers
+
+  // enable automatic shortcuts on Mac OS X
+  qt_set_sequence_auto_mnemonic(true);
 
   Canvas *canvas = new Canvas(this);
   iCanvas = canvas;
@@ -316,26 +340,29 @@ AppUi::AppUi(lua_State *L0, int model, Qt::WFlags f)
   connect(iShiftKey, SIGNAL(triggered()), SLOT(toolbarModifiersChanged()));
 
   iPropertiesTools = new QDockWidget("Properties", this);
-  addDockWidget(Qt::LeftDockWidgetArea, iPropertiesTools);
+  addDockWidget(getDockSide(L, "properties", Qt::LeftDockWidgetArea),
+		iPropertiesTools);
   iPropertiesTools->setAllowedAreas(Qt::LeftDockWidgetArea|
 				    Qt::RightDockWidgetArea);
 
-  iLayerTools = new QDockWidget("Layers", this);
-  addDockWidget(Qt::LeftDockWidgetArea, iLayerTools);
-  iLayerTools->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+  iBookmarkTools = new QDockWidget("Bookmarks", this);
+  addDockWidget(getDockSide(L, "bookmarks", Qt::RightDockWidgetArea),
+		iBookmarkTools);
+  iBookmarkTools->setAllowedAreas(Qt::LeftDockWidgetArea|
+				  Qt::RightDockWidgetArea);
+  iMenu[EPageMenu]->addAction(iBookmarkTools->toggleViewAction());
 
   iNotesTools = new QDockWidget("Notes", this);
-  addDockWidget(Qt::RightDockWidgetArea, iNotesTools);
+  addDockWidget(getDockSide(L, "notes", Qt::RightDockWidgetArea),
+		iNotesTools);
   iNotesTools->setAllowedAreas(Qt::LeftDockWidgetArea|
 			       Qt::RightDockWidgetArea);
   iMenu[EPageMenu]->addAction(iNotesTools->toggleViewAction());
 
-
-  iBookmarkTools = new QDockWidget("Bookmarks", this);
-  addDockWidget(Qt::RightDockWidgetArea, iBookmarkTools);
-  iBookmarkTools->setAllowedAreas(Qt::LeftDockWidgetArea|
-				  Qt::RightDockWidgetArea);
-  iMenu[EPageMenu]->addAction(iBookmarkTools->toggleViewAction());
+  iLayerTools = new QDockWidget("Layers", this);
+  addDockWidget(getDockSide(L, "layers", Qt::LeftDockWidgetArea),
+		iLayerTools);
+  iLayerTools->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
 
   // object names are used for saving toolbar state
   iSnapTools->setObjectName(QLatin1String("SnapTools"));
@@ -745,7 +772,7 @@ void AppUi::comboSelector(int id)
 
 static const char * const aboutText =
 "<qt><h2>Ipe %d.%d.%d</h2>"
-"<p>Copyright (c) 1993-2013 Otfried Cheong</p>"
+"<p>Copyright (c) 1993-2014 Otfried Cheong</p>"
 "<p>The extensible drawing editor Ipe creates figures "
 "in Postscript and PDF format, "
 "using LaTeX to format the text in the figures.</p>"

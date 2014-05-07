@@ -30,6 +30,7 @@
 
 #include "ipebase.h"
 #include <cmath>
+#include <cstdlib>
 
 using namespace ipe;
 
@@ -364,7 +365,7 @@ String Lex::nextToken()
 {
   skipWhitespace();
   uint mark = iPos;
-  while (!eos() && iString[iPos] > ' ')
+  while (!(eos() || uchar(iString[iPos]) <= ' '))
     ++iPos;
   return iString.substr(mark, iPos - mark);
 }
@@ -433,7 +434,7 @@ double Lex::getDouble()
 //! Skip over whitespace.
 void Lex::skipWhitespace()
 {
-  while (!eos() && iString[iPos] <= ' ')
+  while (!eos() && uchar(iString[iPos]) <= ' ')
     ++iPos;
 }
 

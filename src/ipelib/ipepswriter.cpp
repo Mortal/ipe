@@ -198,7 +198,15 @@ void PsPainter::doDrawBitmap(Bitmap bitmap)
 PsWriter::PsWriter(TellStream &stream, const Document *doc, bool noColor)
   : iStream(stream), iDoc(doc), iNoColor(noColor)
 {
-  // nothing
+  // mark all bitmaps as not embedded
+  BitmapFinder bm;
+  iDoc->findBitmaps(bm);
+  int id = -1;
+  for (std::vector<Bitmap>::iterator it = bm.iBitmaps.begin();
+       it != bm.iBitmaps.end(); ++it) {
+    it->setObjNum(id);
+    --id;
+  }
 }
 
 // --------------------------------------------------------------------

@@ -95,11 +95,13 @@ public:
   int setStretch(lua_State *L);
 
   bool execute(lua_State *L, int w, int h);
+  virtual void accept(lua_State *L) = 0;
 
 protected:
   enum TFlags { ELogFile = 0x001, EXml = 0x002, ELatex = 0x040,
 		EAccept = 0x004, EReject = 0x008,
 		EReadOnly = 0x010, EDisabled = 0x020,
+		ESelectAll = 0x080,
   };
   enum TType { EButton = 0, ETextEdit, EList, ELabel, ECombo,
 	       ECheckBox, EInput };

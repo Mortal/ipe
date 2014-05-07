@@ -102,8 +102,6 @@ namespace ipe {
 
     void setVisible(int view, String layer, bool vis);
 
-    Rect textBox(const Cascade *sheet) const;
-
     //! Return title of this page.
     String title() const;
     void setTitle(String title);
