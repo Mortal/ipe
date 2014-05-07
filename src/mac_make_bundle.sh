@@ -1,6 +1,8 @@
 #! /bin/bash
 # Contributed by 'leahcimb', August 2011.
 
+IPE_VERSION=7.1.5
+
 ## Create directories for .app bundle
 APPDIR="$( cd "$( dirname "$0" )" && cd .. && pwd )"/Ipe.app
 APPFRAMEWORKS=$APPDIR/Contents/Frameworks
@@ -16,7 +18,8 @@ mkdir -p $APPPLUGINS
 
 ## Create config files for .app bundle.
 # Info.plist
-echo '<?xml version="1.0" encoding="UTF-8"?>
+cat <<EOF > $APPDIR/Contents/Info.plist
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -87,16 +90,16 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@VERSION@</string>
+	<string>$IPE_VERSION</string>
 	<key>CFBundleSignature</key>
 	<string>Ipe7</string>
 	<key>CFBundleVersion</key>
-	<string>@VERSION@</string>
+	<string>$IPE_VERSION</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright (C) 1993-2013  Otfried Cheong</string>
 </dict>
 </plist>
-' > $APPDIR/Contents/Info.plist
+EOF
 # ipe startup script
 echo '#! /bin/bash
 
@@ -169,4 +172,4 @@ find $APPPLUGINS -d -type f -exec $FIX_QTGUI {} \; &> /dev/null
 find $APPPLUGINS -d -type f -exec $FIX_QTNETWORK {} \; &> /dev/null
 
 ## Create icon
-sips -s format icns $APPLOCAL/share/ipe/7.1.4/icons/ipe.png --out $APPRESOURCES/ipe.icns
+sips -s format icns $APPLOCAL/share/ipe/$IPE_VERSION/icons/ipe.png --out $APPRESOURCES/ipe.icns

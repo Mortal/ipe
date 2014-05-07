@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "ipexml.h"
 #include "ipeutils.h"
 #include "ipepdfparser.h"
+#include <cstdlib>
 
 using namespace ipe;
 
@@ -309,7 +310,7 @@ static bool extractPdf(DataSource &source, std::FILE *out)
 {
   PdfFile loader;
   if (!loader.parse(source)) {
-    fprintf(stderr, "Error parsing PDF file\n");
+    fprintf(stderr, "Error parsing PDF file - probably not an Ipe file.\n");
     return false;
   }
 

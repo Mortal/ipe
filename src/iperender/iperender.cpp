@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -54,11 +54,20 @@ using ipe::Page;
 // --------------------------------------------------------------------
 
 static void render(TargetFormat fm, const char *dst, const Document *doc,
-		   const Page *page, int view, double zoom, bool transparent)
+		   const Page *page, int view, double zoom,
+		   bool transparent, bool nocrop)
 {
-  ipe::Rect bbox = page->pageBBox(doc->cascade());
-  int wid = int(bbox.width() * zoom + 1);
-  int ht = int(bbox.height() * zoom + 1);
+  ipe::Rect bbox;
+  int wid, ht;
+  if (nocrop) {
+    bbox = doc->cascade()->findLayout()->paper();
+    wid = int(bbox.width() * zoom);
+    ht = int(bbox.height() * zoom);
+  } else {
+    bbox = page->pageBBox(doc->cascade());
+    wid = int(bbox.width() * zoom + 1);
+    ht = int(bbox.height() * zoom + 1);
+  }
 
   ipe::Buffer data;
   cairo_surface_t* surface = 0;
@@ -93,10 +102,19 @@ static void render(TargetFormat fm, const char *dst, const Document *doc,
   // painter.Transform(IpeLinear(zoom, 0, 0, -zoom));
   // painter.Translate(-bbox.TopLeft());
   painter.pushMatrix();
+
+  if (nocrop) {
+    const ipe::Symbol *background =
+      doc->cascade()->findSymbol(ipe::Attribute::BACKGROUND());
+    if (background && page->findLayer("BACKGROUND") < 0)
+      painter.drawSymbol(ipe::Attribute::BACKGROUND());
+  }
+
   for (int i = 0; i < page->count(); ++i) {
     if (page->objectVisible(view, i))
       page->object(i)->draw(painter);
   }
+
   painter.popMatrix();
   cairo_surface_flush(surface);
   cairo_show_page(cc);
@@ -112,7 +130,7 @@ static void render(TargetFormat fm, const char *dst, const Document *doc,
 
 static int renderPage(TargetFormat fm, const char *src, const char *dst,
 		      int pageNum, int viewNum, double zoom,
-		      bool transparent)
+		      bool transparent, bool nocrop)
 {
   Document *doc = Document::loadWithErrorReport(src);
 
@@ -133,7 +151,7 @@ static int renderPage(TargetFormat fm, const char *src, const char *dst,
   }
 
   const Page *page = doc->page(pageNum - 1);
-  render(fm, dst, doc, page, viewNum - 1, zoom, transparent);
+  render(fm, dst, doc, page, viewNum - 1, zoom, transparent, nocrop);
   delete doc;
   return 0;
 }
@@ -150,7 +168,9 @@ static void usage()
 	  " -page       : page to save (default 1).\n"
 	  " -view       : view to save (default 1).\n"
 	  " -resolution : resolution for png format (default 72.0 ppi).\n"
-	  " -transparent: use transparent background in png format.\n");
+	  " -transparent: use transparent background in png format.\n"
+	  " -nocrop     : do not crop page.\n"
+	  );
   exit(1);
 }
 
@@ -183,6 +203,7 @@ int main(int argc, char *argv[])
   double dpi = 72.0;
   int i = 2;
   bool transparent = false;
+  bool nocrop = false;
 
   if (!strcmp(argv[i], "-page")) {
     page = ipe::Lex(ipe::String(argv[i+1])).getInt();
@@ -204,6 +225,11 @@ int main(int argc, char *argv[])
     ++i;
   }
 
+  if (!strcmp(argv[i], "-nocrop")) {
+    nocrop = true;
+    ++i;
+  }
+
   // remaining arguments must be two filenames
   if (argc != i + 2)
     usage();
@@ -211,7 +237,8 @@ int main(int argc, char *argv[])
   const char *src = argv[i];
   const char *dst = argv[i+1];
 
-  return renderPage(fm, src, dst, page, view, dpi / 72.0, transparent);
+  return renderPage(fm, src, dst, page, view, dpi / 72.0,
+		    transparent, nocrop);
 }
 
 // --------------------------------------------------------------------

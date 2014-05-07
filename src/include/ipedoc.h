@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -86,6 +86,7 @@ namespace ipe {
       EVersionTooOld = -1,    //!< The version of the file is too old.
       EVersionTooRecent = -2, //!< The file version is newer than this Ipelib.
       EFileOpenError = -3,    //!< Error opening the file
+      ENotAnIpeFile = -4,     //!< The file was not created by Ipe.
     };
 
     Document();

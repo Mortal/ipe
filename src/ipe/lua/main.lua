@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -48,6 +48,12 @@ V = ipe.Vector
 local first_model = nil
 
 ----------------------------------------------------------------------
+
+function printTable(t)
+  for k in pairs(t) do
+    print(k, t[k])
+  end
+end
 
 function formatFromFileName(fname)
   local s = string.lower(fname:sub(-4))

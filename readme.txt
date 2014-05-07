@@ -1,5 +1,5 @@
-Ipe 7.1.4
-March, 2013
+Ipe 7.1.5
+May, 2014
 
                     Ipe extensible drawing editor
                     =============================
@@ -15,10 +15,6 @@ transparencies or for on-line presentations.
 See the manual for an introduction. It is available in both HTML
 ("build/doc/manual.html") and PDF format ("build/doc/manual.pdf").
 
-If you have used Ipe 6 up to now and this is your first contact with
-Ipe 7, you should read the (short) manual section about upgrading to
-Ipe 7.
-
 
 The separate file "install.txt" explains how to build and install Ipe
 on Unix.  Ipe is also available for Windows in the form of a zip
@@ -30,7 +26,7 @@ to work it out.)
 --------------------------------------------------------------------
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by

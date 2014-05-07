@@ -9,13 +9,13 @@ If you have a recent Mint, Ubuntu, or Debian system, the following
 steps will install the necessary libraries and tools:
 
     sudo apt-get install checkinstall zlib1g-dev libqt4-dev
-    sudo apt-get install libfreetype6-dev libcairo2-dev 
+    sudo apt-get install libfreetype6-dev libcairo2-dev libjpeg-turbo8-dev
     sudo apt-get install liblua5.2-dev gsfonts
 
 On Fedora, use the following steps instead:
 
    sudo yum -y install zlib-devel qt-devel freetype-devel cairo-devel
-   sudo yum -y install lua-devel ghostscript-fonts urw-fonts
+   sudo yum -y install lua-devel ghostscript-fonts urw-fonts libjpeg-turbo8-dev
 
 Now you can compile and install Ipe into /usr/local:
 (Note that 7.x.y has to be replaced by the current Ipe version!)
@@ -159,6 +159,20 @@ and libraries:
    svg surfaces (backends).  You also need freetype support, but no
    fontconfig.  Since Ipe does not need any platform-dependent
    backends, Cairo should compile fine on any platform.
+
+ * The Turbo JPEG library (version 1.2 or higher)
+
+   This is a library to decode JPEG files, needed by Ipe to display
+   embedded JPEG figures. You will need the development package,
+   e.g. on Debian/Ubuntu "libjpeg-turbo8-dev".  On my system, the
+   package had a bug:  It installed "libturbojpeg.so.0" and
+   "libturbojpeg.so.0.0.0", but not "libturbojpeg.so", which resulted
+   in an error message about linking with the static library
+   "libturbojpeg.a".  Make sure to create a symbolic link for
+   "libturbojpeg.so" if it does not exist yet.
+
+   You can also install from sources at
+   "http://www.libjpeg-turbo.org/". 
 
  * The Lua language (version 5.2)
 

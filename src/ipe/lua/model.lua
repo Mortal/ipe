@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -93,9 +93,10 @@ function MODEL:init(fname)
   self.pristine = false
   self.first_show = true
 
+  local err = nil
   if fname then
     if ipe.fileExists(fname) then
-      self:loadDocument(fname)
+      err = self:tryLoadDocument(fname)
     else
       self:newDocument()
       self.file_name = fname
@@ -124,17 +125,17 @@ function MODEL:init(fname)
     self:runLatex()
   end
 
-  if #self:getBookmarks() == 0 then
-    self.ui:showTool("bookmarks", false)
-  end
-  if self:page():notes() == "" then
-    self.ui:showTool("notes", false)
+  for i, dock in ipairs(prefs.hide_docks) do
+    self.ui:showTool(dock, false)
   end
 
   if prefs.autosave_interval then
     self.timer = ipeui.Timer(self, "autosave")
     self.timer:setInterval(1000 * prefs.autosave_interval) -- millisecs
     self.timer:start()
+  end
+  if err then
+    self:warning("Document '" .. fname .. "' could not be opened", err)
   end
 end
 
@@ -175,7 +176,7 @@ function MODEL:getString(msg, caption, start)
   if caption == nil then caption = "Ipe" end
   local d = ipeui.Dialog(self.ui:win(), caption)
   d:add("label", "label", {label=msg}, 1, 1)
-  d:add("text", "input", {}, 2, 1)
+  d:add("text", "input", {select_all=true}, 2, 1)
   d:addButton("cancel", "Cancel", "reject")
   d:addButton("ok", "Ok", "accept")
   if start then d:set("text", start) end
@@ -493,6 +494,14 @@ function MODEL:newDocument()
 end
 
 function MODEL:loadDocument(fname)
+  local err = self:tryLoadDocument(fname)
+  if err then
+    self:warning("Document '" .. fname .. "' could not be opened", err)
+  end
+end
+
+-- returns error message if there was an error
+function MODEL:tryLoadDocument(fname)
   local doc, err = ipe.Document(fname)
   if doc then
     self.doc = doc
@@ -522,8 +531,9 @@ function MODEL:loadDocument(fname)
 		 "<qt><ul><li>" .. table.concat(syms, "<li>")
 		 .. "</qt>")
     end
+    return nil
   else
-    self:warning("Document '" .. fname .. "' could not be opened", err)
+    return err
   end
 end
 

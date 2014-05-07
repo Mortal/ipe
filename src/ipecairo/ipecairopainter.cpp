@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -336,7 +336,7 @@ void CairoPainter::doDrawBitmap(Bitmap bitmap)
   matrix.y0 = tf.a[5];
   cairo_transform(iCairo, &matrix);
   cairo_set_source_surface(iCairo, image, 0, 0);
-  cairo_pattern_set_filter(cairo_get_source(iCairo), CAIRO_FILTER_NEAREST);
+  cairo_pattern_set_filter(cairo_get_source(iCairo), CAIRO_FILTER_BEST);
   cairo_paint(iCairo);
   cairo_restore(iCairo);
 }

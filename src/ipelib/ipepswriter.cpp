@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -198,7 +198,15 @@ void PsPainter::doDrawBitmap(Bitmap bitmap)
 PsWriter::PsWriter(TellStream &stream, const Document *doc, bool noColor)
   : iStream(stream), iDoc(doc), iNoColor(noColor)
 {
-  // nothing
+  // mark all bitmaps as not embedded
+  BitmapFinder bm;
+  iDoc->findBitmaps(bm);
+  int id = -1;
+  for (std::vector<Bitmap>::iterator it = bm.iBitmaps.begin();
+       it != bm.iBitmaps.end(); ++it) {
+    it->setObjNum(id);
+    --id;
+  }
 }
 
 // --------------------------------------------------------------------

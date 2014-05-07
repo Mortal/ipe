@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -325,6 +325,8 @@ bool PDialog::buildAndRun(int w, int h)
 	{
 	  QLineEdit *e = new QLineEdit(this);
 	  e->setText(QString::fromUtf8(m.text.z()));
+	  if (m.flags & ESelectAll)
+	    e->selectAll();
 	  w = e;
 	}
 	break;
@@ -343,6 +345,8 @@ bool PDialog::buildAndRun(int w, int h)
 	    markupLog(t, text);
 	  } else
 	    t->setPlainText(text);
+	  if (m.flags & ESelectAll)
+	    t->selectAll();
 	  w = t;
 	}
 	break;
@@ -370,6 +374,7 @@ bool PDialog::buildAndRun(int w, int h)
       gridlayout()->addWidget(w, m.row, m.col, m.rowspan, m.colspan);
     }
   }
+  setMinimumSize(w, h);
   int result = exec();
   retrieveValues(); // for future reference
   return (result == QDialog::Accepted);
@@ -409,6 +414,12 @@ void PDialog::retrieveValues()
 void PDialog::enableItem(int idx, bool value)
 {
   iWidgets[idx]->setEnabled(value);
+}
+
+void PDialog::accept(lua_State *L)
+{
+  int accept = lua_toboolean(L, 2);
+  QDialog::done(accept);
 }
 
 // --------------------------------------------------------------------

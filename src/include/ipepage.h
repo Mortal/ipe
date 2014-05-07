@@ -5,7 +5,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -101,8 +101,6 @@ namespace ipe {
       return iLayers[layerOf(objno)].iVisible[view]; }
 
     void setVisible(int view, String layer, bool vis);
-
-    Rect textBox(const Cascade *sheet) const;
 
     //! Return title of this page.
     String title() const;

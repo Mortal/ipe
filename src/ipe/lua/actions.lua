@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -123,6 +123,9 @@ function MODEL:selector(prop, value)
   self.ui:setAttributes(self.doc:sheets(), self.attributes)
   if self:page():hasSelection() then
     self:setAttribute(prop, value)
+    if prop == "textsize" then
+      self:autoRunLatex()
+    end
   end
   -- self:print_attributes()
 end
@@ -181,6 +184,7 @@ function MODEL:absoluteButton(button)
 			     10, 2, 1000)
     if d then
       self:set_absolute(button, d)
+      self:autoRunLatex()
     end
   elseif button == "symbolsize" then
     local old = self.doc:sheets():find(button, self.attributes[button])
@@ -1326,6 +1330,7 @@ function MODEL:action_edit_title()
 	     doc[t.pno]:setTitles(t.final)
 	   end
   self:register(t)
+  self:autoRunLatex()
 end
 
 function MODEL:action_edit_notes()
@@ -1463,26 +1468,31 @@ function MODEL:saction_edit_as_xml()
   d:addButton("ok", "&Ok", "accept")
   d:setStretch("row", 1, 1);
   d:set("xml", xml)
-  if not d:execute() then return end
-  local obj = ipe.Object(d:get("xml"))
-  if not obj then self:warning("Cannot parse XML") return end
+  if prefs.auto_external_editor then
+    externalEditor(d, "xml")
+  end
+  if ((prefs.auto_external_editor and prefs.editor_closes_dialog)
+    or d:execute(prefs.editor_size)) then
+    local obj = ipe.Object(d:get("xml"))
+    if not obj then self:warning("Cannot parse XML") return end
 
-  local t = { label="edit object in XML",
-	      pno = self.pno,
-	      vno = self.vno,
-	      primary = prim,
-	      original = self:page()[prim]:clone(),
-	      final = obj,
-	    }
-  t.undo = function (t, doc)
-	     doc[t.pno]:replace(t.primary, t.original)
-	   end
-  t.redo = function (t, doc)
-	     doc[t.pno]:replace(t.primary, t.final)
-	   end
-  self:register(t)
+    local t = { label="edit object in XML",
+		pno = self.pno,
+		vno = self.vno,
+		primary = prim,
+		original = self:page()[prim]:clone(),
+		final = obj,
+	      }
+    t.undo = function (t, doc)
+	       doc[t.pno]:replace(t.primary, t.original)
+	     end
+    t.redo = function (t, doc)
+	       doc[t.pno]:replace(t.primary, t.final)
+	     end
+    self:register(t)
+    if obj:type() == "text" then self:autoRunLatex() end
+  end
 end
-
 ----------------------------------------------------------------------
 
 function MODEL:saction_group()

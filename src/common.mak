@@ -24,6 +24,12 @@ endif
 
 IPESRCDIR ?= ..
 
+# User interface library
+# Possible values are QT, WIN32, GTK,
+# but only QT is finished and working.
+
+IPEUI ?= QT
+
 # --------------------------------------------------------------------
 # Read configuration options (not used on Win32)
 
@@ -34,7 +40,6 @@ endif
 # --------------------------------------------------------------------
 
 ifdef WIN32
-  IPEUI ?= QT
   IPE_USE_ICONV :=
   BUILDDIR = $(IPESRCDIR)/../mingw
 else
@@ -89,6 +94,7 @@ DEPEND ?= $(OBJDIR)/depend.mak
 ifdef WIN32
   CPPFLAGS	+= -DWIN32      
   DLL_LDFLAGS	+= -shared 
+  DL_LIBS	:= 
   buildlib	= $(BUILDDIR)/bin
   exe_target	= $(BUILDDIR)/bin/$1.exe
   dll_target    = $(buildlib)/$1.dll
@@ -128,8 +134,8 @@ else
   WINDRES	= C:/MinGW/bin/windres.exe
   CXXFLAGS	+= -g -O2
 
-  QTHOME	:= E:/Qt/4.8.4
-  IPEDEPS	:= E:/IpeDeps
+  QTHOME	?= C:/Qt/4.8.4
+  IPEDEPS	?= C:/IpeDeps
 
   QT_CFLAGS := -I$(QTHOME)/include/QtGui \
 	-I$(QTHOME)/include/QtCore \
@@ -140,6 +146,8 @@ endif
 
   ZLIB_CFLAGS   := -I$(IPEDEPS)/include
   ZLIB_LIBS     := $(IPEDEPS)/bin/zlib1.dll
+  JPEG_CFLAGS   ?= -I/sw/mingw/include/jpeg-turbo
+  JPEG_LIBS     ?= /sw/mingw/lib/libturbojpeg.a
   FREETYPE_CFLAGS := -I$(IPEDEPS)/include/freetype2 \
        -I$(IPEDEPS)/include
   FREETYPE_LIBS := $(IPEDEPS)/bin/freetype6.dll

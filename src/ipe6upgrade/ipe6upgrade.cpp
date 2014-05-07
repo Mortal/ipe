@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 
 #include "ipexml.h"
 #include "ipeattributes.h"
+#include <cstdlib>
 
 using namespace ipe;
 

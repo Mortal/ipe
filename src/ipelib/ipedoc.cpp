@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -318,7 +318,7 @@ Document *doParseXml(DataSource &source, int &reason)
 Document *doParsePs(DataSource &source, int &reason)
 {
   PsSource psSource(source);
-  reason = -3; // could not find Xml stream
+  reason = Document::EFileOpenError; // could not find Xml stream
   if (!psSource.skipToXml())
     return 0;
 
@@ -337,12 +337,11 @@ Document *doParsePs(DataSource &source, int &reason)
 Document *doParsePdf(DataSource &source, int &reason)
 {
   PdfFile loader;
-  reason = -2; // could not parse
-  if (!loader.parse(source))
+  reason = Document::ENotAnIpeFile;
+  if (!loader.parse(source))  // could not parse PDF container
     return 0;
-
-  reason = -3; // not an Ipe document
   const PdfObj *obj = loader.object(1);
+  // was the object really created by Ipe?
   if (!obj || !obj->dict())
     return 0;
   const PdfObj *type = obj->dict()->get("Type", 0);
@@ -417,6 +416,9 @@ Document *Document::loadWithErrorReport(const char *fname)
     break;
   case Document::EFileOpenError:
     perror("Error opening the file");
+    break;
+  case Document::ENotAnIpeFile:
+    fprintf(stderr, "The document was not created by Ipe.\n");
     break;
   default:
     fprintf(stderr, "Error parsing the document at position %d\n.", reason);

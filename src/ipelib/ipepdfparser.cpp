@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 
 #include "ipepdfparser.h"
 #include "ipeutils.h"
+#include <cstdlib>
 
 using namespace ipe;
 
@@ -715,23 +716,31 @@ bool PdfFile::parse(DataSource &source)
       // <num> 0 obj starts an object
       int num = toInt(t.iString);
       PdfObj *obj = parser.getObjectDef();
-      if (!obj)
+      if (!obj) {
+	ipeDebug("Failed to get object %d", num);
 	return false;
+      }
       iObjects[num] = obj;
     } else if (t.iType == PdfToken::EOp) {
       if (t.iString == "trailer") {
 	iTrailer = parser.getTrailer();
-	if (!iTrailer)
+	if (!iTrailer) {
+	  ipeDebug("Failed to get trailer");
 	  return false;
+	}
 	return true;
       } else if (t.iString == "xref") {
 	parser.skipXRef();
-      } else
+      } else {
+	ipeDebug("Weird token: %s", t.iString.z());
 	// don't know what's happening
 	return false;
-    } else
+      }
+    } else {
+      ipeDebug("Weird token type: %d %s", t.iType, t.iString.z());
       // don't know what's happening
       return false;
+    }
   }
 }
 

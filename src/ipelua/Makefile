@@ -11,7 +11,7 @@ SONAME = $(call soname,ipelua)
 INSTALL_SYMLINKS = $(call install_symlinks,ipelua)
 
 CPPFLAGS += -I../include $(LUA_CFLAGS)
-LIBS += -L$(buildlib) -lipe $(LUA_LIBS)
+LIBS += -L$(buildlib) -lipe $(LUA_LIBS) $(DL_LIBS)
 CXXFLAGS += $(DLL_CFLAGS)
 
 all: $(TARGET)

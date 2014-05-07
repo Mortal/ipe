@@ -4,7 +4,7 @@
 /*
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -32,9 +32,9 @@
 #include "ipeutils.h"
 #include <zlib.h>
 
-using namespace ipe;
+#include <turbojpeg.h>
 
-extern bool dctDecode(Buffer dctData, Buffer pixelData);
+using namespace ipe;
 
 // --------------------------------------------------------------------
 
@@ -331,6 +331,39 @@ void Bitmap::computeChecksum()
 
 // --------------------------------------------------------------------
 
+bool dctDecode(Buffer dctData, Buffer pixelData, int components)
+{
+  tjhandle handle = tjInitDecompress();
+  if (!handle) {
+    ipeDebug("tjInitDecompress failed: %s",  tjGetErrorStr());
+    return false;
+  }
+
+  int width, height, jpegSubsamp;
+  if (tjDecompressHeader2(handle, (uchar *) dctData.data(), dctData.size(),
+			  &width, &height, &jpegSubsamp) < 0) {
+    ipeDebug("tjDecompressHeader2 failed: %s",  tjGetErrorStr());
+    tjDestroy(handle);
+    return false;
+  }
+
+  int flags = 0;
+  // if (fast)
+  // flags |= TJFLAG_FASTDCT;
+
+  if (tjDecompress2(handle, (uchar *) dctData.data(), dctData.size(),
+		    (uchar *) pixelData.data(),
+		    width, components * width, height,
+		    (components == 3) ? TJPF_RGB : TJPF_GRAY,
+		    flags) < 0) {
+    ipeDebug("tjDecompress2 failed: %s",  tjGetErrorStr());
+    tjDestroy(handle);
+    return false;
+  }
+  tjDestroy(handle);
+  return true;
+}
+
 //! Convert bitmap data to a height x width pixel array in rgb format.
 /*! Returns empty buffer if it cannot decode the bitmap information.
   Otherwise, returns a buffer of size Width() * Height() uint's. */
@@ -354,7 +387,7 @@ Buffer Bitmap::pixelData() const
       return Buffer();
   } else if (filter() == EDCTDecode) {
     pixels = Buffer(width() * height() * components());
-    if (!dctDecode(stream, pixels))
+    if (!dctDecode(stream, pixels, components()))
       return Buffer();
   }
   Buffer data(height() * width() * sizeof(uint));

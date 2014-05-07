@@ -4,7 +4,7 @@
 --[[
 
     This file is part of the extensible drawing editor Ipe.
-    Copyright (C) 1993-2013  Otfried Cheong
+    Copyright (C) 1993-2014  Otfried Cheong
 
     Ipe is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -408,6 +408,6 @@ shortcuts.ipelet_4_align = "Shift+R"
 shortcuts.ipelet_5_align = "Shift+C"
 shortcuts.ipelet_6_align = "Shift+H"
 shortcuts.ipelet_7_align = "Shift+V"
-shortcuts.ipelet_8_align = nil
+shortcuts.ipelet_15_align = "Shift+Alt+V"
 
 ----------------------------------------------------------------------
